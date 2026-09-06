@@ -3,9 +3,15 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useTheme } from "@/lib/theme";
 import { getSoftDot } from "./textures";
 
-const DUST = new THREE.Color("#8fa2d6");
+// Ambient dust: dusty lavender in dark mode, a quiet deep violet in light so
+// it reads as fine graphite rather than neon once the canvas is multiplied.
+const DUST = {
+  light: new THREE.Color("#6a5aa8"),
+  dark: new THREE.Color("#8fa2d6"),
+};
 
 /**
  * Ambient signal dust.
@@ -55,6 +61,7 @@ export function ParticleField({
   count: number;
   pixelRatio: number;
 }) {
+  const { theme } = useTheme();
   const geom = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const seed = new Float32Array(count);
@@ -85,14 +92,19 @@ export function ParticleField({
       uTime: { value: 0 },
       uPixelRatio: { value: pixelRatio },
       uMap: { value: getSoftDot() },
-      uColor: { value: DUST },
+      uColor: { value: DUST[theme].clone() },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [pixelRatio],
   );
 
   useEffect(() => {
     uniforms.uPixelRatio.value = pixelRatio;
   }, [pixelRatio, uniforms]);
+
+  useEffect(() => {
+    (uniforms.uColor.value as THREE.Color).copy(DUST[theme]);
+  }, [theme, uniforms]);
 
   useEffect(() => () => geom.dispose(), [geom]);
 

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { ThemeProvider } from "@/lib/theme";
 import "./globals.css";
 import "./ui.css";
 import "./sections.css";
@@ -33,8 +34,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A1020",
-  colorScheme: "dark",
+  // Light is the default experience; the theme provider syncs this meta tag
+  // when the visitor switches to dark.
+  themeColor: "#F6F5FC",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -48,6 +51,14 @@ export default function RootLayout({
       className={`${display.variable} ${editorial.variable} ${mono.variable}`}
     >
       <body>
+        {/* Re-apply the visitor's persisted theme choice before first paint.
+            Light is the default, so no class means light — the dark class is
+            only ever added here or by the toggle. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("georepute-theme");if(t==="dark"){document.documentElement.classList.add("theme-dark");document.documentElement.style.colorScheme="dark";document.querySelector("meta[name=theme-color]")?.setAttribute("content","#0A1020")}}catch(e){}`,
+          }}
+        />
         {/* Scroll reveals start hidden and are shown by IntersectionObserver.
             If scripting is unavailable that observer never runs, so without
             this the entire page below the hero would stay blank. */}
@@ -59,7 +70,7 @@ export default function RootLayout({
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
         <div className="grain" aria-hidden="true" />
       </body>
     </html>

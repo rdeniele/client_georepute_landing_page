@@ -14,7 +14,7 @@
   border: 0;
 }
 
-/* --- Background wash: the void the network sits inside --------------------- */
+/* --- Background wash: the environment the network sits inside ------------- */
 
 .void-wash {
   position: fixed;
@@ -24,15 +24,15 @@
   background:
     radial-gradient(
       120% 80% at 50% -10%,
-      rgba(97, 10, 229, 0.07),
+      rgba(97, 10, 229, 0.09),
       transparent 62%
     ),
     radial-gradient(
       90% 70% at 8% 108%,
-      rgba(123, 58, 236, 0.045),
+      rgba(123, 58, 236, 0.05),
       transparent 60%
     ),
-    linear-gradient(180deg, var(--color-void), #070c18 42%, var(--color-void));
+    linear-gradient(180deg, var(--color-base), var(--color-void));
 }
 
 .scene-layer {
@@ -45,29 +45,26 @@
   overflow: hidden;
 }
 
+/* In light mode the additive scene reads as dark ink only when multiplied
+   into the bright background; in dark mode it blends normally and glows. */
+.scene-layer canvas {
+  mix-blend-mode: var(--canvas-blend);
+  opacity: var(--canvas-opacity);
+}
+
 /* Legibility scrim.
-   The scene is additive and its brightness varies with the camera, so text
-   can never rely on the base background colour alone. This holds a dark
-   floor under the reading column and vignettes the frame. */
+   The scene's brightness varies with the camera, so text needs a floor that
+   matches the theme. Dark mode holds its original dark vignette so copy
+   never competes with the glow; light mode keeps the bright analytical
+   background and only gently veils the frame edges. */
 .scene-layer::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(
-      100% 80% at 16% 48%,
-      rgba(6, 10, 20, 0.68),
-      rgba(6, 10, 20, 0.2) 52%,
-      transparent 74%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(6, 10, 20, 0.6),
-      rgba(6, 10, 20, 0.03) 26%,
-      rgba(6, 10, 20, 0.03) 72%,
-      rgba(6, 10, 20, 0.7)
-    );
+    var(--scrim-radial, rgba(0, 0, 0, 0)),
+    var(--scrim-linear, rgba(0, 0, 0, 0));
 }
 
 .static-network {
@@ -75,6 +72,17 @@
   height: 100%;
   display: block;
   opacity: 0.72;
+  /* Fallback artwork is theme-aware through these custom properties */
+  --net-stroke: #46527a;
+  --net-node: #5b21c7;
+  --net-node-soft: #7b3aec;
+  --net-core: #610ae5;
+}
+html.theme-dark .static-network {
+  --net-stroke: #46527a;
+  --net-node: #a78bfa;
+  --net-node-soft: #a78bfa;
+  --net-core: #c4b5fd;
 }
 
 .content {
@@ -139,6 +147,7 @@
 .btn--primary {
   --btn-bg: var(--color-signal-core);
   --btn-line: transparent;
+  --btn-fg: #ffffff;
   box-shadow: 0 0 0 0 var(--glow-signal);
 }
 .btn--primary:hover {
@@ -147,13 +156,13 @@
 }
 
 .btn--ghost {
-  --btn-bg: rgba(255, 255, 255, 0.03);
+  --btn-bg: var(--glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
 .btn--ghost:hover {
   --btn-line: var(--color-signal);
-  --btn-bg: rgba(123, 58, 236, 0.1);
+  --btn-bg: var(--surface-hover);
 }
 
 /* ============================================================================
@@ -173,7 +182,7 @@
 }
 
 .nav--lifted {
-  background: rgba(10, 16, 32, 0.72);
+  background: var(--nav-floor);
   border-bottom-color: var(--line);
   backdrop-filter: blur(18px) saturate(1.4);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
@@ -287,10 +296,10 @@
   display: grid;
   gap: 12px;
   box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
-  /* Overrides .glass. A 4%-white surface is fine floating over the void, but
-     this panel opens directly on top of 110px hero type — it needs a real
-     opaque floor or the headline reads straight through the menu items. */
-  background: rgba(9, 14, 28, 0.95);
+  /* Overrides .glass. The panel opens directly on top of 110px hero type — it
+     needs a real opaque floor in both themes or the headline reads straight
+     through the menu items. */
+  background: var(--nav-floor);
   backdrop-filter: blur(30px) saturate(1.3);
   -webkit-backdrop-filter: blur(30px) saturate(1.3);
 }
@@ -342,7 +351,7 @@
   transition: background-color var(--d-micro) var(--ease-out);
 }
 .nav__item:hover {
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--surface-hover);
 }
 
 .nav__item-name {
@@ -484,10 +493,54 @@
   padding: 12px clamp(20px, 4vw, 56px) 26px;
   max-height: calc(100svh - var(--nav-h));
   overflow-y: auto;
-  background: rgba(10, 16, 32, 0.96);
+  background: var(--drawer-floor);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
+}
+
+/* --- theme toggle --------------------------------------------------------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line-strong);
+  background: var(--glass);
+  color: var(--color-ink-dim);
+  cursor: pointer;
+  transition:
+    color var(--d-micro) var(--ease-out),
+    border-color var(--d-micro) var(--ease-out),
+    background-color var(--d-micro) var(--ease-out);
+}
+.theme-toggle:hover {
+  color: var(--color-ink);
+  border-color: var(--color-signal);
+  background: var(--surface-hover);
+}
+.theme-toggle:active {
+  transform: scale(0.97);
+  transition-duration: 90ms;
+}
+
+.theme-toggle__icon {
+  display: grid;
+  place-items: center;
+  transition: transform var(--d-state) var(--ease-out);
+}
+.theme-toggle__icon--moon {
+  display: none;
+}
+html.theme-dark .theme-toggle__icon--sun {
+  display: none;
+}
+html.theme-dark .theme-toggle__icon--moon {
+  display: grid;
 }
 
 .nav__acc-trigger,
@@ -680,6 +733,157 @@
 
 .sec-head__title {
   margin-bottom: 20px;
+}
+
+/* ============================================================================
+   HERO PLATFORM CONSTELLATION — the first-stage proof of what GeoRepute scans
+   ========================================================================== */
+
+.platforms {
+  margin-top: clamp(40px, 5vw, 64px);
+}
+
+.platforms__stage {
+  position: relative;
+  height: clamp(118px, 14vw, 168px);
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.platforms__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.platforms__line {
+  stroke: var(--color-signal);
+  stroke-opacity: 0.32;
+  stroke-width: 1;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  transition: stroke-opacity var(--d-state) var(--ease-out);
+}
+
+.platforms__core {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 10px 30px -18px var(--glow-signal);
+  white-space: nowrap;
+}
+
+.platforms__core-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-signal-lit);
+  box-shadow: 0 0 12px 2px var(--glow-signal);
+  flex: none;
+}
+
+.platforms__core-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.platforms__chip {
+  position: absolute;
+  left: var(--chip-x);
+  top: var(--chip-y);
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 15px 6px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  color: var(--color-ink);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition:
+    transform var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out),
+    box-shadow var(--d-state) var(--ease-out);
+}
+.platforms__chip:hover {
+  transform: translate(-50%, -50%) translateY(-3px);
+  border-color: var(--color-signal);
+  box-shadow: 0 14px 34px -18px var(--glow-signal);
+}
+
+.platforms__glyph {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.platforms__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+@media (max-width: 900px) {
+  .platforms__stage {
+    height: auto;
+    max-width: none;
+  }
+  .platforms__lines,
+  .platforms__core {
+    display: none;
+  }
+  .platforms__chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .platforms__chip {
+    position: static;
+    transform: none;
+  }
+  .platforms__chip:hover {
+    transform: translateY(-3px);
+  }
+}
+
+@media (max-width: 560px) {
+  .platforms__chips {
+    gap: 6px;
+  }
+  .platforms__chip {
+    min-height: 40px;
+    padding: 5px 11px 5px 8px;
+    font-size: var(--text-body-sm);
+  }
 }
 
 /* ============================================================================

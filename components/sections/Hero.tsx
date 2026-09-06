@@ -1,5 +1,6 @@
 import { hero, capabilities } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
+import { PlatformConstellation } from "@/components/ui/PlatformConstellation";
 
 /**
  * Section 01 — Enter the system.
@@ -58,6 +59,8 @@ export function Hero() {
             {hero.secondaryCta.label}
           </Button>
         </div>
+
+        <PlatformConstellation />
       </div>
 
       <div

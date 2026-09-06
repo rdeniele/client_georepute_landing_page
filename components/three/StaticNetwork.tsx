@@ -51,19 +51,19 @@ export function StaticNetwork() {
     >
       <defs>
         <radialGradient id="core-glow">
-          <stop offset="0%" stopColor="#7b3aec" stopOpacity="0.55" />
-          <stop offset="45%" stopColor="#610ae5" stopOpacity="0.16" />
-          <stop offset="100%" stopColor="#610ae5" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--net-core)" stopOpacity="0.5" />
+          <stop offset="45%" stopColor="var(--net-core)" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="var(--net-core)" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="node-glow">
-          <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--net-node)" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="var(--net-node)" stopOpacity="0" />
         </radialGradient>
       </defs>
 
       <circle cx={CX} cy={CY} r={340} fill="url(#core-glow)" />
 
-      <g stroke="#46527a" strokeOpacity="0.42" fill="none" strokeWidth="1">
+      <g stroke="var(--net-stroke)" strokeOpacity="0.42" fill="none" strokeWidth="1">
         {NODES.map((n, i) => (
           <path key={`s${i}`} d={spoke(n)} />
         ))}
@@ -82,17 +82,17 @@ export function StaticNetwork() {
       {NODES.map(([x, y, r], i) => (
         <g key={`n${i}`}>
           <circle cx={x} cy={y} r={r * 4} fill="url(#node-glow)" opacity="0.35" />
-          <circle cx={x} cy={y} r={r} fill="#a78bfa" opacity="0.85" />
+          <circle cx={x} cy={y} r={r} fill="var(--net-node)" opacity="0.85" />
         </g>
       ))}
 
-      <circle cx={CX} cy={CY} r={13} fill="#c4b5fd" opacity="0.9" />
+      <circle cx={CX} cy={CY} r={13} fill="var(--net-core)" opacity="0.9" />
       <circle
         cx={CX}
         cy={CY}
         r={30}
         fill="none"
-        stroke="#a78bfa"
+        stroke="var(--net-node)"
         strokeOpacity="0.4"
       />
     </svg>

@@ -668,3 +668,236 @@ never wire up real credential handling on your own initiative.
   vocabulary (`[data-reveal]` / `[data-draw]`), and the `.t-*` type roles.
 - A content page needs a **footer**. There is currently only the one embedded
   in `FinalCta.tsx`; extract it before the second page needs it.
+
+---
+# 2026-09-06 — LIGHT MODE + FIRST-STAGE PLATFORM RECOGNITION
+
+Client feedback that drove this session:
+
+> "Ok, it's not there yet, add the icons of the AI engines and Google that we are
+> scanning so that it is clear what it is in the first stage. And that there will
+> be an option for a bright mode."
+
+## Completed
+
+* **Verified the platform set against the live site, not assumption.** GeoRepute
+  scans **Google + 6 AI engines: ChatGPT, Gemini, Claude, Perplexity, Copilot,
+  Grok** — confirmed from the GEON study protocol (gintex-ai.vercel.app blog:
+  "6 AI engines (ChatGPT, Gemini, Claude, Perplexity, Copilot, Grok)") and the
+  live ai-recognition page (which cites ChatGPT, Gemini, Grok findings). The
+  existing copy's "6 AI engines, plus Google" matches exactly.
+* **Added a light theme as the DEFAULT experience.** The site now opens bright
+  (white / `#F5F3FF` / `#EDEAFF` lavender environment, deep-navy ink text,
+  `#610AE5` accents). Dark mode is an explicit visitor choice, not the default
+  and not driven by OS preference.
+* **Added a theme switcher to the navigation** — a 44px sun/moon pill in
+  `nav__actions`, aria-labelled, persisted to `localStorage` (`georepute-theme`),
+  re-applied by an inline script in `layout.tsx` before first paint so the
+  choice survives reloads without a flash of the wrong theme. Light loads by
+  default even when the OS prefers dark (client requirement).
+* **Restructured all colour tokens** in `app/globals.css`: `:root` now holds the
+  LIGHT values, `html.theme-dark` overrides with the original Signal Room dark
+  values. Every component already read `var(--color-*)` / `var(--line)` etc., so
+  the whole page restyles from the token layer; hardcoded rgba surfaces
+  (nav panel, drawer, graph nodes, ghost button, evidence chips, measure
+  tracks, invis markers) were converted to theme variables.
+* **Designed the light-mode 3D environment separately from dark.** The additive
+  scene is multiplied into the bright page (`mix-blend-mode: multiply`,
+  opacity 0.85) so the network reads as a deep-violet technical drawing instead
+  of washed-out neon; uniforms are re-pointed per theme (dark keeps `#a78bfa`
+  glow, light uses `#5b21c7` ink with a 1.15 lift so multiply keeps saturation);
+  the dark legibility scrim is replaced by a soft white frame veil in light;
+  `StaticNetwork` fallback became theme-aware via CSS variables.
+* **Added the first-stage platform constellation** (`PlatformConstellation` +
+  `PlatformGlyph`): the seven surfaces (Google + six engines) rendered as
+  connected intelligence nodes — a GeoRepute core pill ("GeoRepute scans") with
+  seven arcs to platform chips carrying recognisable brand glyphs (Google
+  multicolour G, ChatGPT/Copilot sparkles, Gemini/Claude four-point stars,
+  Perplexity hexagon, Grok X) + names, placed between the hero CTAs and the
+  capabilities foot. On narrow screens it collapses to a wrapped chip row.
+* **Theme-aware graph/glass surfaces** in sections 06 and 08 (nodes now use
+  `--surface-glass`, focus uses `--color-signal-mist`), measure tracks,
+  evidence chips, blind-spot markers, plan items.
+* **Decision reconstruction (section 04) verified intact** — the viewport-locked
+  sticky stage (the client's "content moves beyond the viewport" complaint from
+  an earlier round) was already fixed and this session re-verified it live:
+  stage stays pinned (top 0, height = viewport) through the whole scroll range,
+  the six captions crossfade at their beats, ticks advance 0→5, backward scroll
+  returns to state 0, head and lower third never leave the frame.
+
+## Design Decisions
+
+* **Light is the primary direction; dark is the choice.** The client was
+  explicit: "light mode must be the default initial experience", and "do not
+  build dark mode first and then simply invert it". The light theme is a
+  white/lavender analytical instrument room (per the client's palette), not a
+  brightness-inverted dark page. Both themes share layout, type, hierarchy and
+  motion; only the environmental treatment changes.
+* **The scanned platforms are a connected constellation, not a logo row.** Each
+  platform sits on its own node with a line to the GeoRepute core, so the first
+  stage reads "these systems are being monitored" rather than "here is a logo
+  strip". Names are always shown beside the glyph — recognition never depends
+  on the icon alone.
+* **Platform marks are simplified geometric glyphs in brand colours** rather
+  than downloaded logo assets (no logo files existed in the repo, and quality
+  of hand-drawn raster logos was not worth the risk). Names + colours carry the
+  recognition; glyphs are the accent.
+* **The light-mode scene uses CSS multiply instead of a second shader
+  pipeline.** The additive shaders stay untouched; multiplying the canvas into
+  the bright background converts additive glow into dark ink, and the uniform
+  colour lift keeps the result violet rather than grey. This keeps one GL
+  context, one draw path, and no per-frame theme cost.
+* **Contrast is checked per theme against the actual rendered background.**
+  Light ink `#1B2340` ≈ 14.9:1, dim `#4C5678` ≈ 6.2:1, accent `#5B21C7` ≈ 7.6:1
+  on white; amber moved to `#B45309` (7.0:1) in light because `#FFB547` fails on
+  white. `#7B3AEC` remains forbidden for small text in both themes.
+* **Theme persistence is a convenience, never a requirement** — localStorage
+  failures are swallowed; the page just stays light.
+* **Chose not to also inject the platform identity into the WebGL node layer**:
+  the hero constellation is DOM/SVG (crisp, theme-adaptable, accessible), the
+  WebGL scene stays the abstract decision network behind it. This is the
+  deliberate split — the 3D network argues causality, the constellation names
+  the surfaces being watched.
+
+## Technical Changes
+
+* **New files:**
+  * `lib/theme.tsx` — `ThemeProvider`, `useTheme`, `readStoredTheme`,
+    `applyThemeClass` (toggles `theme-dark` on `<html>`, syncs `colorScheme`
+    and the `theme-color` meta tag).
+  * `components/ui/ThemeToggle.tsx` — 44px sun/moon pill for the nav.
+  * `components/ui/PlatformGlyph.tsx` — the seven platform marks + `PLATFORMS`
+    list (verified set).
+  * `components/ui/PlatformConstellation.tsx` — arc layout with SVG connectors,
+    core pill, responsive chip wrap.
+* **Modified:**
+  * `app/layout.tsx` — theme pre-hydration inline script, `ThemeProvider`
+    wrapper, light `themeColor`/`colorScheme` defaults.
+  * `app/globals.css` — colour tokens moved from `@theme` into `:root` (light)
+    + `html.theme-dark` (dark); added surface/line/glow/scrim/nav-floor
+    variables per theme; smooth theme transitions on body/nav/panels;
+    reduced-motion block extended to the constellation.
+  * `app/ui.css` — `.scene-layer canvas` blend/opacity via `--canvas-blend` /
+    `--canvas-opacity`; scrim now `--scrim-radial` + `--scrim-linear` per theme;
+    nav panel/drawer/lifted backgrounds tokenised; theme-toggle styles;
+    full `.platforms*` constellation styles; `.btn--ghost` tokenised.
+  * `app/sections.css` — graph nodes/edges/evidence/measure/invis-marker
+    surfaces tokenised; plan hover surface.
+  * `components/three/IntelligenceNetwork.tsx` — theme-aware `PALETTE`
+    (light/dark), uniform re-point on theme change with a 1.15 light lift.
+  * `components/three/ParticleField.tsx` — theme-aware dust colour uniform.
+  * `components/three/StaticNetwork.tsx` — colours via `--net-*` CSS vars.
+  * `components/sections/Hero.tsx` — `PlatformConstellation` between CTAs and
+    foot (hero stays a server component; the constellation is a client island).
+  * `components/ui/Navigation.tsx` — `<ThemeToggle />` in `nav__actions`.
+* **No libraries added or removed.** No shader rewrites; blending mode,
+  geometry and the director/beat architecture are untouched.
+* **Theme switching does not recreate the GL context** — only uniform colours
+  change; verified the canvas survives toggles (context not lost).
+
+## Files Changed
+
+* `app/globals.css`
+* `app/layout.tsx`
+* `app/ui.css`
+* `app/sections.css`
+* `components/sections/Hero.tsx`
+* `components/ui/Navigation.tsx`
+* `components/ui/ThemeToggle.tsx` (new)
+* `components/ui/PlatformGlyph.tsx` (new)
+* `components/ui/PlatformConstellation.tsx` (new)
+* `components/three/IntelligenceNetwork.tsx`
+* `components/three/ParticleField.tsx`
+* `components/three/StaticNetwork.tsx`
+* `lib/theme.tsx` (new)
+* `handoff.md`
+
+## Current State
+
+The site now loads in **light mode**: white-to-lavender gradient environment,
+deep-navy Inter Tight headlines, purple accents, and the 3D network drawn as a
+subtle dark-violet linework behind the copy. The hero reads, top to bottom:
+eyebrow → "See where your business is Recognized. Recommended. *Chosen.*" →
+supporting copy → two CTAs → the **platform constellation** (GeoRepute core
+with arcs to Google, ChatGPT, Gemini, Claude, Perplexity, Copilot, Grok) →
+capabilities strip. The nav carries the sun/moon switcher; choosing dark
+re-applies the original luminous Signal Room treatment with a smooth crossfade,
+persists across reloads, and the scene follows (violet glow in dark, ink in
+light). Section 04 stays a locked cinematic stage: scroll drives six captions
+and ticks while the camera/node choreography runs on the same axis. Reveals,
+§09 counters/dial/meters, both interactive graphs, the drawer/accordion and
+the final CTA all verified working in both themes. `npm run build` and
+`tsc --noEmit` pass clean; no horizontal overflow at mobile width.
+
+## Known Issues
+
+* **Light-mode scene presence is tuned from screenshots in an emulated
+  browser; the network reads as elegant dark-violet linework, but the exact
+  balance (canvas opacity 0.85, uniform lift 1.15) should be re-checked on a
+  real display.** If the network feels too faint in light mode, raise
+  `--canvas-opacity` or `LIGHT_BOOST` in `IntelligenceNetwork.tsx`; if the
+  scene darkens the page too much, lower them.
+* The preview browser in this environment is viewport-locked at mobile width
+  and its screenshots lag theme switches — desktop-wide pixel QA of the
+  constellation arc and mega-menus was done via forced-layout DOM checks, not
+  real desktop screenshots.
+* Platform glyphs are simplified geometric brand marks, not official logo
+  files. Fine for recognition; if the client wants the actual trademarked logo
+  assets, those need to be sourced (repo has none).
+* Nav mega-menus still open on hover with keyboard fallback; unchanged, but
+  their light-mode panel (frosted white floor) deserves a desktop visual check.
+* `npm run lint` is still unwired (no ESLint installed) — carried over from
+  before; the `react-hooks/exhaustive-deps` comments in the 3D uniforms are
+  there for when it lands.
+* The dev server for this session ended up on port **64889** (an earlier
+  `npm run dev` on 3000 was killed by a terminated shell and Next re-bound to a
+  free port). `.claude/launch.json` still expects 3000 — harmless, but note it
+  if a fresh server won't start on 3000.
+
+## Client Feedback
+
+### Addressed
+
+"add the icons of the AI engines and Google that we are scanning so that it is
+clear what it is in the first stage."
+
+→ Verified platform set (Google + ChatGPT, Gemini, Claude, Perplexity, Copilot,
+Grok) and rendered them as a connected constellation in the hero: recognisable
+brand glyphs + names, arcs into a "GeoRepute scans" core, wrapping to chips on
+mobile. The hierarchy stays headline → network → platform recognition → CTA.
+
+"And that there will be an option for a bright mode."
+
+→ Light mode is now the DEFAULT first experience (bright, premium, analytical
+per the client's palette), with dark mode one toggle away and persisted.
+
+### Remaining
+
+* No request yet for the platform constellation to also drive the WebGL camera
+  choreography (platform nodes approaching/illuminating on scroll). The
+  director currently choreographs the abstract decision nodes; wiring the
+  platform layer into it is possible if the client asks.
+* CTA wording divergence ("Analyze My Business" vs "Start Analysis") and the
+  `#analyze` in-page anchors vs real routes — unchanged, still worth a client
+  decision.
+
+## Next Recommended Tasks
+
+1. **Real-device visual pass in light mode** — desktop (1440px) and phone, both
+   themes; fine-tune `--canvas-opacity` / `LIGHT_BOOST` and check the mega-menu
+   panels and constellation arc at true desktop width.
+2. **Test `prefers-reduced-motion` end-to-end** — `detectTier()` should return
+   `none` and render the themed `StaticNetwork`; the reduced-motion overrides
+   now cover the constellation; verify both.
+3. **Wire ESLint** (`eslint-config-next`) or drop the `lint` script — carried
+   over from the previous session.
+4. **Decide the hero CTA anchors** (`#analyze` vs `/en/app/reconstruct`) with
+   the client, then unify wording.
+5. **Subpages phase (§14 of the parent handoff)** — settle the `/` vs `/en/…`
+   routing decision, extract the app shell (ScrollProvider, canvas,
+   Navigation, ScrollProgress) into a layout, and build the first content
+   page with the theme system intact.
+6. **Optional: deepen the platform integration** — give the first-stage
+   constellation a scroll beat (platforms light one-by-one as the camera
+   approaches) once the client confirms they want the platforms in the
+   choreography, not just the stage.

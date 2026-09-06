@@ -5,6 +5,7 @@ import Image from "next/image";
 import logo from "@/public/brand/logo-g-mark.png";
 import { nav } from "@/lib/content";
 import { Button } from "./Button";
+import { ThemeToggle } from "./ThemeToggle";
 
 /**
  * Primary navigation.
@@ -180,6 +181,7 @@ export function Navigation() {
           <a href={nav.signIn.href} className="nav__signin">
             {nav.signIn.label}
           </a>
+          <ThemeToggle />
           <Button href={nav.cta.href} variant="primary" className="nav__cta">
             {nav.cta.label}
           </Button>

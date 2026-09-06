@@ -5,6 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { scene as sceneState } from "@/lib/sceneStore";
 import { director } from "@/lib/director";
+import { useTheme } from "@/lib/theme";
 import {
   buildLinkGeometry,
   buildNetwork,
@@ -13,9 +14,26 @@ import {
 } from "./network";
 import { getRingDot, getSoftDot } from "./textures";
 
-const SIGNAL = new THREE.Color("#a78bfa");
-const SIGNAL_CORE = new THREE.Color("#7b3aec");
-const HAIRLINE = new THREE.Color("#46527a");
+// Theme-dependent scene palette. Dark keeps the luminous Signal Room glow;
+// light drops to deep-ink purples that read as a technical drawing on the
+// bright analytical background (the canvas itself is multiplied into it).
+const PALETTE = {
+  light: {
+    signal: new THREE.Color("#5b21c7"),
+    core: new THREE.Color("#610ae5"),
+    hairline: new THREE.Color("#4a3a7a"),
+  },
+  dark: {
+    signal: new THREE.Color("#a78bfa"),
+    core: new THREE.Color("#7b3aec"),
+    hairline: new THREE.Color("#46527a"),
+  },
+};
+
+// Light-mode additive pixels get multiplied into the bright page, which both
+// darkens and flattens them. Lift the source colours slightly so the
+// multiplied result keeps a violet cast instead of collapsing to grey ink.
+const LIGHT_BOOST = 1.15;
 
 const linkVert = /* glsl */ `
   attribute float aT;
@@ -117,6 +135,7 @@ export function IntelligenceNetwork({
   pixelRatio: number;
 }) {
   const { camera } = useThree();
+  const { theme } = useTheme();
 
   const { nodes, links } = useMemo(() => buildNetwork(maxNodes), [maxNodes]);
   const linkGeom = useMemo(() => buildLinkGeometry(links), [links]);
@@ -161,9 +180,10 @@ export function IntelligenceNetwork({
     () => ({
       uTime: { value: 0 },
       uDim: { value: 0 },
-      uSignal: { value: SIGNAL },
-      uHairline: { value: HAIRLINE },
+      uSignal: { value: PALETTE[theme].signal.clone() },
+      uHairline: { value: PALETTE[theme].hairline.clone() },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
@@ -172,10 +192,11 @@ export function IntelligenceNetwork({
       uTime: { value: 0 },
       uPixelRatio: { value: pixelRatio },
       uMap: { value: getRingDot() },
-      uSignal: { value: SIGNAL },
-      uHairline: { value: HAIRLINE },
+      uSignal: { value: PALETTE[theme].signal.clone() },
+      uHairline: { value: PALETTE[theme].hairline.clone() },
       uDim: { value: 0 },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [pixelRatio],
   );
 
@@ -184,10 +205,11 @@ export function IntelligenceNetwork({
       uTime: { value: 0 },
       uPixelRatio: { value: pixelRatio },
       uMap: { value: getSoftDot() },
-      uSignal: { value: SIGNAL_CORE },
-      uHairline: { value: SIGNAL_CORE },
+      uSignal: { value: PALETTE[theme].core.clone() },
+      uHairline: { value: PALETTE[theme].core.clone() },
       uDim: { value: 0 },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [pixelRatio],
   );
 
@@ -195,6 +217,28 @@ export function IntelligenceNetwork({
     nodeUniforms.uPixelRatio.value = pixelRatio;
     coreUniforms.uPixelRatio.value = pixelRatio;
   }, [pixelRatio, nodeUniforms, coreUniforms]);
+
+  // Theme switch: repoint the colour uniforms so the scene follows the page
+  // without rebuilding geometry or shaders. In light mode the additive
+  // colours are multiplied into the bright page, which darkens them — lift
+  // them so the multiplied result keeps a readable violet instead of
+  // collapsing to near-black.
+  useEffect(() => {
+    const p = PALETTE[theme];
+    const boost = theme === "light" ? LIGHT_BOOST : 1;
+    const lift = (c: THREE.Color, b: number) =>
+      new THREE.Color(
+        Math.min(1, c.r * b),
+        Math.min(1, c.g * b),
+        Math.min(1, c.b * b),
+      );
+    (linkUniforms.uSignal.value as THREE.Color).copy(lift(p.signal, boost));
+    (linkUniforms.uHairline.value as THREE.Color).copy(lift(p.hairline, boost));
+    (nodeUniforms.uSignal.value as THREE.Color).copy(lift(p.signal, boost));
+    (nodeUniforms.uHairline.value as THREE.Color).copy(lift(p.hairline, boost));
+    (coreUniforms.uSignal.value as THREE.Color).copy(lift(p.core, boost));
+    (coreUniforms.uHairline.value as THREE.Color).copy(lift(p.core, boost));
+  }, [theme, linkUniforms, nodeUniforms, coreUniforms]);
 
   useEffect(
     () => () => {

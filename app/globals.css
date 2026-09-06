@@ -8,28 +8,6 @@
    ========================================================================== */
 
 @theme {
-  /* --- Neutrals: cool, deliberately navy-shifted (not default grey) ------- */
-  --color-void: #060a14; /* deepest background, the space between nodes */
-  --color-base: #0a1020; /* primary page background */
-  --color-raised: #0e1526; /* raised surface behind panels */
-  --color-elevated: #131c33; /* solid card / dashboard surface */
-
-  /* --- Text: contrast verified against --color-base #0A1020 --------------- */
-  --color-ink: #f5f3ff; /* 18.9:1  primary text */
-  --color-ink-dim: #9aa6c4; /* 7.78:1  secondary text, body copy */
-  --color-ink-faint: #7c89a8; /* 5.42:1  tertiary, labels, inactive nodes */
-
-  /* --- Accent: purple = signal / active / GeoRepute ----------------------- */
-  --color-signal-core: #610ae5; /* fills, CTA background, glow source */
-  --color-signal: #7b3aec; /* 3.30:1 — large text, borders, UI only */
-  --color-signal-lit: #a78bfa; /* 6.96:1 — safe for small accent text */
-  --color-signal-mist: #edeaff; /* light surfaces on inverted panels */
-  --color-signal-veil: #f5f3ff;
-
-  /* --- Accent: amber = blind spot / gap / unseen -------------------------- */
-  --color-gap: #ffb547; /* 10.4:1 — risk, missing signal, invisible path */
-  --color-gap-core: #c77d16;
-
   /* --- Typography -------------------------------------------------------- */
   --font-display: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
   --font-editorial: var(--font-instrument-serif), ui-serif, Georgia, serif;
@@ -63,21 +41,141 @@
   --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Non-tokenised system values (glass, glow, timing) */
+/* ============================================================================
+   THEME TOKENS
+
+   LIGHT is the default experience — the site opens bright and analytical.
+   DARK is an explicit override (`.theme-dark` on <html>), chosen by the
+   visitor and persisted. Only the environmental treatment changes; layout,
+   type, hierarchy and motion are shared by both themes (§5 of the brief).
+
+   Contrast notes (light): ink #1B2340 ≈ 14.9:1 on base #FFFFFF; ink-dim
+   #4C5678 ≈ 6.2:1 on #FFFFFF; ink-faint #64708F ≈ 4.6:1 on #FFFFFF (labels
+   only, large-adjacent mono caps); signal-lit #5B21C7 ≈ 7.6:1 on #FFFFFF —
+   safe for small accent text. Amber #B45309 ≈ 7.0:1 on white.
+   ========================================================================== */
+
 :root {
-  --line: rgba(255, 255, 255, 0.09);
-  --line-strong: rgba(255, 255, 255, 0.16);
-  --glass: rgba(255, 255, 255, 0.04);
-  --glass-lit: rgba(255, 255, 255, 0.07);
-  --glow-signal: rgba(97, 10, 229, 0.35);
-  --glow-signal-soft: rgba(123, 58, 236, 0.18);
-  --glow-gap: rgba(255, 181, 71, 0.22);
+  /* --- Backgrounds: white / lavender analytical environment --------------- */
+  --color-void: #ffffff; /* deepest layer, the space between nodes */
+  --color-base: #f6f5fc; /* primary page background — very light lavender */
+  --color-raised: #edeaff; /* raised surface behind panels (client light purple) */
+  --color-elevated: #ffffff; /* solid card / dashboard surface */
+
+  /* --- Text: deep navy ink on paper -------------------------------------- */
+  --color-ink: #1b2340; /* primary text */
+  --color-ink-dim: #4c5678; /* secondary text, body copy */
+  --color-ink-faint: #64708f; /* tertiary, labels, inactive nodes */
+
+  /* --- Accent: purple = signal / active / GeoRepute ----------------------- */
+  --color-signal-core: #610ae5; /* fills, CTA background, glow source */
+  --color-signal: #7b3aec; /* 3.30:1 — large text, borders, UI only */
+  --color-signal-lit: #5b21c7; /* 7.6:1 on white — safe for small accent text */
+  --color-signal-mist: #edeaff; /* soft lavender fill */
+  --color-signal-veil: #f5f3ff; /* very light lavender tint */
+
+  /* --- Accent: amber = blind spot / gap / unseen -------------------------- */
+  --color-gap: #b45309; /* 7.0:1 on white — risk, missing signal */
+  --color-gap-core: #92400e;
+
+  /* --- Surfaces & lines -------------------------------------------------- */
+  --line: rgba(27, 35, 64, 0.1);
+  --line-strong: rgba(27, 35, 64, 0.18);
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-lit: rgba(255, 255, 255, 0.75);
+  --surface-glass: rgba(255, 255, 255, 0.72); /* floating panels / graph nodes */
+  --surface-hover: rgba(123, 58, 236, 0.07);
+  --canvas-blend: multiply;
+  --canvas-opacity: 0.85;
+  /* Light mode keeps the bright background; the scrim only veils the frame */
+  --scrim-radial: radial-gradient(
+    100% 80% at 16% 48%,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0.1) 52%,
+    transparent 74%
+  );
+  --scrim-linear: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0) 26%,
+    rgba(255, 255, 255, 0) 72%,
+    rgba(255, 255, 255, 0.6)
+  );
+
+  --glow-signal: rgba(97, 10, 229, 0.28);
+  --glow-signal-soft: rgba(123, 58, 236, 0.14);
+  --glow-gap: rgba(180, 83, 9, 0.2);
+
+  --nav-floor: rgba(255, 255, 255, 0.88);
+  --drawer-floor: rgba(250, 249, 255, 0.97);
 
   --d-micro: 140ms;
   --d-state: 260ms;
   --d-section: 460ms;
 
   --nav-h: 78px;
+}
+
+/* DARK MODE — the original Signal Room treatment, now the explicit choice. */
+html.theme-dark {
+  --color-void: #060a14; /* deepest background, the space between nodes */
+  --color-base: #0a1020; /* primary page background */
+  --color-raised: #0e1526; /* raised surface behind panels */
+  --color-elevated: #131c33; /* solid card / dashboard surface */
+
+  --color-ink: #f5f3ff; /* 18.9:1 — primary text */
+  --color-ink-dim: #9aa6c4; /* 7.78:1 — secondary text */
+  --color-ink-faint: #7c89a8; /* 5.42:1 — tertiary, labels */
+
+  --color-signal-core: #610ae5;
+  --color-signal: #7b3aec; /* 3.30:1 — large text, borders, UI only */
+  --color-signal-lit: #a78bfa; /* 6.96:1 — safe for small accent text */
+  --color-signal-mist: #edeaff;
+  --color-signal-veil: #f5f3ff;
+
+  --color-gap: #ffb547; /* 10.4:1 */
+  --color-gap-core: #c77d16;
+
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-lit: rgba(255, 255, 255, 0.07);
+  --surface-glass: rgba(10, 16, 32, 0.72);
+  --surface-hover: rgba(255, 255, 255, 0.045);
+  --canvas-blend: normal;
+  --canvas-opacity: 1;
+  /* Dark mode holds the original heavy vignette so copy never fights the glow */
+  --scrim-radial: radial-gradient(
+    100% 80% at 16% 48%,
+    rgba(6, 10, 20, 0.68),
+    rgba(6, 10, 20, 0.2) 52%,
+    transparent 74%
+  );
+  --scrim-linear: linear-gradient(
+    180deg,
+    rgba(6, 10, 20, 0.6),
+    rgba(6, 10, 20, 0.03) 26%,
+    rgba(6, 10, 20, 0.03) 72%,
+    rgba(6, 10, 20, 0.7)
+  );
+
+  --glow-signal: rgba(97, 10, 229, 0.35);
+  --glow-signal-soft: rgba(123, 58, 236, 0.18);
+  --glow-gap: rgba(255, 181, 71, 0.22);
+
+  --nav-floor: rgba(9, 14, 28, 0.95);
+  --drawer-floor: rgba(10, 16, 32, 0.96);
+}
+
+/* Smooth theme handoff without animating the first paint */
+body,
+.nav,
+.nav__panel,
+.nav__drawer {
+  transition:
+    background-color var(--d-state) var(--ease-out),
+    color var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out);
 }
 
 /* ============================================================================
@@ -104,6 +202,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+/* Glass surfaces keep their translucency in both themes */
+.glass {
+  background: var(--glass);
+  border-color: var(--line);
 }
 
 /* Lenis smooth scroll drives scroll position; it must not fight native scroll */
@@ -377,7 +481,9 @@ html.lenis body {
   .hero__word,
   .hero__support,
   .hero__actions,
-  .hero__foot {
+  .hero__foot,
+  .platforms,
+  .platforms__chip {
     opacity: 1 !important;
     transform: none !important;
   }

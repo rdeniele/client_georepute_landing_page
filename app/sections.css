@@ -76,8 +76,8 @@
 .invis__marker {
   height: 44px;
   border-radius: var(--radius-sm);
-  border: 1px dashed rgba(255, 181, 71, 0.32);
-  background: rgba(255, 181, 71, 0.05);
+  border: 1px dashed var(--glow-gap);
+  background: color-mix(in srgb, var(--color-gap) 5%, transparent);
 }
 
 .invis__step-label {
@@ -91,8 +91,8 @@
   border-style: solid;
   background: linear-gradient(
     180deg,
-    rgba(123, 58, 236, 0.34),
-    rgba(97, 10, 229, 0.16)
+    color-mix(in srgb, var(--color-signal) 30%, transparent),
+    color-mix(in srgb, var(--color-signal-core) 14%, transparent)
   );
   box-shadow: 0 0 26px -6px var(--glow-signal);
 }
@@ -177,7 +177,7 @@
   transition: background-color var(--d-state) var(--ease-out);
 }
 .signal:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--surface-hover);
 }
 
 .signal__index {
@@ -564,7 +564,7 @@
   height: 11px;
   border-radius: 50%;
   border: 1px solid var(--line-strong);
-  background: var(--color-base);
+  background: var(--color-void);
 }
 
 .blind__label {
@@ -654,7 +654,7 @@
 
 .engines__edge,
 .dgraph__edge {
-  stroke: #46527a;
+  stroke: var(--color-ink-faint);
   stroke-width: 1;
   stroke-opacity: 0.5;
   transition:
@@ -698,7 +698,7 @@
   padding: 8px 16px 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
-  background: rgba(10, 16, 32, 0.72);
+  background: var(--surface-glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--color-ink);
@@ -733,7 +733,7 @@
 .engines__node.is-focus,
 .dgraph__node.is-focus {
   border-color: var(--color-signal);
-  background: rgba(28, 18, 58, 0.85);
+  background: var(--color-signal-mist);
   box-shadow: 0 10px 40px -14px var(--glow-signal);
   transform: translateY(-2px);
 }
@@ -1056,7 +1056,7 @@
   padding: 8px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--glass);
 }
 
 .dgraph__evidence-tick {
@@ -1216,7 +1216,7 @@
 .measure__track {
   height: 3px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--line);
   overflow: hidden;
 }
 
@@ -1286,6 +1286,7 @@
 .plan__item:hover {
   transform: translateX(4px);
   border-color: var(--line-strong);
+  background: var(--glass-lit);
 }
 
 .plan__spine {
