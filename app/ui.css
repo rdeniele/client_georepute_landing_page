@@ -1,0 +1,882 @@
+/* ============================================================================
+   SHELL, CHROME & PRIMITIVES
+   ========================================================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Background wash: the void the network sits inside --------------------- */
+
+.void-wash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 80% at 50% -10%,
+      rgba(97, 10, 229, 0.07),
+      transparent 62%
+    ),
+    radial-gradient(
+      90% 70% at 8% 108%,
+      rgba(123, 58, 236, 0.045),
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--color-void), #070c18 42%, var(--color-void));
+}
+
+.scene-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* The canvas lags a frame behind viewport changes; clip so it can never
+     contribute page overflow while it catches up. */
+  overflow: hidden;
+}
+
+/* Legibility scrim.
+   The scene is additive and its brightness varies with the camera, so text
+   can never rely on the base background colour alone. This holds a dark
+   floor under the reading column and vignettes the frame. */
+.scene-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      100% 80% at 16% 48%,
+      rgba(6, 10, 20, 0.68),
+      rgba(6, 10, 20, 0.2) 52%,
+      transparent 74%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(6, 10, 20, 0.6),
+      rgba(6, 10, 20, 0.03) 26%,
+      rgba(6, 10, 20, 0.03) 72%,
+      rgba(6, 10, 20, 0.7)
+    );
+}
+
+.static-network {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.72;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-ink);
+  --btn-line: var(--line-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px; /* ≥44px touch target */
+  padding: 0 26px;
+  border-radius: var(--radius-full, 999px);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-line);
+  text-decoration: none;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform var(--d-micro) var(--ease-out),
+    border-color var(--d-micro) var(--ease-out),
+    background-color var(--d-micro) var(--ease-out),
+    box-shadow var(--d-state) var(--ease-out);
+  will-change: transform;
+}
+
+.btn__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform var(--d-micro) var(--ease-out);
+  will-change: transform;
+}
+
+.btn__arrow {
+  transition: transform var(--d-state) var(--ease-out);
+  flex: none;
+}
+
+.btn:hover .btn__arrow {
+  transform: translateX(4px);
+}
+
+/* Tactile press — never an entrance from scale(0) */
+.btn:active {
+  transform: scale(0.97) !important;
+  transition-duration: 90ms;
+}
+
+.btn--primary {
+  --btn-bg: var(--color-signal-core);
+  --btn-line: transparent;
+  box-shadow: 0 0 0 0 var(--glow-signal);
+}
+.btn--primary:hover {
+  --btn-bg: #6d16f0;
+  box-shadow: 0 8px 34px -8px var(--glow-signal);
+}
+
+.btn--ghost {
+  --btn-bg: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.btn--ghost:hover {
+  --btn-line: var(--color-signal);
+  --btn-bg: rgba(123, 58, 236, 0.1);
+}
+
+/* ============================================================================
+   NAVIGATION
+   ========================================================================== */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out);
+}
+
+.nav--lifted {
+  background: rgba(10, 16, 32, 0.72);
+  border-bottom-color: var(--line);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+
+.nav__shell {
+  height: var(--nav-h);
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4vw, 56px);
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 32px);
+}
+
+/* --- brand ---------------------------------------------------------------- */
+
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 10px;
+  color: var(--color-ink);
+  text-decoration: none;
+  flex: none;
+}
+
+.nav__logo {
+  width: auto;
+  height: 32px;
+  flex: none;
+}
+
+.nav__wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 3px;
+}
+
+.nav__name {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.nav__sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+/* --- primary row ---------------------------------------------------------- */
+
+.nav__primary {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline: auto;
+}
+
+.nav__group {
+  position: relative;
+}
+
+.nav__trigger,
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-dim);
+  font: inherit;
+  font-size: var(--text-body-sm);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--d-micro) var(--ease-out);
+}
+
+.nav__trigger:hover,
+.nav__link:hover,
+.nav__trigger.is-open {
+  color: var(--color-ink);
+}
+
+.nav__chev {
+  transition: transform var(--d-state) var(--ease-out);
+  opacity: 0.7;
+}
+.nav__trigger.is-open .nav__chev {
+  transform: rotate(180deg);
+}
+
+/* --- mega panel ----------------------------------------------------------- */
+
+.nav__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -8px;
+  width: max-content;
+  max-width: min(680px, calc(100vw - 40px));
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
+  /* Overrides .glass. A 4%-white surface is fine floating over the void, but
+     this panel opens directly on top of 110px hero type — it needs a real
+     opaque floor or the headline reads straight through the menu items. */
+  background: rgba(9, 14, 28, 0.95);
+  backdrop-filter: blur(30px) saturate(1.3);
+  -webkit-backdrop-filter: blur(30px) saturate(1.3);
+}
+
+/* The UA [hidden] rule loses to the `display: grid` above, so state it here. */
+.nav__panel[hidden],
+.nav__drawer[hidden],
+.nav__acc-list[hidden] {
+  display: none;
+}
+
+.nav__panel.is-open {
+  animation: panel-in 220ms var(--ease-out) both;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Platform carries a feature card alongside its list */
+#nav-panel-platform {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  max-width: min(820px, calc(100vw - 40px));
+}
+
+.nav__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  align-content: start;
+}
+
+.nav__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background-color var(--d-micro) var(--ease-out);
+}
+.nav__item:hover {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.nav__item-name {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+}
+
+.nav__item-desc {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-ink-faint);
+  max-width: 42ch;
+}
+
+.nav__feature {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: linear-gradient(
+    160deg,
+    rgba(123, 58, 236, 0.16),
+    rgba(97, 10, 229, 0.04)
+  );
+  text-decoration: none;
+  transition: border-color var(--d-state) var(--ease-out);
+}
+.nav__feature:hover {
+  border-color: var(--color-signal);
+}
+
+.nav__feature-title {
+  font-size: var(--text-h4);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  line-height: 1.15;
+}
+
+.nav__feature-desc {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-ink-dim);
+}
+
+.nav__feature-cta {
+  margin-top: auto;
+  padding-top: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-signal-lit);
+}
+
+.nav__more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-signal-lit);
+  text-decoration: none;
+}
+.nav__more:hover {
+  color: var(--color-ink);
+}
+
+/* --- actions -------------------------------------------------------------- */
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.nav__signin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  color: var(--color-ink-dim);
+  text-decoration: none;
+  font-size: var(--text-body-sm);
+  white-space: nowrap;
+  transition: color var(--d-micro) var(--ease-out);
+}
+.nav__signin:hover {
+  color: var(--color-ink);
+}
+
+.nav__toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.nav__burger {
+  display: grid;
+  gap: 5px;
+  width: 17px;
+}
+.nav__burger i {
+  display: block;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform var(--d-state) var(--ease-out);
+}
+.nav__burger.is-open i:first-child {
+  transform: translateY(3.25px) rotate(45deg);
+}
+.nav__burger.is-open i:last-child {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+/* --- mobile drawer -------------------------------------------------------- */
+
+.nav__drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px clamp(20px, 4vw, 56px) 26px;
+  max-height: calc(100svh - var(--nav-h));
+  overflow-y: auto;
+  background: rgba(10, 16, 32, 0.96);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.nav__acc-trigger,
+.nav__drawer-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 52px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--text-lead);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav__acc-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 14px 14px;
+  display: grid;
+  gap: 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.nav__acc-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-ink-dim);
+  text-decoration: none;
+  font-size: var(--text-body-sm);
+}
+.nav__acc-link:hover {
+  color: var(--color-ink);
+}
+
+.nav__drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+@media (max-width: 1180px) {
+  .nav__primary,
+  .nav__signin {
+    display: none;
+  }
+  .nav__toggle {
+    display: inline-flex;
+  }
+  .nav__actions {
+    margin-inline-start: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav__cta {
+    display: none;
+  }
+}
+
+
+/* ============================================================================
+   SCROLL RAIL
+   ========================================================================== */
+
+.rail {
+  position: fixed;
+  top: 50%;
+  right: clamp(16px, 2vw, 32px);
+  transform: translateY(-50%);
+  z-index: 15;
+  display: flex;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.rail__track {
+  position: relative;
+  width: 1px;
+  background: var(--line-strong);
+  border-radius: 1px;
+}
+.rail__fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--color-signal-lit),
+    var(--color-signal-core)
+  );
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+
+.rail__marks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.rail__mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+}
+.rail__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-ink-faint);
+  opacity: 0.5;
+  transition:
+    transform var(--d-state) var(--ease-out),
+    opacity var(--d-state) var(--ease-out),
+    background-color var(--d-state) var(--ease-out);
+}
+.rail__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity var(--d-state) var(--ease-out),
+    transform var(--d-state) var(--ease-out);
+}
+.rail__mark[data-active="true"] .rail__dot {
+  background: var(--color-signal-lit);
+  opacity: 1;
+  transform: scale(1.6);
+}
+.rail__mark[data-active="true"] .rail__label {
+  opacity: 1;
+  transform: none;
+  color: var(--color-ink);
+}
+
+@media (max-width: 1100px) {
+  .rail {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   SECTION HEADER
+   ========================================================================== */
+
+.sec-head {
+  max-width: 46rem;
+  margin-bottom: clamp(48px, 6vw, 80px);
+}
+.sec-head--center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.sec-head__meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sec-head__index {
+  font-family: var(--font-editorial);
+  font-size: 1.5rem;
+  color: var(--color-signal-lit);
+  line-height: 1;
+}
+
+.sec-head__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-strong), transparent);
+  transform-origin: left center;
+}
+
+.sec-head__title {
+  margin-bottom: 20px;
+}
+
+/* ============================================================================
+   HERO
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: calc(var(--nav-h) + 40px);
+  padding-bottom: 40px;
+}
+
+.hero__shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* One orchestrated entrance — every child staggers off --i.
+   Driven by a CSS animation rather than a JS-toggled class: the hero is the
+   most important copy on the page and must not wait on hydration of a
+   Three.js bundle to become readable. `forwards` holds the end state. */
+.hero__eyebrow,
+.hero__lead,
+.hero__word,
+.hero__support,
+.hero__actions,
+.hero__foot {
+  opacity: 0;
+  animation: hero-in 620ms var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 95ms + 120ms);
+  will-change: opacity, transform;
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.hero__eyebrow {
+  margin: 0 0 clamp(28px, 4vw, 44px);
+}
+
+.hero__headline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero__lead {
+  display: block;
+  font-size: var(--text-h3);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-dim);
+  margin-bottom: clamp(8px, 1.2vw, 16px);
+}
+
+.hero__word {
+  display: block;
+  font-size: var(--text-hero);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  color: var(--color-ink);
+}
+
+/* Grid-breaking indent — each payoff word steps further from the left edge.
+   Driven by an explicit --indent rather than :nth-of-type, which would also
+   count the preceding .hero__lead span and shift the whole sequence. */
+.hero__word {
+  margin-left: calc(var(--indent, 0) * clamp(0px, 3vw, 54px));
+}
+
+/* The crescendo: the one word the whole page is arguing toward */
+.hero__word--chosen {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-signal-lit);
+  letter-spacing: -0.02em;
+}
+
+.hero__support {
+  margin: clamp(32px, 4vw, 48px) 0 0;
+  max-width: 46ch;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: clamp(32px, 4vw, 44px);
+}
+
+.hero__foot {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+  margin-top: clamp(48px, 6vh, 80px);
+}
+
+.hero__foot-shell {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.hero__caps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(20px, 4vw, 56px);
+}
+
+.hero__cap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 15ch;
+}
+
+.hero__cap-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+}
+
+.hero__cap-label {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--color-ink-faint);
+}
+
+.hero__hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.hero__hint-rail {
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(180deg, var(--color-signal-lit), transparent);
+  position: relative;
+  overflow: hidden;
+}
+.hero__hint-rail::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 12px;
+  background: var(--color-signal-lit);
+  animation: hint-fall 2.4s var(--ease-inout) infinite;
+}
+
+@keyframes hint-fall {
+  0% {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero__foot-shell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .hero__hint {
+    display: none;
+  }
+  .hero__caps {
+    gap: 20px 32px;
+  }
+}

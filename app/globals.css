@@ -1,0 +1,384 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   GEOREPUTE — "SIGNAL ROOM" DESIGN SYSTEM
+   Dark cinematic instrument panel. Purple appears only where meaning lives:
+   an active signal, a live connection, a decision outcome. Everything else
+   is void, hairline, and telemetry.
+   ========================================================================== */
+
+@theme {
+  /* --- Neutrals: cool, deliberately navy-shifted (not default grey) ------- */
+  --color-void: #060a14; /* deepest background, the space between nodes */
+  --color-base: #0a1020; /* primary page background */
+  --color-raised: #0e1526; /* raised surface behind panels */
+  --color-elevated: #131c33; /* solid card / dashboard surface */
+
+  /* --- Text: contrast verified against --color-base #0A1020 --------------- */
+  --color-ink: #f5f3ff; /* 18.9:1  primary text */
+  --color-ink-dim: #9aa6c4; /* 7.78:1  secondary text, body copy */
+  --color-ink-faint: #7c89a8; /* 5.42:1  tertiary, labels, inactive nodes */
+
+  /* --- Accent: purple = signal / active / GeoRepute ----------------------- */
+  --color-signal-core: #610ae5; /* fills, CTA background, glow source */
+  --color-signal: #7b3aec; /* 3.30:1 — large text, borders, UI only */
+  --color-signal-lit: #a78bfa; /* 6.96:1 — safe for small accent text */
+  --color-signal-mist: #edeaff; /* light surfaces on inverted panels */
+  --color-signal-veil: #f5f3ff;
+
+  /* --- Accent: amber = blind spot / gap / unseen -------------------------- */
+  --color-gap: #ffb547; /* 10.4:1 — risk, missing signal, invisible path */
+  --color-gap-core: #c77d16;
+
+  /* --- Typography -------------------------------------------------------- */
+  --font-display: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
+
+  /* Modular scale, x1.25 fluid. Headlines tighten tracking as they grow. */
+  --text-mono-xs: 0.6875rem; /* 11px  telemetry labels */
+  --text-mono-sm: 0.8125rem; /* 13px  UI labels */
+  --text-body-sm: 0.9375rem; /* 15px */
+  --text-body: 1.125rem; /* 18px  body copy */
+  --text-lead: 1.3125rem; /* 21px  supporting copy */
+  --text-h4: clamp(1.375rem, 1.1rem + 1.1vw, 1.75rem);
+  --text-h3: clamp(1.75rem, 1.3rem + 1.9vw, 2.5rem);
+  --text-h2: clamp(2.25rem, 1.5rem + 3.2vw, 3.5rem);
+  --text-h1: clamp(2.75rem, 1.4rem + 5.6vw, 4.75rem);
+  --text-hero: clamp(3rem, 0.9rem + 8.6vw, 6.875rem); /* → 110px */
+  --text-metric: clamp(2rem, 1.2rem + 3.4vw, 4rem);
+
+  /* --- Spacing: one scale, no one-off margins ---------------------------- */
+  --spacing: 0.25rem; /* Tailwind multiplier base = 4px */
+
+  /* --- Radius vocabulary: three meanings, used consistently -------------- */
+  --radius-sm: 6px; /* chips, pills, small controls */
+  --radius-md: 12px; /* cards, glass panels */
+  --radius-lg: 20px; /* large surfaces, dashboard shells */
+  --radius-full: 999px; /* pills and controls */
+
+  /* --- Motion: entrances ease-out, exits ease-in ------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Non-tokenised system values (glass, glow, timing) */
+:root {
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-lit: rgba(255, 255, 255, 0.07);
+  --glow-signal: rgba(97, 10, 229, 0.35);
+  --glow-signal-soft: rgba(123, 58, 236, 0.18);
+  --glow-gap: rgba(255, 181, 71, 0.22);
+
+  --d-micro: 140ms;
+  --d-state: 260ms;
+  --d-section: 460ms;
+
+  --nav-h: 78px;
+}
+
+/* ============================================================================
+   BASE
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-void);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Lenis smooth scroll drives scroll position; it must not fight native scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+::selection {
+  background: var(--color-signal-core);
+  color: var(--color-ink);
+}
+
+/* ============================================================================
+   ACCESSIBILITY FLOOR — visible focus on a dark, glassy surface.
+   A design that hides its focus ring is broken, not premium.
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--color-signal-lit);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove the ring only for pointer interaction, never for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -120%);
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--color-signal-core);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  transition: transform var(--d-state) var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+}
+
+/* ============================================================================
+   TYPE ROLES
+   ========================================================================== */
+
+.t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-signal-lit);
+  line-height: 1;
+}
+
+.t-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  line-height: 1;
+}
+
+.t-hero {
+  font-size: var(--text-hero);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.t-h2 {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.t-h3 {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.t-h4 {
+  font-size: var(--text-h4);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+/* The editorial voice — carries the human decision language, never body copy */
+.t-editorial {
+  font-family: var(--font-editorial);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+.t-body {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--color-ink-dim);
+  max-width: 62ch; /* 45–75 character measure */
+  margin: 0;
+}
+
+.t-lead {
+  font-size: var(--text-lead);
+  line-height: 1.5;
+  color: var(--color-ink-dim);
+  max-width: 58ch;
+  margin: 0;
+}
+
+.t-metric {
+  font-family: var(--font-display);
+  font-size: var(--text-metric);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   GLASS — instrument readouts floating inside the network.
+   Restrained: thin border, real blur, one internal highlight. No stacked
+   drop-shadows pretending to be depth.
+   ========================================================================== */
+
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  position: relative;
+}
+
+/* Internal top highlight — reads as a lit edge, not a drop shadow */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0) 42%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.hairline {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--line-strong) 18%,
+    var(--line-strong) 82%,
+    transparent
+  );
+  margin: 0;
+}
+
+/* ============================================================================
+   ATMOSPHERE — grain over the whole document so flat areas never read flat
+   ========================================================================== */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================================
+   LAYOUT
+   ========================================================================== */
+
+.shell {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4vw, 56px);
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(96px, 12vh, 176px);
+}
+
+/* ============================================================================
+   REVEAL — the page's one shared entrance vocabulary.
+   GSAP drives these by toggling [data-revealed]. transform+opacity only.
+   ========================================================================== */
+
+/* Hidden until observed. A <noscript> override in the layout forces these
+   visible when scripting is unavailable, so the page degrades to plain
+   content rather than to a blank screen. */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity var(--d-section) var(--ease-out),
+    transform var(--d-section) var(--ease-out);
+  will-change: opacity, transform;
+}
+[data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Lines draw rather than fade — the network's own vocabulary */
+[data-draw] {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 700ms var(--ease-out);
+  will-change: transform;
+}
+[data-draw][data-revealed="true"] {
+  transform: scaleX(1);
+}
+
+/* ============================================================================
+   REDUCED MOTION — near-instant variant, nothing removed, nothing animated
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal],
+  [data-draw] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hero__eyebrow,
+  .hero__lead,
+  .hero__word,
+  .hero__support,
+  .hero__actions,
+  .hero__foot {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

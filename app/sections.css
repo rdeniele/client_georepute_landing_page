@@ -1,0 +1,1446 @@
+/* ============================================================================
+   02 — THE INVISIBLE DECISION
+   ========================================================================== */
+
+.invis {
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+.invis__brackets {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.invis__bracket {
+  position: relative;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-strong);
+}
+.invis__bracket::before,
+.invis__bracket::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 8px;
+  background: var(--line-strong);
+}
+.invis__bracket::before {
+  left: 0;
+}
+.invis__bracket::after {
+  right: 0;
+}
+
+.invis__bracket--dark {
+  flex: var(--span, 6);
+  border-top-color: rgba(255, 181, 71, 0.42);
+}
+.invis__bracket--dark::before,
+.invis__bracket--dark::after {
+  background: rgba(255, 181, 71, 0.42);
+}
+.invis__bracket--dark .invis__bracket-label {
+  color: var(--color-gap);
+}
+
+.invis__bracket--lit {
+  flex: 1;
+  border-top-color: var(--color-signal);
+}
+.invis__bracket--lit::before,
+.invis__bracket--lit::after {
+  background: var(--color-signal);
+}
+.invis__bracket--lit .invis__bracket-label {
+  color: var(--color-signal-lit);
+}
+
+.invis__track {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.invis__step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.invis__marker {
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(255, 181, 71, 0.32);
+  background: rgba(255, 181, 71, 0.05);
+}
+
+.invis__step-label {
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: var(--color-ink-faint);
+}
+
+.invis__step.is-visible .invis__marker {
+  border: 1px solid var(--color-signal);
+  border-style: solid;
+  background: linear-gradient(
+    180deg,
+    rgba(123, 58, 236, 0.34),
+    rgba(97, 10, 229, 0.16)
+  );
+  box-shadow: 0 0 26px -6px var(--glow-signal);
+}
+.invis__step.is-visible .invis__step-label {
+  color: var(--color-ink);
+}
+
+.pull {
+  margin: clamp(56px, 7vw, 88px) 0 0;
+  padding: 0;
+  border-left: 1px solid var(--color-signal);
+  padding-left: clamp(20px, 3vw, 36px);
+  max-width: 34rem;
+}
+.pull__text {
+  margin: 0;
+  font-size: var(--text-h3);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-dim);
+}
+.pull__em {
+  color: var(--color-ink);
+  display: block;
+  margin-top: 6px;
+}
+
+@media (max-width: 780px) {
+  .invis__brackets {
+    display: none;
+  }
+  .invis__track {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .invis__step {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  .invis__marker {
+    width: 44px;
+    flex: none;
+  }
+}
+
+/* ============================================================================
+   03 — SEE THE SIGNALS
+   ========================================================================== */
+
+.signals {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+}
+
+.signals__aside {
+  position: sticky;
+  top: calc(var(--nav-h) + 48px);
+}
+.signals__aside .sec-head {
+  margin-bottom: 0;
+}
+
+.signals__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.signal {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr 24px;
+  align-items: baseline;
+  gap: 16px;
+  padding: 18px 8px;
+  border-bottom: 1px solid var(--line);
+  cursor: default;
+  transition: background-color var(--d-state) var(--ease-out);
+}
+.signal:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.signal__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  color: var(--color-ink-faint);
+  transition: color var(--d-micro) var(--ease-out);
+}
+
+.signal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.signal__name {
+  font-size: var(--text-lead);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.signal__q {
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--color-ink-faint);
+  transition: color var(--d-state) var(--ease-out);
+}
+
+/* The connector draws on focus — the same illuminate grammar as the graphs */
+.signal__link {
+  align-self: center;
+  height: 1px;
+  background: var(--color-signal);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--d-state) var(--ease-out);
+}
+.signal:hover .signal__link {
+  transform: scaleX(1);
+}
+.signal:hover .signal__index {
+  color: var(--color-signal-lit);
+}
+.signal:hover .signal__q {
+  color: var(--color-ink-dim);
+}
+
+@media (max-width: 900px) {
+  .signals {
+    grid-template-columns: 1fr;
+  }
+  .signals__aside {
+    position: static;
+  }
+  .signals__aside .sec-head {
+    margin-bottom: 40px;
+  }
+}
+
+/* ============================================================================
+   04 — WATCH A DECISION FORM
+
+   A pinned cinematic stage. Every region is absolutely positioned inside a
+   viewport-height box with overflow hidden, so no element can scroll out of
+   frame no matter how long the scroll container is. The 3D scene occupies the
+   middle of the frame; the DOM holds only a header and a lower third.
+   ========================================================================== */
+
+.recon {
+  height: calc(var(--beats) * 58vh + 100vh);
+  padding-block: 0;
+}
+
+.recon__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.recon__head,
+.recon__lower {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4vw, 56px);
+}
+
+.recon__head {
+  top: calc(var(--nav-h) + clamp(20px, 4vh, 48px));
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.4vh, 26px);
+}
+
+.recon__meta {
+  margin-bottom: 0;
+}
+
+.recon__headline {
+  margin: 0;
+  max-width: 22ch;
+  color: var(--color-ink);
+}
+
+.recon__query {
+  padding: 16px 20px;
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recon__query-text {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+.recon__query-text::before {
+  content: "> ";
+  color: var(--color-signal-lit);
+}
+
+/* --- lower third --------------------------------------------------------- */
+
+.recon__lower {
+  bottom: clamp(24px, 4vh, 52px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recon__ticks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: clamp(10px, 2vw, 28px);
+  flex-wrap: wrap;
+}
+
+.recon__tick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  transition: color var(--d-state) var(--ease-out);
+}
+
+.recon__tick-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  transition:
+    transform var(--d-state) var(--ease-out),
+    opacity var(--d-state) var(--ease-out);
+}
+
+.recon__tick[data-state="done"] {
+  color: var(--color-signal-lit);
+}
+.recon__tick[data-state="done"] .recon__tick-dot {
+  opacity: 0.7;
+}
+.recon__tick[data-state="active"] {
+  color: var(--color-ink);
+}
+.recon__tick[data-state="active"] .recon__tick-dot {
+  background: var(--color-signal-lit);
+  opacity: 1;
+  transform: scale(1.8);
+  box-shadow: 0 0 12px 2px var(--glow-signal);
+}
+
+.recon__rail {
+  display: block;
+  height: 1px;
+  background: var(--line-strong);
+  position: relative;
+  overflow: hidden;
+}
+.recon__rail-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-signal),
+    var(--color-signal-lit)
+  );
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* Captions stack in one place and cross-fade — the block never changes height,
+   so the lower third stays pinned to the same baseline throughout. */
+.recon__captions {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-height: 9.5rem;
+}
+
+.recon__caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 44rem;
+  will-change: opacity, transform;
+}
+
+.recon__caption-title {
+  margin: 0;
+  font-size: var(--text-h4);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--color-ink);
+}
+
+.recon__caption-detail {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  line-height: 1.55;
+  color: var(--color-ink-dim);
+  max-width: 52ch;
+}
+
+.recon__sample {
+  margin: 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-ink-faint);
+}
+
+/* Short viewports: drop the headline so the head and lower third never meet */
+@media (max-height: 760px) {
+  .recon__headline {
+    display: none;
+  }
+}
+
+@media (max-width: 780px) {
+  .recon__tick-label {
+    display: none;
+  }
+  .recon__ticks {
+    gap: 14px;
+  }
+  .recon__captions {
+    min-height: 11.5rem;
+  }
+  .recon__query {
+    max-width: none;
+  }
+}
+
+/* ============================================================================
+   05 — THE BLIND SPOT
+   ========================================================================== */
+
+.blind {
+  position: relative;
+  padding: clamp(28px, 4vw, 44px) 0 12px;
+}
+
+.blind__region {
+  position: absolute;
+  left: 0;
+  width: 60%;
+  top: 0;
+  bottom: 12px;
+  border-right: 1px dashed rgba(255, 181, 71, 0.5);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 181, 71, 0.03),
+    rgba(255, 181, 71, 0.08)
+  );
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  pointer-events: none;
+}
+
+.blind__region-label {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gap);
+  text-align: right;
+  max-width: 20ch;
+  line-height: 1.5;
+}
+
+.blind__row {
+  position: relative;
+  padding-block: clamp(40px, 5vw, 60px) 0;
+}
+
+.blind__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 28px;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-dim);
+}
+
+.blind__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.blind__title--geo .blind__dot {
+  background: var(--color-signal-lit);
+  box-shadow: 0 0 12px 1px var(--glow-signal);
+}
+.blind__title--geo {
+  color: var(--color-ink);
+}
+.blind__title--trad .blind__dot {
+  background: var(--color-ink-faint);
+}
+
+.blind__track {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 58px;
+}
+.blind__track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 5px;
+  height: 1px;
+  background: var(--line);
+}
+
+.blind__step {
+  position: absolute;
+  left: var(--at);
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 8rem;
+}
+/* Keep the first and last markers inside the frame */
+.blind__step:first-child {
+  transform: translateX(0);
+  align-items: flex-start;
+}
+.blind__step:last-child {
+  transform: translateX(-100%);
+  align-items: flex-end;
+}
+
+.blind__marker {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--color-base);
+}
+
+.blind__label {
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.blind__step--geo .blind__marker {
+  border-color: var(--color-signal-lit);
+  background: var(--color-signal);
+  box-shadow: 0 0 16px -2px var(--glow-signal);
+}
+.blind__step--geo .blind__label {
+  color: var(--color-ink);
+}
+
+.blind__step--trad .blind__marker {
+  border-color: var(--color-ink-faint);
+}
+.blind__step--trad .blind__label {
+  color: var(--color-ink-faint);
+}
+
+.blind__axis {
+  position: relative;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.blind__axis-label {
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .blind__region {
+    display: none;
+  }
+  .blind__track {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .blind__track::before {
+    top: 0;
+    bottom: 0;
+    left: 5px;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+  .blind__step,
+  .blind__step:first-child,
+  .blind__step:last-child {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+  .blind__label {
+    text-align: left;
+    white-space: normal;
+  }
+}
+
+/* ============================================================================
+   SHARED GRAPH CANVAS — sections 06 and 08
+   ========================================================================== */
+
+.engines,
+.dgraph__canvas {
+  position: relative;
+  aspect-ratio: 100 / 62;
+  width: 100%;
+}
+
+.engines__edges,
+.dgraph__edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.engines__edge,
+.dgraph__edge {
+  stroke: #46527a;
+  stroke-width: 1;
+  stroke-opacity: 0.5;
+  transition:
+    stroke var(--d-state) var(--ease-out),
+    stroke-opacity var(--d-state) var(--ease-out);
+}
+.engines[data-focused="true"] .engines__edge,
+.dgraph__canvas[data-focused="true"] .dgraph__edge {
+  stroke-opacity: 0.12;
+}
+.engines__edge.is-lit,
+.dgraph__edge.is-lit {
+  stroke: var(--color-signal-lit);
+  stroke-opacity: 0.85;
+  stroke-width: 1.5;
+}
+
+.engines__nodes,
+.dgraph__nodes {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.engines__node-wrap,
+.dgraph__node-wrap {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+}
+
+.engines__node,
+.dgraph__node {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 8px 16px 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(10, 16, 32, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--color-ink);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform var(--d-state) var(--ease-out),
+    opacity var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out),
+    background-color var(--d-state) var(--ease-out),
+    box-shadow var(--d-state) var(--ease-out);
+}
+
+.engines__node-dot,
+.dgraph__node-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-ink-faint);
+  flex: none;
+  transition:
+    background-color var(--d-state) var(--ease-out),
+    box-shadow var(--d-state) var(--ease-out),
+    transform var(--d-state) var(--ease-out);
+}
+
+.engines__node:hover,
+.dgraph__node:hover,
+.engines__node.is-focus,
+.dgraph__node.is-focus {
+  border-color: var(--color-signal);
+  background: rgba(28, 18, 58, 0.85);
+  box-shadow: 0 10px 40px -14px var(--glow-signal);
+  transform: translateY(-2px);
+}
+.engines__node.is-focus .engines__node-dot,
+.dgraph__node.is-focus .dgraph__node-dot,
+.engines__node:hover .engines__node-dot,
+.dgraph__node:hover .dgraph__node-dot {
+  background: var(--color-signal-lit);
+  box-shadow: 0 0 14px 2px var(--glow-signal);
+  transform: scale(1.25);
+}
+
+.engines__node.is-dim,
+.dgraph__node.is-dim {
+  opacity: 0.3;
+}
+.engines__node:active,
+.dgraph__node:active {
+  transform: translateY(-2px) scale(0.97);
+}
+
+/* ============================================================================
+   06 — THE INTELLIGENCE ENGINES
+   ========================================================================== */
+
+.engines__readout {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(24rem, 100%);
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.engines__readout-q {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--color-ink-dim);
+}
+.engines__readout-q--idle {
+  color: var(--color-ink-faint);
+}
+
+@media (max-width: 860px) {
+  .engines {
+    aspect-ratio: auto;
+  }
+  .engines__edges {
+    display: none;
+  }
+  .engines__nodes {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .engines__node-wrap {
+    position: static;
+    transform: none;
+  }
+  .engines__readout {
+    position: static;
+    width: 100%;
+    margin-top: 20px;
+  }
+}
+
+/* ============================================================================
+   07 — THE CLOSED LOOP
+   ========================================================================== */
+
+.loop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+}
+.loop__aside .sec-head {
+  margin-bottom: 0;
+}
+
+.loop__stage {
+  position: relative;
+  aspect-ratio: 1;
+  max-width: 30rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.loop__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.loop__base {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.loop__spin {
+  transform-origin: 200px 200px;
+  animation: loop-spin 9s linear infinite;
+}
+
+.loop__head {
+  fill: none;
+  stroke: var(--color-signal-lit);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.7));
+}
+
+.loop__core {
+  fill: var(--color-signal-lit);
+}
+
+@keyframes loop-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loop__labels {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.loop__label {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  width: 9rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loop__key {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm);
+  letter-spacing: 0.16em;
+  color: var(--color-ink);
+  animation: loop-breathe 3.6s var(--ease-inout) infinite;
+  animation-delay: var(--d);
+}
+
+.loop__detail {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-ink-faint);
+}
+
+@keyframes loop-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  25% {
+    opacity: 1;
+  }
+}
+
+.loop__centre {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.loop__centre-text {
+  font-size: var(--text-h4);
+  color: var(--color-ink);
+  max-width: 9ch;
+  line-height: 1.15;
+}
+
+@media (max-width: 900px) {
+  .loop {
+    grid-template-columns: 1fr;
+  }
+  .loop__aside .sec-head {
+    margin-bottom: 40px;
+  }
+  .loop__label {
+    width: 7rem;
+  }
+}
+
+/* ============================================================================
+   08 — THE DECISION GRAPH
+   ========================================================================== */
+
+.dgraph {
+  overflow: hidden;
+}
+
+.dgraph__bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dgraph__stat {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  color: var(--color-ink-faint);
+  margin-inline-start: auto;
+}
+
+.dgraph__state {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  transition:
+    color var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out);
+}
+.dgraph__state.is-live {
+  color: var(--color-signal-lit);
+  border-color: var(--color-signal);
+}
+
+.dgraph__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+}
+
+.dgraph__canvas {
+  padding: 24px;
+  border-right: 1px solid var(--line);
+}
+
+.dgraph__node {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  position: relative;
+}
+.dgraph__node-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.dgraph__node-name {
+  padding-right: 14px;
+}
+.dgraph__node-kind {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.dgraph__panel {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 18rem;
+}
+
+.dgraph__panel-title {
+  margin: 0;
+}
+
+.dgraph__panel-detail {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  line-height: 1.55;
+  color: var(--color-ink-dim);
+}
+
+.dgraph__panel-legend {
+  margin-top: 6px;
+}
+
+.dgraph__evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dgraph__evidence-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-dim);
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dgraph__evidence-tick {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-signal-lit);
+  flex: none;
+}
+
+.dgraph__panel-idle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 960px) {
+  .dgraph__body {
+    grid-template-columns: 1fr;
+  }
+  .dgraph__canvas {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    aspect-ratio: auto;
+  }
+  .dgraph__edges {
+    display: none;
+  }
+  .dgraph__nodes {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dgraph__node-wrap {
+    position: static;
+    transform: none;
+  }
+  .dgraph__panel {
+    min-height: 0;
+  }
+}
+
+/* ============================================================================
+   09 — EXECUTIVE INTELLIGENCE
+   ========================================================================== */
+
+.exec {
+  overflow: hidden;
+}
+
+.exec__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.exec__sample {
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  font-style: italic;
+}
+
+.exec__body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: clamp(24px, 4vw, 56px);
+  padding: clamp(24px, 4vw, 44px);
+  align-items: center;
+}
+
+.exec__position {
+  position: relative;
+  aspect-ratio: 1;
+  max-width: 17rem;
+  width: 100%;
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+}
+
+.exec__dial {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.exec__dial-track {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 6;
+}
+
+.exec__dial-value {
+  fill: none;
+  stroke: var(--color-signal);
+  stroke-width: 6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px rgba(123, 58, 236, 0.55));
+  transition: stroke-dashoffset var(--d-section) var(--ease-out);
+}
+
+.exec__position-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.exec__position-value {
+  color: var(--color-ink);
+}
+
+.exec__position-state {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gap);
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 181, 71, 0.4);
+  border-radius: var(--radius-sm);
+}
+
+.exec__measures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 32px;
+}
+
+.measure {
+  display: grid;
+  grid-template-columns: 1fr 72px 34px;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.measure__name {
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-dim);
+  min-width: 0;
+}
+
+.measure__track {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.measure__fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--color-signal);
+}
+
+.measure__value {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.measure.is-gap .measure__fill {
+  background: var(--color-gap);
+}
+.measure.is-gap .measure__value {
+  color: var(--color-gap);
+}
+.measure.is-mid .measure__fill {
+  background: var(--color-signal);
+}
+.measure.is-strong .measure__fill {
+  background: var(--color-signal-lit);
+}
+
+@media (max-width: 1020px) {
+  .exec__body {
+    grid-template-columns: 1fr;
+  }
+  .exec__measures {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   10 — FROM INSIGHT TO ACTION
+   ========================================================================== */
+
+.plan {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2px auto 1fr;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 26px;
+  transition:
+    transform var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out);
+}
+.plan__item:hover {
+  transform: translateX(4px);
+  border-color: var(--line-strong);
+}
+
+.plan__spine {
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--color-signal),
+    transparent
+  );
+  border-radius: 2px;
+}
+
+.plan__n {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm);
+  color: var(--color-signal-lit);
+}
+
+.plan__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.plan__title {
+  margin: 0;
+  font-size: var(--text-lead);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  min-width: 0;
+}
+
+.plan__meta {
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  flex: none;
+}
+
+.plan__field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.plan__field dd {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-dim);
+}
+.plan__measure {
+  color: var(--color-signal-lit) !important;
+}
+
+@media (max-width: 760px) {
+  .plan__item {
+    grid-template-columns: 2px auto;
+    row-gap: 14px;
+  }
+  .plan__main {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .plan__meta {
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+}
+
+/* ============================================================================
+   11 — FINAL CTA + FOOTER
+   ========================================================================== */
+
+.final {
+  min-height: 92svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.final__shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  flex: 1;
+  justify-content: center;
+}
+
+.final__headline {
+  margin: 0;
+  max-width: 18ch;
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.final__em {
+  color: var(--color-signal-lit);
+  font-weight: 400;
+}
+
+.final__body {
+  margin: 0;
+  text-align: center;
+}
+
+.final__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.foot {
+  border-top: 1px solid var(--line);
+  padding-block: 32px;
+  margin-top: clamp(56px, 8vh, 96px);
+}
+
+.foot__shell {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  text-align: left;
+}
+
+.foot__brand {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.foot__tagline {
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-faint);
+}
+
+.foot__note {
+  margin-inline-start: auto;
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-dim);
+}
+
+@media (max-width: 760px) {
+  .foot__note {
+    margin-inline-start: 0;
+  }
+}

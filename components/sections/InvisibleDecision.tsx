@@ -1,0 +1,69 @@
+import { invisibleDecision as c } from "@/lib/content";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+
+/**
+ * Section 02 — The invisible decision.
+ *
+ * The argument is the diagram: six steps rendered as unresolved outlines and
+ * one rendered as a solid, lit event. The proportion is the point, so the
+ * copy stays short and lets the ratio carry it.
+ */
+export function InvisibleDecision() {
+  const invisibleCount = c.timeline.filter((s) => !s.visible).length;
+
+  return (
+    <section id="invisible" className="section" data-section>
+      <div className="shell">
+        <SectionHeader
+          index={c.index}
+          label={c.label}
+          headline={c.headline}
+          body={c.body}
+        />
+
+        <div className="invis">
+          <div className="invis__brackets" aria-hidden="true">
+            <span
+              className="invis__bracket invis__bracket--dark"
+              style={{ "--span": invisibleCount } as React.CSSProperties}
+              data-reveal
+            >
+              <span className="t-label invis__bracket-label">
+                {c.invisibleLabel}
+              </span>
+            </span>
+            <span className="invis__bracket invis__bracket--lit" data-reveal>
+              <span className="t-label invis__bracket-label">
+                {c.visibleLabel}
+              </span>
+            </span>
+          </div>
+
+          <ol className="invis__track">
+            {c.timeline.map((step, i) => (
+              <li
+                key={step.t}
+                className={`invis__step ${step.visible ? "is-visible" : ""}`}
+                data-reveal
+                data-reveal-delay={i * 60}
+              >
+                <span className="invis__marker" aria-hidden="true" />
+                <span className="invis__step-label">{step.t}</span>
+                {!step.visible && (
+                  <span className="sr-only">(not measured)</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <blockquote className="pull" data-reveal>
+          <p className="pull__text">
+            {c.pullLead}{" "}
+            <em className="t-editorial pull__em">{c.pullEmphasis}</em>
+          </p>
+        </blockquote>
+      </div>
+    </section>
+  );
+}
