@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/lib/theme";
 import "./globals.css";
 import "./ui.css";
 import "./sections.css";
+import "./bands.css";
 
 const display = Inter_Tight({
   subsets: ["latin"],
@@ -49,6 +50,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${display.variable} ${editorial.variable} ${mono.variable}`}
+      // The inline script below mutates class and color-scheme before React
+      // hydrates, which is the point of it — React must not try to revert it.
+      suppressHydrationWarning
     >
       <body>
         {/* Re-apply the visitor's persisted theme choice before first paint.

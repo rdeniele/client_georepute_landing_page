@@ -1386,6 +1386,9 @@
 .final__headline {
   margin: 0;
   max-width: 18ch;
+  /* `.t-h1` is not one of the defined type roles, so this has to carry its own
+     size — without it the page's payoff line rendered at body size. */
+  font-size: var(--text-h1);
   font-weight: 600;
   line-height: 1.02;
   letter-spacing: -0.035em;

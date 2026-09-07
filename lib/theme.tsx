@@ -49,11 +49,24 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => readStoredTheme());
+  // The first client render has to match the server's, so it always starts
+  // light and adopts the stored choice in an effect. Reading localStorage in
+  // the initialiser instead produced a hydration mismatch on every control
+  // whose label depends on the theme. There is no flash: the inline script in
+  // the layout has already put the right class on <html> before first paint,
+  // and applyThemeClass deliberately holds off until that value is known.
+  const [theme, setTheme] = useState<Theme>("light");
+  const [adopted, setAdopted] = useState(false);
 
   useEffect(() => {
+    setTheme(readStoredTheme());
+    setAdopted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!adopted) return;
     applyThemeClass(theme);
-  }, [theme]);
+  }, [theme, adopted]);
 
   const toggleTheme = useCallback(() => {
     setTheme((t) => {

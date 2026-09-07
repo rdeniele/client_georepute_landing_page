@@ -24,13 +24,18 @@
   background:
     radial-gradient(
       120% 80% at 50% -10%,
-      rgba(97, 10, 229, 0.09),
+      rgba(97, 10, 229, 0.13),
+      transparent 64%
+    ),
+    radial-gradient(
+      86% 74% at 100% 42%,
+      rgba(123, 58, 236, 0.08),
       transparent 62%
     ),
     radial-gradient(
       90% 70% at 8% 108%,
-      rgba(123, 58, 236, 0.05),
-      transparent 60%
+      rgba(123, 58, 236, 0.08),
+      transparent 62%
     ),
     linear-gradient(180deg, var(--color-base), var(--color-void));
 }
@@ -691,6 +696,34 @@ html.theme-dark .theme-toggle__icon--moon {
   color: var(--color-ink);
 }
 
+/* The rail is fixed chrome outside every band, so it cannot inherit a colour
+   band's inverted tokens. ScrollProvider publishes the owning band's tone and
+   the rail re-points itself — white on purple clears AA at 7.1:1. */
+html[data-band="color"] .rail__track {
+  background: rgba(255, 255, 255, 0.34);
+}
+html[data-band="color"] .rail__dot {
+  background: rgba(255, 255, 255, 0.85);
+}
+html[data-band="color"] .rail__label {
+  color: rgba(255, 255, 255, 0.88);
+}
+html[data-band="color"] .rail__mark[data-active="true"] .rail__dot,
+html[data-band="color"] .rail__mark[data-active="true"] .rail__label {
+  color: #ffffff;
+  background-color: #ffffff;
+}
+html[data-band="color"] .rail__mark[data-active="true"] .rail__label {
+  background-color: transparent;
+}
+html[data-band="color"] .rail__fill {
+  background: linear-gradient(
+    180deg,
+    #ffffff,
+    rgba(255, 255, 255, 0.45)
+  );
+}
+
 @media (max-width: 1100px) {
   .rail {
     display: none;
@@ -896,15 +929,115 @@ html.theme-dark .theme-toggle__icon--moon {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: calc(var(--nav-h) + 40px);
   padding-bottom: 40px;
 }
 
+/* The split. Paper carries the argument; the brand environment on the right
+   holds the real-world photograph and the network leaving its edge. The
+   environment starts below the navigation so the header keeps its light floor,
+   and stops at the constellation strip so the two rails below stay on paper —
+   the hero is a split composition, not a page cut in half. */
+.hero__stage {
+  position: relative;
+  overflow-x: clip;
+  padding-top: calc(var(--nav-h) + clamp(28px, 5vh, 64px));
+  padding-bottom: clamp(32px, 5vh, 72px);
+}
+
+/* The paper half. The live scene runs behind the whole page, and a lit node
+   drifting under the headline is the one thing that can cost the hero its
+   legibility — so the copy side gets the same veil the paper bands use, fading
+   out before it reaches the violet field. */
+.hero__stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    var(--band-paper) 0%,
+    var(--band-paper) 38%,
+    var(--band-paper-soft) 62%,
+    transparent 82%
+  );
+}
+
+/* Not a block of colour with an edge — a violet field that blooms out of the
+   right side of the page and dissolves into the paper. There is no line where
+   white stops and colour starts; the two are the same surface at different
+   densities, which is what keeps the composition editorial rather than
+   diagrammatic. */
+.hero__env {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 8%;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      74% 78% at 100% 22%,
+      rgba(97, 10, 229, 0.96) 0%,
+      rgba(105, 22, 232, 0.9) 22%,
+      rgba(123, 58, 236, 0.66) 42%,
+      rgba(151, 105, 245, 0.34) 58%,
+      rgba(196, 181, 253, 0.13) 72%,
+      transparent 84%
+    ),
+    radial-gradient(
+      54% 62% at 84% 100%,
+      rgba(58, 8, 133, 0.62) 0%,
+      rgba(97, 10, 229, 0.24) 44%,
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 44% at 58% 12%,
+      rgba(167, 139, 250, 0.26),
+      transparent 72%
+    );
+}
+
+/* The network only reads where the violet is dense, so it fades out with the
+   field instead of stranding white lines on white paper. */
+.bandnet--hero {
+  opacity: 0.6;
+  -webkit-mask-image: radial-gradient(
+    70% 74% at 100% 24%,
+    #000 0 42%,
+    rgba(0, 0, 0, 0.35) 62%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    70% 74% at 100% 24%,
+    #000 0 42%,
+    rgba(0, 0, 0, 0.35) 62%,
+    transparent 78%
+  );
+}
+
 .hero__shell {
-  flex: 1;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+
+.hero__copy {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.hero__plate {
+  opacity: 0;
+  animation: hero-in 620ms var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 95ms + 120ms);
+  will-change: opacity, transform;
+}
+
+.hero__constellation-shell {
+  position: relative;
 }
 
 /* One orchestrated entrance — every child staggers off --i.
@@ -954,9 +1087,12 @@ html.theme-dark .theme-toggle__icon--moon {
   margin-bottom: clamp(8px, 1.2vw, 16px);
 }
 
+/* Scaled to the split column's measure, not the viewport's — at the previous
+   110px cap "Recommended." overruns a 620px column. Below 1100px the hero
+   stacks to full width and the original scale is restored. */
 .hero__word {
   display: block;
-  font-size: var(--text-hero);
+  font-size: clamp(2.75rem, 1rem + 4.8vw, 5.3125rem);
   font-weight: 600;
   line-height: 0.92;
   letter-spacing: -0.045em;
@@ -1068,6 +1204,63 @@ html.theme-dark .theme-toggle__icon--moon {
   100% {
     transform: translateY(48px);
     opacity: 0;
+  }
+}
+
+/* Below 1100px the split resolves into a stack: the argument first at full
+   measure, then the real-world plate beneath it. The environment becomes the
+   plate's own ground rather than a column. */
+@media (max-width: 1099px) {
+  .hero__shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(36px, 6vw, 56px);
+  }
+  .hero__word {
+    font-size: var(--text-hero);
+  }
+  /* Stacked, both layers rotate: paper holds the top where the copy is, the
+     violet field blooms up from the bottom. */
+  .hero__stage::before {
+    background: linear-gradient(
+      180deg,
+      var(--band-paper) 0%,
+      var(--band-paper) 50%,
+      var(--band-paper-soft) 68%,
+      transparent 84%
+    );
+  }
+  .hero__env {
+    top: 42%;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background:
+      radial-gradient(
+        120% 92% at 62% 100%,
+        rgba(97, 10, 229, 0.94) 0%,
+        rgba(123, 58, 236, 0.7) 30%,
+        rgba(151, 105, 245, 0.36) 52%,
+        rgba(196, 181, 253, 0.14) 70%,
+        transparent 84%
+      );
+  }
+  .bandnet--hero {
+    -webkit-mask-image: radial-gradient(
+      120% 92% at 62% 100%,
+      #000 0 40%,
+      transparent 74%
+    );
+    mask-image: radial-gradient(
+      120% 92% at 62% 100%,
+      #000 0 40%,
+      transparent 74%
+    );
+  }
+  .hero__plate {
+    max-width: 560px;
+  }
+  .bandnet--bridge {
+    display: none;
   }
 }
 

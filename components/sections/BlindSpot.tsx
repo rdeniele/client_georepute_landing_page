@@ -1,5 +1,6 @@
 import { blindSpot as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
 
 /**
  * Section 05 — The blind spot.
@@ -15,7 +16,13 @@ const TRAD_AT = [62, 74, 86, 100];
 
 export function BlindSpot() {
   return (
-    <section id="blindspot" className="section" data-section>
+    <section
+      id="blindspot"
+      className="section band band--paper band--paper-right"
+      data-section
+    >
+      <Band tone="paper" edge="feather" />
+
       <div className="shell">
         <SectionHeader
           index={c.index}

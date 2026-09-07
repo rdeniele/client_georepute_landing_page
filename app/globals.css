@@ -416,9 +416,23 @@ html.lenis body {
 
 .shell {
   width: 100%;
-  max-width: 1280px;
+  max-width: var(--shell-max);
   margin-inline: auto;
-  padding-inline: clamp(20px, 4vw, 56px);
+  padding-inline: var(--shell-pad);
+}
+
+/* Distance from the shell's content edge to the viewport edge. An editorial
+   plate inside the shell escapes to the page edge with
+   `margin-right: calc(-1 * var(--shell-bleed))` — the technique the split
+   layouts use so a photograph runs off the page instead of stopping at a
+   gutter. Slightly over-bleeds by the scrollbar width, which body's
+   overflow-x: hidden clips. */
+:root {
+  --shell-max: 1280px;
+  --shell-pad: clamp(20px, 4vw, 56px);
+  --shell-bleed: calc(
+    (100vw - min(var(--shell-max), 100vw)) / 2 + var(--shell-pad)
+  );
 }
 
 .section {

@@ -1,5 +1,6 @@
 import { actionPlan as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
 
 /**
  * Section 10 — From insight to action.
@@ -10,7 +11,9 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
  */
 export function ActionPlan() {
   return (
-    <section id="action" className="section" data-section>
+    <section id="action" className="section band band--tint" data-section>
+      <Band tone="tint" edge="feather" />
+
       <div className="shell">
         <SectionHeader
           index={c.index}

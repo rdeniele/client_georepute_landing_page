@@ -1,0 +1,732 @@
+/* ============================================================================
+   BAND SYSTEM — the half-white / half-colour rhythm
+
+   The page alternates between three environments: paper (white, dominant),
+   tint (soft lavender) and colour (the GeoRepute brand environment). The
+   sequence is what stops the page reading as one continuous treatment.
+
+   Paper and tint are translucent, so the persistent WebGL network reads
+   straight through them as violet ink — that is where it looks strongest in
+   light mode. Colour plates are opaque and carry an inverted SVG network
+   instead, because the plate is painted above the fixed canvas.
+
+   In dark mode the paper/tint plates fall away almost entirely: the original
+   Signal Room void is the paper. Only the colour bands persist across themes,
+   which keeps one rhythm and two treatments rather than two designs.
+   ========================================================================== */
+
+:root {
+  --band-paper: rgba(255, 255, 255, 0.9);
+  --band-paper-soft: rgba(255, 255, 255, 0.55);
+
+  /* Violet drifting through the white bands — the page is one environment at
+     varying density, not white panels alternating with purple ones. */
+  --band-bloom: rgba(123, 58, 236, 0.11);
+  --band-bloom-strong: rgba(97, 10, 229, 0.2);
+
+  --band-tint-a: rgba(246, 243, 255, 0.95);
+  --band-tint-b: rgba(236, 231, 255, 0.96);
+  --band-tint-c: rgba(226, 218, 253, 0.96);
+
+  /* Five stops through the violet range: indigo → brand → lifted. */
+  --band-color-a: #3a0785;
+  --band-color-b: #4d09b8;
+  --band-color-c: #610ae5;
+  --band-color-d: #6e22de;
+  --band-color-e: #7b3aec;
+
+  --band-net: rgba(255, 255, 255, 0.5);
+  --band-net-lit: #ffffff;
+
+  /* How far a plate reaches past its own section. The whole fade happens in
+     this overhang, so inside the section the band is at full strength and the
+     join to its neighbours is a long violet gradient rather than a line. */
+  --band-overhang: clamp(80px, 13vh, 190px);
+}
+
+html.theme-dark {
+  /* The void is already the paper — a white plate here would destroy it. */
+  --band-paper: rgba(10, 16, 32, 0.32);
+  --band-paper-soft: rgba(10, 16, 32, 0.12);
+
+  --band-bloom: rgba(167, 139, 250, 0.09);
+  --band-bloom-strong: rgba(139, 92, 246, 0.18);
+
+  --band-tint-a: rgba(20, 15, 46, 0.5);
+  --band-tint-b: rgba(28, 19, 60, 0.55);
+  --band-tint-c: rgba(38, 24, 78, 0.6);
+
+  --band-color-a: #1d0350;
+  --band-color-b: #300674;
+  --band-color-c: #46099f;
+  --band-color-d: #5b13c4;
+  --band-color-e: #6c26d8;
+
+  --band-net: rgba(196, 181, 253, 0.42);
+  --band-net-lit: #ddd1ff;
+}
+
+/* --- The band shell ------------------------------------------------------ */
+
+.band {
+  position: relative;
+  isolation: isolate;
+  /* Plates, bleeding photographs and the network's slice all run past the
+     section's box on purpose. `clip` bounds them at the page edge without
+     creating a scroll container — `hidden` here would break sticky
+     descendants. */
+  overflow-x: clip;
+}
+
+/* Everything the section renders sits above its own plate — except anything
+   explicitly marked as another background layer. */
+.band > *:not(.band__plate):not(.band__bg) {
+  position: relative;
+  z-index: 1;
+}
+
+.band__plate,
+.band__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Plates run past the section top and bottom; the fade lives entirely in that
+   overhang, over the neighbouring sections' padding. */
+.band__plate {
+  top: calc(-1 * var(--band-overhang));
+  bottom: calc(-1 * var(--band-overhang));
+}
+
+/* Bands must not read as stacked rectangles. The fade is measured in pixels
+   against the overhang, so the band reaches full strength exactly where its
+   section begins — copy never lands in the gradient — and the transition is a
+   long violet wash across the neighbouring white. */
+.band__plate--edge-feather {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 var(--band-overhang),
+    #000 calc(100% - var(--band-overhang)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 var(--band-overhang),
+    #000 calc(100% - var(--band-overhang)),
+    transparent 100%
+  );
+}
+.band__plate--edge-top-hard {
+  /* Cuts at the top, fades at the bottom — so it only needs the lower
+     overhang. */
+  top: 0;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 calc(100% - var(--band-overhang)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 calc(100% - var(--band-overhang)),
+    transparent 100%
+  );
+}
+.band__plate--edge-bottom-hard {
+  /* Nothing fades at the bottom, so nothing needs to hang past it — and on the
+     last section an overhang would add dead scroll to the document. */
+  bottom: 0;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 var(--band-overhang)
+  );
+  mask-image: linear-gradient(180deg, transparent 0, #000 var(--band-overhang));
+}
+
+/* --- Paper: white carrying violet, never flat white ---------------------- */
+
+/* The white bands are not blank. Two soft violet blooms drift across them at
+   low density, so the page reads as one violet environment that opens and
+   closes rather than as white panels alternating with purple ones. The white
+   veil underneath still calms the WebGL network where the copy sits.
+   The strong bloom is capped at 20%: at its centre body ink #4C5678 measures
+   4.93:1, and anything denser drops under AA. */
+.band__plate--paper {
+  background:
+    radial-gradient(
+      74% 66% at 96% 2%,
+      var(--band-bloom-strong),
+      var(--band-bloom) 40%,
+      transparent 74%
+    ),
+    radial-gradient(
+      58% 54% at 0% 96%,
+      var(--band-bloom),
+      transparent 72%
+    ),
+    linear-gradient(
+      100deg,
+      var(--band-paper) 0%,
+      var(--band-paper) 44%,
+      var(--band-paper-soft) 74%,
+      transparent 100%
+    );
+}
+
+.band--paper-right .band__plate--paper {
+  background:
+    radial-gradient(
+      74% 66% at 4% 2%,
+      var(--band-bloom-strong),
+      var(--band-bloom) 40%,
+      transparent 74%
+    ),
+    radial-gradient(
+      58% 54% at 100% 96%,
+      var(--band-bloom),
+      transparent 72%
+    ),
+    linear-gradient(
+      260deg,
+      var(--band-paper) 0%,
+      var(--band-paper) 44%,
+      var(--band-paper-soft) 74%,
+      transparent 100%
+    );
+}
+
+/* --- Tint: the middle of the gradient, lavender resolving toward violet --- */
+
+/* Bloom densities are capped by contrast, not taste. The darkest point of the
+   band is the top-right bloom over the gradient's lavender end, where body ink
+   #4C5678 measures 4.58:1 — any denser and body copy fails AA. */
+
+.band__plate--tint {
+  background:
+    radial-gradient(
+      74% 66% at 88% 2%,
+      rgba(151, 105, 245, 0.18),
+      rgba(183, 155, 250, 0.1) 40%,
+      transparent 70%
+    ),
+    radial-gradient(
+      58% 54% at 4% 100%,
+      rgba(97, 10, 229, 0.1),
+      transparent 66%
+    ),
+    linear-gradient(
+      168deg,
+      var(--band-tint-a) 0%,
+      var(--band-tint-b) 62%,
+      var(--band-tint-c) 100%
+    );
+}
+
+/* --- Colour: the deep end of the same violet gradient -------------------- */
+
+/* Six stops rather than a flat fill, so the band moves through indigo, brand
+   violet and a lifted violet instead of reading as one printed panel. The
+   feathered top and bottom dissolve it into the paper above and below — the
+   join is a gradient, not a line. The lightest stop is capped at #7B3AEC so
+   white copy clears AA (5.74:1) everywhere on the band. */
+.band__plate--color {
+  background:
+    radial-gradient(
+      64% 56% at 92% 2%,
+      rgba(186, 156, 255, 0.42),
+      rgba(151, 105, 245, 0.18) 46%,
+      transparent 72%
+    ),
+    radial-gradient(
+      62% 66% at 2% 98%,
+      rgba(28, 2, 74, 0.62),
+      rgba(45, 6, 112, 0.28) 46%,
+      transparent 72%
+    ),
+    linear-gradient(
+      158deg,
+      var(--band-color-a) 0%,
+      var(--band-color-b) 26%,
+      var(--band-color-c) 54%,
+      var(--band-color-d) 78%,
+      var(--band-color-e) 100%
+    );
+}
+
+/* Inside a colour band every component restyles from the token layer — no
+   component needs a colour-band variant of its own.
+   Contrast against the gradient's lightest stop (#7B3AEC, L 0.133):
+   #FFF 5.74:1 · 90% white 4.94:1 · 88% white 4.79:1 · #EDE4FF 4.68:1.
+   Every stop darker than that only improves. */
+.band--color {
+  --color-ink: #ffffff;
+  --color-ink-dim: rgba(255, 255, 255, 0.9);
+  --color-ink-faint: rgba(255, 255, 255, 0.88);
+  --color-signal-lit: #ede4ff;
+  --color-signal: #c4b5fd;
+  --color-signal-mist: rgba(255, 255, 255, 0.14);
+  --color-signal-veil: rgba(255, 255, 255, 0.08);
+  --color-gap: #ffc978;
+  --line: rgba(255, 255, 255, 0.18);
+  --line-strong: rgba(255, 255, 255, 0.32);
+  --glass: rgba(255, 255, 255, 0.1);
+  --glass-lit: rgba(255, 255, 255, 0.16);
+  --surface-glass: rgba(255, 255, 255, 0.12);
+  --surface-hover: rgba(255, 255, 255, 0.1);
+  --glow-signal: rgba(255, 255, 255, 0.3);
+  --glow-signal-soft: rgba(255, 255, 255, 0.16);
+  color: var(--color-ink);
+}
+
+/* The primary button inverts inside a colour band — a purple fill on purple
+   would disappear, so it becomes the white surface. */
+.band--color .btn--primary {
+  --btn-bg: #ffffff;
+  --btn-fg: #3d0a8f;
+  --btn-line: #ffffff;
+}
+.band--color .btn--primary:hover {
+  --btn-bg: #f3ecff;
+}
+
+/* ============================================================================
+   BAND NETWORK — the intelligence layer, inverted onto the colour plate
+   ========================================================================== */
+
+.bandnet {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.bandnet__edge {
+  stroke: var(--band-net);
+  stroke-opacity: 0.34;
+  stroke-width: 1;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.bandnet__edge--bridge {
+  stroke-opacity: 0.55;
+  stroke-dasharray: 3 5;
+  animation: bandnet-bridge 3.2s linear infinite;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes bandnet-bridge {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+/* A short dash travelling a long dashed line — the signal itself, not a
+   glowing edge. Movement always means something is being carried. */
+.bandnet__pulse {
+  stroke: var(--band-net-lit);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 14 460;
+  animation: bandnet-pulse 4.6s var(--ease-inout) infinite;
+  animation-delay: var(--d, 0s);
+  opacity: 0.85;
+}
+
+@keyframes bandnet-pulse {
+  0% {
+    stroke-dashoffset: 300;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: -180;
+    opacity: 0;
+  }
+}
+
+.bandnet__node {
+  fill: var(--band-net);
+  animation: bandnet-breathe 5.4s var(--ease-inout) infinite;
+  animation-delay: var(--d, 0s);
+}
+
+.bandnet__node.is-lit {
+  fill: var(--band-net-lit);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
+}
+
+@keyframes bandnet-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Placement variants */
+.bandnet--plate {
+  opacity: 0.55;
+}
+.bandnet--reserved {
+  opacity: 0.42;
+}
+
+/* The bridge sits outside the photo frame, running off its edge into whatever
+   environment the photograph is standing in. */
+.bandnet--bridge {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 62%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+/* ============================================================================
+   EDITORIAL PHOTO — the real-world layer
+   ========================================================================== */
+
+.photo {
+  position: relative;
+  margin: 0;
+}
+
+.photo__frame {
+  position: relative;
+  aspect-ratio: var(--photo-ratio, 3 / 2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(155deg, #2f0774, #55129f);
+  box-shadow: 0 40px 90px -50px rgba(41, 6, 96, 0.65);
+  isolation: isolate;
+}
+
+.photo__img {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Keep photography authentic — a veil, not a filter. */
+.photo__veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.photo--tint-soft .photo__veil {
+  background: linear-gradient(
+    200deg,
+    rgba(97, 10, 229, 0.14),
+    rgba(10, 6, 32, 0.24)
+  );
+}
+.photo--tint-deep .photo__veil {
+  background: linear-gradient(
+    200deg,
+    rgba(97, 10, 229, 0.3),
+    rgba(10, 6, 32, 0.46)
+  );
+}
+
+/* --- Reserved plate: the slot before the client's image lands ------------- */
+
+.photo__reserved {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(
+      60% 50% at 50% 30%,
+      var(--color-signal-mist),
+      transparent 60%
+    ),
+    var(--color-raised);
+  border: 1px solid var(--color-signal);
+  border-radius: var(--radius-lg);
+}
+
+/* A glass readout already owns the bottom of the frame, so the annotation
+   moves to the top rather than stacking underneath it. */
+.photo--panelled .photo__reserved {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: clamp(16px, 2vw, 24px);
+}
+
+/* Crop marks — the slot reads as a reserved plate rather than an empty box. */
+.photo__reserved::before {
+  content: "";
+  position: absolute;
+  inset: clamp(12px, 1.6vw, 18px);
+  border: 1px solid var(--color-signal);
+  border-radius: calc(var(--radius-lg) - 8px);
+  -webkit-mask-image:
+    linear-gradient(90deg, #000 0 60px, transparent 60px calc(100% - 60px), #000 calc(100% - 60px) 100%),
+    linear-gradient(180deg, #000 0 46px, transparent 46px calc(100% - 46px), #000 calc(100% - 46px) 100%);
+  mask-image:
+    linear-gradient(90deg, #000 0 60px, transparent 60px calc(100% - 60px), #000 calc(100% - 60px) 100%),
+    linear-gradient(180deg, #000 0 46px, transparent 46px calc(100% - 46px), #000 calc(100% - 46px) 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.photo__reserved-note {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: clamp(16px, 2.4vw, 26px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.photo--panelled .photo__reserved-note {
+  text-align: left;
+  padding: 0;
+  margin-top: clamp(12px, 2vw, 20px);
+}
+
+.photo__reserved-tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-signal-lit);
+  font-weight: 600;
+}
+
+.photo__reserved-spec {
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--color-ink-dim);
+  max-width: 42ch;
+}
+
+html.theme-dark .photo__reserved {
+  background:
+    radial-gradient(
+      60% 50% at 50% 30%,
+      rgba(97, 10, 229, 0.18),
+      transparent 60%
+    ),
+    var(--color-base);
+  border-color: var(--color-signal);
+}
+
+html.theme-dark .photo__reserved::before {
+  border-color: var(--color-signal);
+}
+
+html.theme-dark .photo__reserved-tag {
+  color: var(--color-signal-lit);
+}
+
+html.theme-dark .photo__reserved-spec {
+  color: var(--color-ink-dim);
+}
+
+/* --- Glass readout composited over the photograph ------------------------- */
+
+.photo__panel {
+  position: absolute;
+  z-index: 2;
+  left: clamp(14px, 2vw, 22px);
+  right: clamp(14px, 2vw, 22px);
+  bottom: clamp(14px, 2vw, 22px);
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(24, 10, 58, 0.58);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  display: grid;
+  gap: 10px;
+}
+
+.photo__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.photo__panel-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.photo__panel-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.photo__panel-live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  box-shadow: 0 0 10px 2px rgba(196, 181, 253, 0.8);
+  animation: panel-live 2.6s var(--ease-inout) infinite;
+}
+
+@keyframes panel-live {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.photo__panel-rows {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+
+.photo__panel-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--text-body-sm);
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.photo__panel-row dt {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.photo__panel-row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm);
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   SECTION COMPOSITIONS — where the bands and the photography actually land.
+   Proportions differ deliberately from section to section; the split is a
+   language, not a template.
+   ========================================================================== */
+
+/* --- §02 The invisible decision: the customer is outside your frame ------- */
+
+.invis__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+/* Runs off the page edge rather than stopping at the gutter. */
+.invis__photo {
+  margin-right: calc(-1 * var(--shell-bleed));
+}
+.invis__photo .photo__frame {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+@media (max-width: 1000px) {
+  .invis__top {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 44px);
+  }
+  .invis__photo {
+    margin-right: 0;
+  }
+  .invis__photo .photo__frame {
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* --- §11 The close: reality and the invisible layer in one frame ---------- */
+
+/* Dissolves in from the band above rather than starting on a cut line. */
+.final__photo {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 var(--band-overhang)
+  );
+  mask-image: linear-gradient(180deg, transparent 0, #000 var(--band-overhang));
+}
+
+.final__photo .photo,
+.final__photo .photo__frame {
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* The brand veil over the photograph. Sized so white copy clears AA even if
+   the supplied image is near-white: 5.8:1 against a pure-white frame. */
+.final__photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    170deg,
+    rgba(69, 8, 159, 0.9),
+    rgba(97, 10, 229, 0.82) 52%,
+    rgba(110, 34, 222, 0.9)
+  );
+}
+
+/* The reserved plate would otherwise repeat its annotation full-bleed behind
+   the closing statement — the slot reads from the two above it. */
+.final__photo .photo__reserved-note {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bandnet__edge--bridge,
+  .bandnet__pulse,
+  .bandnet__node,
+  .photo__panel-live::before {
+    animation: none !important;
+  }
+  .bandnet__pulse {
+    opacity: 0.55;
+    stroke-dashoffset: 0;
+    stroke-dasharray: none;
+  }
+  .bandnet__node {
+    opacity: 0.8;
+  }
+}

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { engines as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
 
 /**
  * Section 06 — The intelligence engines.
@@ -49,7 +50,15 @@ export function IntelligenceEngines() {
   const active = focus ? c.items.find((i) => i.id === focus) ?? null : null;
 
   return (
-    <section id="engines" className="section" data-section>
+    <section
+      id="engines"
+      className="section band band--color"
+      data-section
+    >
+      {/* No band network here — this section already draws its own graph,
+          and two overlapping node fields fight each other. */}
+      <Band tone="color" edge="feather" />
+
       <div className="shell">
         <SectionHeader
           index={c.index}

@@ -48,6 +48,10 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     });
 
     // --- Which section owns the viewport ---------------------------------
+    // Also publishes the owning section's band tone on <html>, because the
+    // fixed chrome (the scroll rail) sits outside every band and cannot
+    // inherit its tokens — on a colour band its dark ink would vanish.
+    const root = document.documentElement;
     const sectionTriggers = gsap.utils
       .toArray<HTMLElement>("[data-section]")
       .map((el, i) =>
@@ -56,7 +60,13 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
           start: "top 55%",
           end: "bottom 45%",
           onToggle: (self) => {
-            if (self.isActive) scene.section = i;
+            if (!self.isActive) return;
+            scene.section = i;
+            root.dataset.band =
+              el.classList.contains("band--color") ||
+              el.classList.contains("band--split")
+                ? "color"
+                : "default";
           },
         }),
       );
@@ -75,6 +85,7 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("pointermove", onPointer);
       progressTrigger.kill();
       sectionTriggers.forEach((t) => t.kill());
+      delete root.dataset.band;
       if (lenis) {
         gsap.ticker.remove(onGsapTick);
         lenis.destroy();

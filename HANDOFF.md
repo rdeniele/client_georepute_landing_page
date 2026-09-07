@@ -829,6 +829,34 @@ and ticks while the camera/node choreography runs on the same axis. Reveals,
 the final CTA all verified working in both themes. `npm run build` and
 `tsc --noEmit` pass clean; no horizontal overflow at mobile width.
 
+## Photography
+
+All editorial photo slots on the home page currently render **IMAGE PLACEHOLDER**
+reserved plates. The layout is final; dropping in the client's photographs is a
+one-line change per slot (set `src` in `lib/photos.ts`).
+
+### Image placeholders
+
+* **Hero (slot: `hero`)** — `IMAGE PLACEHOLDER` · *Real business or customer
+  environment — people at work, a client meeting, a physical premises, a
+  decision being made. Portrait 4:5, subject weighted low/off-center for glass
+  readout clearance. Min 1400px wide. Priority 1.*
+* **Invisible Decision (slot: `decision`)** — `IMAGE PLACEHOLDER` · *Real-world
+  customer context — a person comparing options, searching, asking, deciding.
+  Human, unposed. Landscape 3:2, subject toward right for page-edge bleed.
+  Min 1800px wide. Priority 2.*
+* **Final CTA (slot: `close`)** — `IMAGE PLACEHOLDER` · *Real business, team
+  or market at work — the organisation the whole page has been talking about.
+  Human and credible, not a stock boardroom. Very wide 21:9, runs full-bleed
+  behind closing statement under brand veil. Min 2400px wide. Priority 3.*
+
+### Potential existing images
+
+The live GeoRepute site (`geo-marketing-virid.vercel.app`) carries no original
+photography — its six images are Unsplash stock (abstract circuitry, fibre
+optic, Earth-from-orbit). The only self-hosted imagery is 13 product-UI
+screenshots under `/screens/`. Real photographs must come from the client.
+
 ## Known Issues
 
 * **Light-mode scene presence is tuned from screenshots in an emulated

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { executive as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
 
 /**
  * Section 09 — Executive intelligence.
@@ -100,7 +101,13 @@ export function ExecutiveIntelligence() {
   const dialTarget = DIAL_C - (DIAL_C * c.position.value) / 100;
 
   return (
-    <section id="executive" className="section" data-section>
+    <section
+      id="executive"
+      className="section band band--paper"
+      data-section
+    >
+      <Band tone="paper" edge="feather" />
+
       <div className="shell">
         <SectionHeader
           index={c.index}

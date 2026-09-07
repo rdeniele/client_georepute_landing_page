@@ -1,5 +1,6 @@
 import { signals as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
 
 /**
  * Section 03 — See the signals.
@@ -11,7 +12,13 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
  */
 export function SignalMap() {
   return (
-    <section id="signals" className="section" data-section>
+    <section
+      id="signals"
+      className="section band band--color"
+      data-section
+    >
+      <Band tone="color" network edge="feather" />
+
       <div className="shell signals">
         <div className="signals__aside">
           <SectionHeader

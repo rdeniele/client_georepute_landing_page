@@ -1,5 +1,7 @@
 import { invisibleDecision as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
+import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
 
 /**
  * Section 02 — The invisible decision.
@@ -7,19 +9,35 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
  * The argument is the diagram: six steps rendered as unresolved outlines and
  * one rendered as a solid, lit event. The proportion is the point, so the
  * copy stays short and lets the ratio carry it.
+ *
+ * The band is mostly white, and the real-world photograph enters from the
+ * right and runs off the page. That is the section's claim made spatially:
+ * the customer is out there, already deciding, outside the frame your
+ * analytics can see.
  */
 export function InvisibleDecision() {
   const invisibleCount = c.timeline.filter((s) => !s.visible).length;
 
   return (
-    <section id="invisible" className="section" data-section>
+    <section id="invisible" className="section band band--paper" data-section>
+      <Band tone="paper" edge="feather" />
+
       <div className="shell">
-        <SectionHeader
-          index={c.index}
-          label={c.label}
-          headline={c.headline}
-          body={c.body}
-        />
+        <div className="invis__top">
+          <SectionHeader
+            index={c.index}
+            label={c.label}
+            headline={c.headline}
+            body={c.body}
+          />
+
+          <EditorialPhoto
+            slot="decision"
+            tint="soft"
+            className="invis__photo"
+            reveal
+          />
+        </div>
 
         <div className="invis">
           <div className="invis__brackets" aria-hidden="true">
