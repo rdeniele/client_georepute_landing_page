@@ -38,7 +38,6 @@ export function DecisionReconstruction() {
             >
               <div className="recon__card-top">
                 <span className="recon__card-number">0{i + 1}</span>
-                <span className="recon__card-icon" aria-hidden="true">{i + 1}</span>
               </div>
               <span className="t-eyebrow">{s.label}</span>
               <h3>{s.title}</h3>
