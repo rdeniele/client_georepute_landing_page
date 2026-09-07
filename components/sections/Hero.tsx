@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { PlatformConstellation } from "@/components/ui/PlatformConstellation";
 import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
 import { BandNetwork } from "@/components/ui/BandNetwork";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 01 — Enter the system.
@@ -21,7 +22,11 @@ import { BandNetwork } from "@/components/ui/BandNetwork";
  * intelligence layer visibly leaving its edge. The reader meets both halves
  * of the story — reality and the invisible layer around it — in one viewport.
  */
-export function Hero() {
+export function Hero({ locale = "en" }: { locale?: string }) {
+  const copy = getLocaleCopy(locale).hero;
+  const panel = locale === "he"
+    ? { title: "סביבת קבלת ההחלטות", live: "בסריקה", surfaces: "משטחים במעקב", signals: "אותות שנפתרו", position: "מיקום ההחלטה", state: "בשחזור" }
+    : { title: "Decision environment", live: "Scanning", surfaces: "Surfaces watched", signals: "Signals resolved", position: "Decision position", state: "Reconstructing" };
   return (
     <section id="top" className="hero band band--split" data-section>
       <div className="hero__stage">
@@ -35,7 +40,7 @@ export function Hero() {
               className="t-eyebrow hero__eyebrow"
               style={{ "--i": 0 } as React.CSSProperties}
             >
-              {hero.eyebrow}
+              {copy.eyebrow}
             </p>
 
             <h1 className="hero__headline">
@@ -43,9 +48,9 @@ export function Hero() {
                 className="hero__lead"
                 style={{ "--i": 1 } as React.CSSProperties}
               >
-                {hero.headlineLead}
+                {copy.headlineLead}
               </span>
-              {hero.emphasis.map((word, i) => (
+              {copy.emphasis.map((word, i) => (
                 <span
                   key={word}
                   className={`hero__word ${i === 2 ? "hero__word--chosen" : ""}`}
@@ -60,18 +65,18 @@ export function Hero() {
               className="t-lead hero__support"
               style={{ "--i": 5 } as React.CSSProperties}
             >
-              {hero.supporting}
+              {copy.supporting}
             </p>
 
             <div
               className="hero__actions"
               style={{ "--i": 6 } as React.CSSProperties}
             >
-              <Button href={hero.primaryCta.href} variant="primary">
-                {hero.primaryCta.label}
+              <Button href={copy.primaryCta.href} variant="primary">
+                {copy.primaryCta.label}
               </Button>
-              <Button href={hero.secondaryCta.href} variant="ghost">
-                {hero.secondaryCta.label}
+              <Button href={copy.secondaryCta.href} variant="ghost">
+                {copy.secondaryCta.label}
               </Button>
             </div>
           </div>
@@ -83,26 +88,24 @@ export function Hero() {
             className="hero__plate"
             style={{ "--i": 4 } as React.CSSProperties}
           >
-            <EditorialPhoto slot="hero" bridge tint="soft">
+            <EditorialPhoto slot="hero" bridge tint="soft" locale={locale}>
               <div className="photo__panel">
                 <div className="photo__panel-head">
-                  <span className="photo__panel-label">
-                    Decision environment
-                  </span>
-                  <span className="photo__panel-live">Scanning</span>
+                  <span className="photo__panel-label">{panel.title}</span>
+                  <span className="photo__panel-live">{panel.live}</span>
                 </div>
                 <dl className="photo__panel-rows">
                   <div className="photo__panel-row">
-                    <dt>Surfaces watched</dt>
+                    <dt>{panel.surfaces}</dt>
                     <dd>Google + 6 AI</dd>
                   </div>
                   <div className="photo__panel-row">
-                    <dt>Signals resolved</dt>
+                    <dt>{panel.signals}</dt>
                     <dd>10</dd>
                   </div>
                   <div className="photo__panel-row">
-                    <dt>Decision position</dt>
-                    <dd>Reconstructing</dd>
+                    <dt>{panel.position}</dt>
+                    <dd>{panel.state}</dd>
                   </div>
                 </dl>
               </div>
@@ -126,7 +129,7 @@ export function Hero() {
             ))}
           </ul>
           <span className="hero__hint">
-            <span className="t-label">{hero.scrollHint}</span>
+            <span className="t-label">{copy.scrollHint}</span>
             <span className="hero__hint-rail" aria-hidden="true" />
           </span>
         </div>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { photos, type PhotoId } from "@/lib/photos";
 import { BandNetwork } from "./BandNetwork";
+import { normalizeLocale } from "@/lib/i18n";
 
 /**
  * A photographic plate.
@@ -23,6 +24,7 @@ export function EditorialPhoto({
   tint = "soft",
   reveal = false,
   className = "",
+  locale = "en",
   children,
 }: {
   slot: PhotoId;
@@ -32,10 +34,18 @@ export function EditorialPhoto({
   /** Join the page's shared scroll-reveal vocabulary. */
   reveal?: boolean;
   className?: string;
+  locale?: string;
   /** Glass readout composited over the photograph. */
   children?: React.ReactNode;
 }) {
   const p = photos[slot];
+  const isHebrew = normalizeLocale(locale) === "he";
+  const placeholderTag = isHebrew ? "תמונה בהמתנה" : "IMAGE PLACEHOLDER";
+  const placeholderSpec = isHebrew
+    ? slot === "decision"
+      ? "הקשר לקוח אמיתי — אדם משווה אפשרויות, מחפש, שואל ומחליט. אנושי ולא מבוים."
+      : "סביבת עסק או לקוח אמיתית — אנשים בעבודה, פגישה, מקום פיזי או החלטה שמתקבלת."
+    : p.spec.subject;
 
   return (
     <figure
@@ -54,11 +64,11 @@ export function EditorialPhoto({
             priority={p.priority === 1}
           />
         ) : (
-          <div className="photo__reserved" aria-label="Image placeholder">
+          <div className="photo__reserved" aria-label={placeholderTag}>
             <p className="photo__reserved-note">
-              <span className="photo__reserved-tag">IMAGE PLACEHOLDER</span>
+              <span className="photo__reserved-tag">{placeholderTag}</span>
               <span className="photo__reserved-spec">
-                {p.spec.subject}
+                {placeholderSpec}
               </span>
             </p>
           </div>

@@ -647,6 +647,7 @@ html.theme-dark .photo__reserved-spec {
 /* --- §02 The invisible decision: the customer is outside your frame ------- */
 
 .invis__top {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
   gap: clamp(32px, 5vw, 72px);
@@ -655,10 +656,28 @@ html.theme-dark .photo__reserved-spec {
 
 /* Runs off the page edge rather than stopping at the gutter. */
 .invis__photo {
+  position: relative;
+  z-index: 1;
   margin-right: calc(-1 * var(--shell-bleed));
+}
+.invis__top > .sec-head {
+  position: relative;
+  z-index: 2;
 }
 .invis__photo .photo__frame {
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+html[dir="rtl"] .invis__photo {
+  margin-right: 0;
+  margin-left: calc(-1 * var(--shell-bleed));
+}
+
+html[dir="rtl"] .pull {
+  border-right: 1px solid var(--color-signal);
+  border-left: 0;
+  padding-right: clamp(20px, 3vw, 36px);
+  padding-left: 0;
 }
 
 @media (max-width: 1000px) {
@@ -668,6 +687,7 @@ html.theme-dark .photo__reserved-spec {
   }
   .invis__photo {
     margin-right: 0;
+    margin-left: 0;
   }
   .invis__photo .photo__frame {
     border-radius: var(--radius-lg);

@@ -2,6 +2,7 @@ import { invisibleDecision as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
 import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 02 — The invisible decision.
@@ -15,7 +16,8 @@ import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
  * the customer is out there, already deciding, outside the frame your
  * analytics can see.
  */
-export function InvisibleDecision() {
+export function InvisibleDecision({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).invisible;
   const invisibleCount = c.timeline.filter((s) => !s.visible).length;
 
   return (
@@ -36,6 +38,7 @@ export function InvisibleDecision() {
             tint="soft"
             className="invis__photo"
             reveal
+            locale={locale}
           />
         </div>
 

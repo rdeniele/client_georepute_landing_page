@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logo from "@/public/brand/logo-g-mark.png";
-import { nav } from "@/lib/content";
+import { getLocaleCopy, localeNames, localizeNav, normalizeLocale, LOCALES } from "@/lib/i18n";
 import { Button } from "./Button";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -22,6 +22,9 @@ import { ThemeToggle } from "./ThemeToggle";
  */
 export function Navigation() {
   const pathname = usePathname();
+  const locale = normalizeLocale(pathname.split("/")[1]);
+  const localizedNav = localizeNav(locale);
+  const localeCopy = getLocaleCopy(locale);
   const [lifted, setLifted] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
@@ -80,7 +83,7 @@ export function Navigation() {
       onPointerLeave={() => !coarse && setOpen(null)}
     >
       <div className="nav__shell">
-        <a href={nav.brand.href} className="nav__brand" aria-label={`${nav.brand.name} — home`}>
+        <a href={localizedNav.brand.href} className="nav__brand" aria-label={`${localizedNav.brand.name} — home`}>
           <Image
             src={logo}
             alt=""
@@ -90,13 +93,13 @@ export function Navigation() {
             priority
           />
           <span className="nav__wordmark">
-            <span className="nav__name">{nav.brand.name}</span>
-            <span className="nav__sub">{nav.brand.sub}</span>
+            <span className="nav__name">{localizedNav.brand.name}</span>
+            <span className="nav__sub">{localizedNav.brand.sub}</span>
           </span>
         </a>
 
         <nav className="nav__primary" aria-label="Primary">
-          {nav.groups.map((g) => (
+          {localizedNav.groups.map((g) => (
             <div
               key={g.id}
               className={`nav__group ${g.items.some((item) => pathname.startsWith(item.href)) ? "is-current" : ""}`}
@@ -172,7 +175,7 @@ export function Navigation() {
             </div>
           ))}
 
-          {nav.links.map((l) => (
+          {localizedNav.links.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -184,12 +187,32 @@ export function Navigation() {
         </nav>
 
         <div className="nav__actions">
-          <a href={nav.signIn.href} className="nav__signin">
-            {nav.signIn.label}
+          <a href={localizedNav.signIn.href} className="nav__signin">
+            {localizedNav.signIn.label}
           </a>
+          <details className="nav__locale">
+            <summary className="nav__locale-trigger">
+              <span className="sr-only">{localeCopy.nav.language || "Language"}</span>
+              <span aria-hidden="true">{locale.toUpperCase()}</span>
+              <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                <path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+            </summary>
+            <div className="nav__locale-menu" role="menu" aria-label={localeCopy.nav.language || "Language"}>
+              {LOCALES.map((code) => {
+                const href = pathname.replace(/^\/(?:en|he|ar|ru|fr|es|pt)(?=\/|$)/, `/${code}`);
+                return (
+                  <a key={code} href={href} role="menuitem" aria-current={code === locale ? "true" : undefined}>
+                    <span>{localeNames[code]}</span>
+                    <small>{code}</small>
+                  </a>
+                );
+              })}
+            </div>
+          </details>
           <ThemeToggle />
-          <Button href={nav.cta.href} variant="primary" className="nav__cta">
-            {nav.cta.label}
+          <Button href={localizedNav.cta.href} variant="primary" className="nav__cta">
+            {localizedNav.cta.label}
           </Button>
           <button
             type="button"
@@ -208,7 +231,7 @@ export function Navigation() {
       </div>
 
       <div id="nav-drawer" className="nav__drawer" hidden={!drawer}>
-        {nav.groups.map((g) => (
+        {localizedNav.groups.map((g) => (
           <div key={g.id} className="nav__acc">
             <button
               type="button"
@@ -244,7 +267,7 @@ export function Navigation() {
           </div>
         ))}
 
-        {nav.links.map((l) => (
+        {localizedNav.links.map((l) => (
           <a
             key={l.href}
             href={l.href}
@@ -256,11 +279,11 @@ export function Navigation() {
         ))}
 
         <div className="nav__drawer-actions">
-          <a href={nav.signIn.href} className="nav__signin">
-            {nav.signIn.label}
+          <a href={localizedNav.signIn.href} className="nav__signin">
+            {localizedNav.signIn.label}
           </a>
-          <Button href={nav.cta.href} variant="primary">
-            {nav.cta.label}
+          <Button href={localizedNav.cta.href} variant="primary">
+            {localizedNav.cta.label}
           </Button>
         </div>
       </div>

@@ -1127,6 +1127,229 @@ per the client's palette), with dark mode one toggle away and persisted.
    section and navigation.
 
 ---
+# 2026-09-07 — LOCALE ROUTING + TRANSLATED FIRST VIEW
+
+## Completed
+
+* Added the seven requested locale codes: `en`, `he`, `ar`, `ru`, `fr`, `es`,
+  and `pt`.
+* Added locale-aware homepage and subpage routing while preserving the existing
+  `/en/...` paths.
+* Added translated navigation group labels, primary controls, language names,
+  localized route generation, and translated hero copy based on the live
+  localized GeoRepute pages.
+* Added a compact language selector to the global navigation.
+* Added runtime `lang`, `dir`, and `data-locale` attributes; Hebrew and Arabic
+  use RTL direction.
+
+## Design Decisions
+
+* Locale switching preserves the current pathname where possible, so a visitor
+  can move between language versions without returning to the homepage.
+* The existing visual system and component structure are shared across locales;
+  translation changes copy and document direction rather than duplicating page
+  layouts.
+
+## Technical Changes
+
+* `lib/i18n.ts` contains the supported locale registry, direction metadata,
+  translated hero/navigation copy, and localized path helpers.
+* `LocaleAttributes` applies the active language and direction to the document.
+* `Navigation` uses localized route data and exposes all seven languages.
+* The locale route accepts every supported code; unknown locale codes remain
+  outside the supported list.
+
+## Files Changed
+
+* `lib/i18n.ts`
+* `components/ui/LocaleAttributes.tsx`
+* `components/ui/Navigation.tsx`
+* `components/layout/SiteShell.tsx`
+* `components/pages/HomePage.tsx`
+* `components/sections/Hero.tsx`
+* `app/[locale]/page.tsx`
+* `app/[locale]/[...slug]/page.tsx`
+* `app/ui.css`
+* `handoff.md`
+
+## Current State
+
+* `/en`, `/he`, `/ar`, `/ru`, `/fr`, `/es`, and `/pt` resolve.
+* The first viewport and global navigation are translated for all seven
+  locales; Hebrew and Arabic render RTL without horizontal overflow.
+* Existing deeper homepage sections and generic subpage body copy still use the
+  current English source until their verified translations are added.
+
+## Known Issues
+
+* The remaining homepage sections need complete localized copy, not only the
+  translated first viewport and navigation.
+* Locale-specific metadata titles and descriptions are not yet generated.
+* The supported locale list is currently hard-coded and has no translation
+  loading boundary.
+
+## Next Recommended Tasks
+
+1. Translate the remaining homepage content section by section from the live
+   localized source pages, keeping product terms and sample disclaimers exact.
+2. Add locale-aware metadata and localized subpage copy.
+3. Review RTL spacing and typography with native-language QA for Hebrew and
+   Arabic.
+
+---
+# 2026-09-07 — LANGUAGE SWITCHER CONTROL REDESIGN
+
+## Completed
+
+* Replaced the native language `<select>` with a styled, accessible disclosure
+  menu in the global navbar.
+* The control shows the active locale code and opens an opaque list with all
+  seven language names and codes.
+* The active language is marked and links preserve the current pathname while
+  switching locale.
+
+## Design Decisions
+
+* The compact code-plus-chevron control matches the navbar's telemetry and
+  glass-panel language better than a browser-default select.
+* The menu uses the same opaque navigation surface as the mega-menu so labels
+  remain readable over both light and dark page backgrounds.
+* The 44px minimum touch target is preserved for mobile and keyboard users.
+
+## Technical Changes
+
+* Added styled `.nav__locale`, `.nav__locale-trigger`, and
+  `.nav__locale-menu` rules in `app/ui.css`.
+* `Navigation.tsx` now renders an accessible `<details>` menu with seven
+  locale links and `aria-current` on the selected language.
+
+## Files Changed
+
+* `components/ui/Navigation.tsx`
+* `app/ui.css`
+* `handoff.md`
+
+## Current State
+
+* The language menu has been checked on Arabic desktop and 390px mobile.
+* All seven options render, Arabic is correctly marked active, and there is no
+  horizontal overflow.
+
+## Next Recommended Tasks
+
+1. Continue translating the remaining homepage sections from the verified live
+   locale source pages.
+2. Add native-language QA for menu typography and spacing in all locales.
+
+---
+# 2026-09-07 — HEBREW HERO + INVISIBLE DECISION FIXES
+
+## Completed
+
+* Added Hebrew copy for section 02, including the heading, explanation, pull
+  quote, timeline labels, and measurement labels.
+* Localized the hero's visible decision-environment readout for Hebrew.
+* Localized the reserved-image placeholder tag and brief for Hebrew.
+* Mirrored the hero's violet environment for RTL so the color field stays on
+  the image side instead of washing over the Hebrew copy.
+* Protected the section 02 text layer above the placeholder image and removed
+  mobile horizontal overflow.
+
+## Design Decisions
+
+* Hebrew keeps the same visual system and contrast values as the other themes;
+  only the spatial direction and copy alignment change.
+* The placeholder remains visibly reserved, but its label and content now read
+  naturally in Hebrew instead of creating an English interruption.
+
+## Technical Changes
+
+* Added Hebrew `invisible` content to `lib/i18n.ts`.
+* Passed locale into `HomePage`, `Hero`, `InvisibleDecision`, and
+  `EditorialPhoto`.
+* Added RTL hero field mirroring and section text/photo stacking rules in
+  `app/ui.css` and `app/bands.css`.
+
+## Files Changed
+
+* `lib/i18n.ts`
+* `components/pages/HomePage.tsx`
+* `components/sections/Hero.tsx`
+* `components/sections/InvisibleDecision.tsx`
+* `components/ui/EditorialPhoto.tsx`
+* `app/ui.css`
+* `app/bands.css`
+* `handoff.md`
+
+## Current State
+
+* Hebrew hero and section 02 render RTL with translated visible copy and a
+  correctly positioned image placeholder.
+* Arabic and other locales retain their existing translated first-view copy;
+  their deeper sections remain pending full translation.
+
+## Verification
+
+* Hebrew mobile rendering checked at 390px with no horizontal overflow.
+* Hebrew heading, body, timeline, placeholder, RTL direction, and layer order
+  checked in the browser.
+* `npm run typecheck` passes.
+
+## Next Recommended Tasks
+
+1. Translate section 02 for Arabic and the remaining locales from the verified
+   live source pages.
+2. Continue the same section-by-section translation pass for the homepage.
+
+---
+# 2026-09-07 — HEBREW HERO EDGE FIX
+
+## Completed
+
+* Removed the visible white strip at the right edge of the Hebrew desktop hero.
+* Reworked the RTL hero gradients so the violet environment reaches the
+  viewport edge while the Hebrew copy remains on a readable light floor.
+
+## Technical Changes
+
+* Updated the RTL `.hero__stage::before` and `.hero__env` rules in
+  `app/ui.css`.
+* Mirrored the radial gradient origin and restored the environment's full edge
+  coverage instead of inset positioning from the right.
+
+## Verification
+
+* Hebrew desktop rendered at 1536px and checked visually.
+* Hebrew RTL section still has no content overflow.
+* `npm run typecheck` passes.
+
+## Next Recommended Tasks
+
+1. Run the same edge-coverage check for Arabic RTL at desktop width.
+2. Continue translating the remaining homepage sections.
+
+---
+# 2026-09-07 — HEBREW HERO LEFT EDGE FIX
+
+## Completed
+
+* Removed the final white strip on the far left of the Hebrew RTL hero.
+* Extended the mirrored hero environment from `left: 0` through the viewport,
+  while preserving the image-side radial violet concentration.
+
+## Verification
+
+* Hebrew desktop rendered at 1536px and visually checked.
+* The RTL hero environment now measures from the viewport left edge to the
+  right content boundary.
+* `npm run typecheck` passes.
+
+## Next Recommended Tasks
+
+1. Apply the same full-edge RTL check to Arabic.
+2. Continue translating the remaining homepage sections.
+
+---
 # 2026-09-07 — STATIC DECISION CARD REFINEMENT
 
 ## Completed

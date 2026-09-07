@@ -12,11 +12,11 @@ import { ExecutiveIntelligence } from "@/components/sections/ExecutiveIntelligen
 import { ActionPlan } from "@/components/sections/ActionPlan";
 import { FinalCta } from "@/components/sections/FinalCta";
 
-export function HomePage() {
+export function HomePage({ locale = "en" }: { locale?: string }) {
   return (
     <>
-      <Hero />
-      <InvisibleDecision />
+      <Hero locale={locale} />
+      <InvisibleDecision locale={locale} />
       <SignalMap />
       <DecisionReconstruction />
       <BlindSpot />
