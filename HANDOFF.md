@@ -1039,3 +1039,141 @@ per the client's palette), with dark mode one toggle away and persisted.
    pages, then marketplace indexes and categories.
 4. Perform a real-device performance and reduced-motion pass across the home
    page and the new subpage.
+
+---
+# 2026-09-07 — CALMER MOTION + FRAMED DECISION CARDS
+
+## Completed
+
+* Removed the persistent Three.js canvas from `SiteShell`; no canvas is
+  mounted behind the homepage or subpages now.
+* Preserved the existing CSS atmosphere, gradients, glass surfaces, section
+  transitions, hover states, and scroll-driven DOM emphasis.
+* Rebuilt "Watch a decision form" as six framed cards that remain visible in
+  one composition.
+* Changed scroll behavior from swapping captions and visibility to updating
+  card emphasis only: ahead, active, and completed states.
+* Kept the worked-example query and its visible illustrative-data disclaimer.
+
+## Design Decisions
+
+* The persistent moving network was removed because it competed with the
+  message and made the site feel more threatening than explanatory.
+* Motion remains through restrained CSS atmosphere and a small
+  ScrollTrigger-controlled progress/emphasis treatment; it no longer asks the
+  visitor to track a moving object behind the copy.
+* The decision process is now a structured 2x3 framed system, matching the
+  request for clarity inside squares/cards. Thin numbered connectors preserve
+  sequence without recreating a complex visual network.
+
+## Technical Changes
+
+* `SiteShell` no longer dynamically imports or renders `IntelligenceCanvas`.
+* `DecisionReconstruction` uses one ScrollTrigger to update card `data-state`
+  values and a simple progress fill; cards never fade out or leave the
+  composition.
+* The old pinned-stage CSS is overridden by flexible card rules with natural
+  height, 2-column desktop/tablet layout, and 1-column mobile layout.
+* Text uses natural wrapping, `min-height` only, and no English-specific
+  positioning so longer translations can expand safely.
+* Three.js source files remain available for future page-specific visuals, but
+  they are not mounted in the current global experience and consume no render
+  loop on these routes.
+
+## Files Changed
+
+* `components/layout/SiteShell.tsx`
+* `components/sections/DecisionReconstruction.tsx`
+* `app/sections.css`
+* `handoff.md`
+
+## Current State
+
+* The homepage and subpages use the calmer content-first shell with no
+  persistent WebGL background.
+* Section 04 shows all six stages at once: Question, AI Interpretation,
+  Evidence, Competitive Context, Recommendation, and Decision.
+* Scroll emphasis advances through the cards without hiding any stage.
+* Desktop, mobile, light mode, and dark mode checks passed. Mobile width has
+  no horizontal overflow.
+
+## Known Issues
+
+* The Three.js components and director/beat modules remain in the repository
+  as unused source for possible future section-specific visuals; they are not
+  currently removed from disk.
+* `ScrollProvider` and GSAP remain because they still support smooth scrolling,
+  section behavior, and the card emphasis interaction.
+* The current locale route structure is ready for multilingual content, but
+  translated copy and RTL locale metadata are not yet implemented.
+
+## Client Requirements Addressed
+
+* Persistent 3D background removed from the rendered experience: complete.
+* Content-first hierarchy and reduced distraction: complete.
+* Six decision stages visible together in framed cards: complete.
+* Scroll controls emphasis rather than visibility: complete.
+* Light and dark card treatment: verified.
+* Multilingual-safe flexible card layout: implemented structurally; translated
+  strings still need to be supplied.
+
+## Next Recommended Tasks
+
+1. Add a locale dictionary and direction metadata once the supported language
+   list and translations are supplied.
+2. Remove or lazy-load unused Three.js/director modules if no page-specific
+   visual is planned.
+3. Run a real-device accessibility and reduced-motion pass over the six-card
+   section and navigation.
+
+---
+# 2026-09-07 — STATIC DECISION CARD REFINEMENT
+
+## Completed
+
+* Removed scroll-based card emphasis from section 04.
+* Removed the progress rail and all arrow connectors.
+* Kept all six framed cards visible with equal visual weight at all scroll
+  positions.
+
+## Design Decisions
+
+* Section 04 is now an at-a-glance explanation rather than an interaction the
+  visitor has to follow. This directly addresses the request for a calmer,
+  less threatening presentation.
+* Numbering and the six framed panels provide the process structure without
+  directional arrows or active-state effects.
+
+## Technical Changes
+
+* `DecisionReconstruction.tsx` is now a static component with no client-side
+  scroll listener, GSAP registration, or refs.
+* The card styles in `app/sections.css` no longer use active, completed, or
+  ahead state selectors, and the responsive layout remains flexible for
+  translated copy.
+
+## Files Changed
+
+* `components/sections/DecisionReconstruction.tsx`
+* `app/sections.css`
+* `handoff.md`
+
+## Current State
+
+* Section 04 shows Question, AI Interpretation, Evidence, Competitive Context,
+  Recommendation, and Decision together in a quiet 2x3 framed layout.
+* Mobile continues to use a single-column layout with natural text height.
+* The worked-example disclaimer remains visible.
+
+## Client Requirements Addressed
+
+* No card highlighting on scroll: complete.
+* No arrows: complete.
+* Clear framed process: preserved.
+
+## Next Recommended Tasks
+
+1. Recheck the section with supplied translations once the locale dictionary is
+   available.
+2. Continue the accessibility pass for keyboard focus, contrast, and mobile
+   reading order.

@@ -451,6 +451,188 @@
 }
 
 /* ============================================================================
+   04 — WATCH A DECISION FORM / FRAMED PROCESS
+
+   The six stages stay in one visible composition. Scroll only changes which
+   card carries emphasis; card height follows its translated copy naturally.
+   ========================================================================== */
+
+.recon {
+  height: auto;
+  min-height: 0;
+  padding-block: clamp(80px, 10vw, 144px);
+}
+
+.recon__shell {
+  position: relative;
+}
+
+.recon__stage,
+.recon__lower {
+  position: static;
+  height: auto;
+  overflow: visible;
+}
+
+.recon__head {
+  position: static;
+  display: grid;
+  gap: 20px;
+  max-width: 760px;
+  margin: 0;
+  padding: 0;
+}
+
+.recon__headline {
+  max-width: 26ch;
+}
+
+.recon__query {
+  max-width: 42rem;
+  padding: 18px 20px;
+}
+
+.recon__progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: clamp(40px, 6vw, 72px);
+}
+
+.recon__progress-track {
+  display: block;
+  flex: 1;
+  height: 2px;
+  overflow: hidden;
+  background: var(--line-strong);
+}
+
+.recon__progress-track span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-signal), var(--color-signal-lit));
+  transform: scaleX(0.12);
+  transform-origin: left center;
+}
+
+.recon__progress-label {
+  flex: none;
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recon__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recon__card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 250px;
+  padding: clamp(22px, 3vw, 32px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  box-shadow: 0 18px 45px -40px rgba(27, 35, 64, 0.6);
+  opacity: 1;
+  transition: border-color var(--d-micro) var(--ease-out),
+    background-color var(--d-micro) var(--ease-out),
+    box-shadow var(--d-micro) var(--ease-out);
+}
+
+.recon__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recon__card-number {
+  color: var(--color-signal-lit);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.recon__card-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  transition:
+    color var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out),
+    background-color var(--d-state) var(--ease-out);
+}
+
+.recon__card h3,
+.recon__card p {
+  margin: 0;
+}
+
+.recon__card h3 {
+  max-width: 24ch;
+  color: var(--color-ink);
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.recon__card p {
+  max-width: 48ch;
+  color: var(--color-ink-dim);
+  font-size: var(--text-body-sm);
+  line-height: 1.55;
+}
+
+.recon__sample {
+  margin: 18px 0 0;
+  color: var(--color-ink-faint);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+@media (max-width: 780px) {
+  .recon__stage,
+  .recon__lower {
+    position: static;
+  }
+
+  .recon__headline {
+    display: block;
+  }
+
+  .recon__progress-label {
+    max-width: 14ch;
+    line-height: 1.35;
+  }
+
+  .recon__cards {
+    grid-template-columns: 1fr;
+  }
+
+  .recon__card {
+    min-height: 0;
+  }
+}
+
+/* ============================================================================
    05 — THE BLIND SPOT
    ========================================================================== */
 
