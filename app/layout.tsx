@@ -5,6 +5,7 @@ import "./globals.css";
 import "./ui.css";
 import "./sections.css";
 import "./bands.css";
+import "./subpages.css";
 
 const display = Inter_Tight({
   subsets: ["latin"],

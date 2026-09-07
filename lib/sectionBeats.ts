@@ -238,11 +238,13 @@ const ENTRIES: Entry[] = [
 /** An anchor is a beat pinned to a scroll position, in viewport-centre space. */
 type Anchor = { at: number; beat: Beat };
 
-export function useSectionBeats() {
+export function useSectionBeats(enabled = true) {
   const anchors = useRef<Anchor[]>([]);
   const measuredVh = useRef(0);
 
   useEffect(() => {
+    if (!enabled) return;
+
     /**
      * Anchors are expressed in "viewport centre" coordinates: the document
      * scroll position at which the middle of the screen sits on that beat.
@@ -326,5 +328,5 @@ export function useSectionBeats() {
       st.kill();
       window.removeEventListener("resize", onResize);
     };
-  }, []);
+  }, [enabled]);
 }

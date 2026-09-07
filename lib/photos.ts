@@ -3,8 +3,8 @@
  *
  * Every editorial photo slot on the page is declared here, and only here.
  * A slot renders a real photograph as soon as `src` points at a file in
- * `public/photography/`; until then it renders its designed reserved plate —
- * the network artwork with a discreet annotation — so the layout is final and
+ * `public/photography/`; until then it renders its designed reserved plate:
+ * the network artwork with a discreet annotation; so the layout is final and
  * dropping the image in is a one-line change.
  *
  * The `spec` is the brief handed to the client for that slot. It is shown on
@@ -19,7 +19,7 @@
  */
 
 export type PhotoSlot = {
-  /** Stable id — also the expected filename stem in public/photography/. */
+  /** Stable id: also the expected filename stem in public/photography/. */
   id: string;
   /** Path under /public once the client supplies the file, else null. */
   src: string | null;
@@ -42,14 +42,14 @@ export const photos = {
   hero: {
     id: "hero",
     src: null,
-    alt: "A real GeoRepute customer environment — the business whose decision environment the network is mapping.",
+    alt: "A real GeoRepute customer environment: the business whose decision environment the network is mapping.",
     ratio: "4 / 5",
     priority: 1,
     spec: {
       orientation: "portrait",
       minWidth: 1400,
       subject:
-        "A real business or customer environment — people at work, a client meeting, a physical premises, a decision being made.",
+        "A real business or customer environment: people at work, a client meeting, a physical premises, a decision being made.",
       composition:
         "Subject weighted low or to one side. Calm upper area for the glass readout to sit over. No text or logos in frame.",
     },
@@ -57,14 +57,14 @@ export const photos = {
   decision: {
     id: "decision",
     src: null,
-    alt: "A customer weighing alternatives — the moment the decision is actually shaped, before any analytics event fires.",
+    alt: "A customer weighing alternatives: the moment the decision is actually shaped, before any analytics event fires.",
     ratio: "3 / 2",
     priority: 2,
     spec: {
       orientation: "landscape",
       minWidth: 1800,
       subject:
-        "Real-world customer context — a person comparing options, searching, asking, deciding. Human, unposed.",
+        "Real-world customer context: a person comparing options, searching, asking, deciding. Human, unposed.",
       composition:
         "Landscape. Subject toward the right so the frame can bleed off the page edge. Room to crop from the left.",
     },
@@ -72,14 +72,14 @@ export const photos = {
   close: {
     id: "close",
     src: null,
-    alt: "The real business the decision environment forms around — where GeoRepute's analysis lands.",
+    alt: "The real business the decision environment forms around: where GeoRepute's analysis lands.",
     ratio: "21 / 9",
     priority: 3,
     spec: {
       orientation: "landscape",
       minWidth: 2400,
       subject:
-        "A real business, team or market at work — the organisation the whole page has been talking about. Human and credible, not a stock boardroom.",
+        "A real business, team or market at work: the organisation the whole page has been talking about. Human and credible, not a stock boardroom.",
       composition:
         "Very wide. Runs full-bleed behind the closing statement under a brand-colour veil, so mid-tones read better than heavy contrast.",
     },

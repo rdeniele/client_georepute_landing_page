@@ -4,13 +4,13 @@
  * Positioning, module names, engine names and capability figures are taken
  * from the live GeoRepute site. Anything illustrative (the sample decision
  * reconstruction, the sample measure readings) is marked `sample: true` and
- * is labelled as a worked example in the UI — it is never presented as a
+ * is labelled as a worked example in the UI; it is never presented as a
  * customer result.
  */
 
 /**
  * Navigation mirrors the live site's structure, labels and destinations
- * verbatim — three mega-menu groups, two direct links, sign-in and the primary
+ * verbatim; three mega-menu groups, two direct links, sign-in and the primary
  * CTA. Paths are the live site's own routes so this header drops straight into
  * the rebuilt app.
  */
@@ -123,7 +123,7 @@ export const hero = {
   headlineLead: "See where your business is",
   emphasis: ["Recognized.", "Recommended.", "Chosen."],
   supporting:
-    "GeoRepute maps the decision environment around your business — across AI, search, reputation, competitors, and the signals that influence what customers choose.",
+    "GeoRepute maps the decision environment around your business: across AI, search, reputation, competitors, and the signals that influence what customers choose.",
   primaryCta: { label: "Analyze My Business", href: "#analyze" },
   secondaryCta: { label: "Explore the Intelligence", href: "#signals" },
   scrollHint: "Enter the system",
@@ -214,7 +214,7 @@ export const reconstruction = {
   label: "Watch a decision form",
   headline: "Enter a domain, pick a commercial question, watch the decision rebuild.",
   sample: true,
-  sampleNote: "Worked example — illustrative reconstruction, not customer data.",
+  sampleNote: "Worked example: illustrative reconstruction, not customer data.",
   query: "Which industrial fastener suppliers are most reliable in the Midwest?",
   stages: [
     {
@@ -229,14 +229,14 @@ export const reconstruction = {
       label: "AI interpretation",
       title: "The engine decides what the question means",
       detail:
-        "'Reliable' is resolved into on-time delivery, certification depth, and stocking consistency — before any supplier is considered.",
+        "'Reliable' is resolved into on-time delivery, certification depth, and stocking consistency; before any supplier is considered.",
     },
     {
       key: "evidence",
       label: "Evidence",
       title: "Independent sources are weighed",
       detail:
-        "Third-party evidence outranks self-published claims. Businesses without it are not disqualified — they are never assembled into the answer.",
+        "Third-party evidence outranks self-published claims. Businesses without it are not disqualified; they are never assembled into the answer.",
     },
     {
       key: "comparison",
@@ -257,7 +257,7 @@ export const reconstruction = {
       label: "Decision",
       title: "The decision was made before the click",
       detail:
-        "It was not created at the final step. It was assembled out of every signal that came before it — which is the part your analytics never saw.",
+        "It was not created at the final step. It was assembled out of every signal that came before it; that is the part your analytics never saw.",
     },
   ],
 } as const;
@@ -287,7 +287,7 @@ export const engines = {
   index: "06",
   label: "The intelligence engines",
   headline: "Twelve engines. One connected system.",
-  body: "Each engine answers a question the others depend on. Nine of the core engines are mapped here — focus one to see what it feeds.",
+  body: "Each engine answers a question the others depend on. Nine of the core engines are mapped here; focus one to see what it feeds.",
   items: [
     {
       id: "recognition",
@@ -390,7 +390,7 @@ export const decisionGraph = {
       id: "channel",
       name: "Channel",
       kind: "Surface",
-      detail: "Google and six AI engines — the surfaces where the answer is assembled.",
+      detail: "Google and six AI engines: the surfaces where the answer is assembled.",
       evidence: ["Google presence", "AI engine coverage", "Surface consistency"],
     },
     {
@@ -426,7 +426,7 @@ export const executive = {
   headline: "Ten measures, one decision position.",
   body: "Each measure opens its own evidence. The position is what the board actually asks for.",
   sample: true,
-  sampleNote: "Sample reading — illustrative values shown to demonstrate the interface.",
+  sampleNote: "Sample reading: illustrative values shown to demonstrate the interface.",
   position: { label: "Decision position", value: 62, state: "Contested" },
   measures: [
     { name: "AI Recognition", value: 48 },

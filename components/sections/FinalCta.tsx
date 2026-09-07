@@ -1,8 +1,9 @@
-import { finalCta as c, footer as f } from "@/lib/content";
+import { finalCta as c } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Band } from "@/components/ui/Band";
 import { photos } from "@/lib/photos";
 import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
+import { SiteFooter } from "@/components/ui/SiteFooter";
 
 /**
  * Section 11 — Analyze my business.
@@ -56,13 +57,7 @@ export function FinalCta() {
         </div>
       </div>
 
-      <footer className="foot">
-        <div className="shell foot__shell">
-          <span className="foot__brand">{f.brand}</span>
-          <span className="foot__tagline">{f.tagline}</span>
-          <span className="foot__note t-editorial">{f.note}</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </section>
   );
 }

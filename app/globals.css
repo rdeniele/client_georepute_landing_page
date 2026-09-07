@@ -107,6 +107,7 @@
   --glow-gap: rgba(180, 83, 9, 0.2);
 
   --nav-floor: rgba(255, 255, 255, 0.88);
+  --nav-panel-floor: rgba(255, 255, 255, 0.97);
   --drawer-floor: rgba(250, 249, 255, 0.97);
 
   --d-micro: 140ms;
@@ -164,6 +165,7 @@ html.theme-dark {
   --glow-gap: rgba(255, 181, 71, 0.22);
 
   --nav-floor: rgba(9, 14, 28, 0.95);
+  --nav-panel-floor: rgba(9, 14, 28, 0.985);
   --drawer-floor: rgba(10, 16, 32, 0.96);
 }
 

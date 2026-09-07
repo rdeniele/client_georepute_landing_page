@@ -929,3 +929,113 @@ per the client's palette), with dark mode one toggle away and persisted.
    constellation a scroll beat (platforms light one-by-one as the camera
    approaches) once the client confirms they want the platforms in the
    choreography, not just the stage.
+
+---
+# 2026-09-07 — SUBPAGE FOUNDATION + DECISION RECONSTRUCTION
+
+## Completed
+
+* Confirmed the locale routing decision with the client: the application now
+  uses the existing `/en/...` navigation paths, with `/` redirecting to `/en`.
+* Extracted the shared global shell so the navigation, theme system, one
+  WebGL canvas, background wash, and scroll provider can be reused by home and
+  subpages without duplicating the scene context.
+* Added the first complete representative subpage at
+  `/en/app/reconstruct`: Decision Reconstruction.
+* Preserved the existing opaque navigation dropdown treatment and added a
+  subtle active indicator to the current navigation group or direct link.
+* Extracted the footer into a reusable `SiteFooter` component and reused it on
+  the homepage and subpage.
+
+## Subpage Architecture
+
+* `components/layout/SiteShell.tsx` owns the shared navigation, canvas, theme
+  environment, reveal observer, and scroll provider.
+* Home-only scroll choreography and the progress rail are enabled through the
+  shell's `home` prop. Subpages receive a calm, distant network beat instead
+  of the homepage's section timeline.
+* `components/pages/DecisionReconstructionPage.tsx` establishes the reusable
+  subpage composition: breadcrumb, hero, contextual subnavigation, explanatory
+  flow, staged content list, output panel, CTA band, and footer.
+* `app/subpages.css` contains the responsive subpage system, orbit visual,
+  evidence strip, stage cards, output panel, and CTA treatment.
+
+## Design System
+
+* Reuses the homepage tokens, typography, buttons, glass surfaces, violet
+  signal treatment, `Band`, reveal attributes, and persistent intelligence
+  network.
+* The Decision Reconstruction visual focuses the network metaphor into a
+  question-to-decision orbit rather than introducing a separate WebGL scene.
+* Light mode remains the default; dark mode inherits the existing token and
+  theme-toggle behavior.
+
+## Navigation
+
+* `/` redirects to `/en`.
+* `/en` renders the existing homepage through the shared `SiteShell`.
+* `/en/app/reconstruct` renders the first subpage.
+* The Platform navigation group receives an active underline on the
+  reconstruction route; direct navigation links use the same behavior.
+* All promised navigation routes now resolve through the locale catch-all page;
+  their labels and descriptions come from the existing navigation source of
+  truth, with no invented metrics or customer claims.
+
+## 3D / Animation
+
+* No new WebGL context or shader was added. Subpages reuse the single existing
+  canvas and set a distant, dim, unfocused beat so copy remains primary.
+* Existing reveal animation and reduced-motion behavior remain in use.
+
+## Files Changed
+
+* `app/page.tsx`
+* `app/[locale]/page.tsx`
+* `app/[locale]/app/reconstruct/page.tsx`
+* `app/[locale]/[...slug]/page.tsx`
+* `app/layout.tsx`
+* `app/subpages.css`
+* `app/ui.css`
+* `components/layout/SiteShell.tsx`
+* `components/pages/HomePage.tsx`
+* `components/pages/DecisionReconstructionPage.tsx`
+* `components/pages/NavSubpage.tsx`
+* `components/sections/FinalCta.tsx`
+* `components/ui/Navigation.tsx`
+* `components/ui/SiteFooter.tsx`
+* `lib/sectionBeats.ts`
+* `handoff.md`
+
+## Current State
+
+* The homepage is available at `/en` and remains assembled from its existing
+  eleven sections.
+* Decision Reconstruction is available at `/en/app/reconstruct` with desktop
+  and mobile layouts, active global navigation state, contextual anchors, and
+  the shared footer.
+* The remaining navigation destinations resolve through the same shell at
+  `/en/how-it-works`, `/en/methodology`, `/en/signin`,
+  `/en/election-intelligence`, the platform app routes, the intelligence
+  engine routes, and the marketplace routes.
+* `npm run typecheck` and `npm run build` pass.
+* Browser checks were completed at desktop and 390px mobile widths.
+
+## Known Issues
+
+* The remaining routes currently use the shared navigation-driven subpage
+  foundation; they need deeper page-specific content and visualizations as
+  verified product material becomes available.
+* The locale segment currently accepts any value; locale validation and future
+  language routing are not implemented.
+* `npm run lint` remains unwired because ESLint is not installed in the repo.
+
+## Next Recommended Tasks
+
+1. Deepen AI Recognition, the next highest value engine page, with verified
+  product language and a page-specific visualization.
+2. Add locale validation once the supported locale list and routing behavior
+   are confirmed.
+3. Complete the remaining promised routes in groups: engines, platform app
+   pages, then marketplace indexes and categories.
+4. Perform a real-device performance and reduced-motion pass across the home
+   page and the new subpage.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import logo from "@/public/brand/logo-g-mark.png";
 import { nav } from "@/lib/content";
 import { Button } from "./Button";
@@ -20,6 +21,7 @@ import { ThemeToggle } from "./ThemeToggle";
  * moved; the network should own the first viewport, not the chrome.
  */
 export function Navigation() {
+  const pathname = usePathname();
   const [lifted, setLifted] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
@@ -97,7 +99,7 @@ export function Navigation() {
           {nav.groups.map((g) => (
             <div
               key={g.id}
-              className="nav__group"
+              className={`nav__group ${g.items.some((item) => pathname.startsWith(item.href)) ? "is-current" : ""}`}
               onPointerEnter={() => !coarse && setOpen(g.id)}
               onBlur={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -171,7 +173,11 @@ export function Navigation() {
           ))}
 
           {nav.links.map((l) => (
-            <a key={l.href} href={l.href} className="nav__link">
+            <a
+              key={l.href}
+              href={l.href}
+              className={`nav__link ${pathname.startsWith(l.href) ? "is-current" : ""}`}
+            >
               {l.label}
             </a>
           ))}
