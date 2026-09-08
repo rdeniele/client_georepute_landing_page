@@ -72,7 +72,7 @@ export function Hero({ locale = "en" }: { locale?: string }) {
               className="hero__actions"
               style={{ "--i": 6 } as React.CSSProperties}
             >
-              <Button href={copy.primaryCta.href} variant="primary">
+              <Button href={copy.primaryCta.href} variant="conversion">
                 {copy.primaryCta.label}
               </Button>
               <Button href={copy.secondaryCta.href} variant="ghost">

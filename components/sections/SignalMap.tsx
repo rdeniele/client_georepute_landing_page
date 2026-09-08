@@ -14,10 +14,10 @@ export function SignalMap() {
   return (
     <section
       id="signals"
-      className="section band band--color"
+      className="section band band--tint"
       data-section
     >
-      <Band tone="color" network edge="feather" />
+      <Band tone="tint" network edge="feather" />
 
       <div className="shell signals">
         <div className="signals__aside">

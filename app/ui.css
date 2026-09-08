@@ -170,6 +170,28 @@ html.theme-dark .static-network {
   --btn-bg: var(--surface-hover);
 }
 
+/* Conversion CTA — high-attention orange for primary conversion actions.
+   Reserved for the one button per viewport that must be clicked. */
+.btn--conversion {
+  --btn-bg: #FF5A36;
+  --btn-line: transparent;
+  --btn-fg: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 8px 32px -8px rgba(255, 90, 54, 0.4);
+  transition:
+    transform var(--d-micro) var(--ease-out),
+    box-shadow var(--d-state) var(--ease-out),
+    background-color var(--d-micro) var(--ease-out);
+}
+.btn--conversion:hover {
+  --btn-bg: #FF6B47;
+  box-shadow: 0 12px 40px -8px rgba(255, 90, 54, 0.55);
+  transform: translateY(-1px);
+}
+.btn--conversion:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
 /* ============================================================================
    NAVIGATION
    ========================================================================== */

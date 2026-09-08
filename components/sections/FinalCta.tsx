@@ -48,7 +48,7 @@ export function FinalCta() {
         </p>
 
         <div className="final__actions" data-reveal data-reveal-delay="240">
-          <Button href={c.primaryCta.href} variant="primary">
+          <Button href={c.primaryCta.href} variant="conversion">
             {c.primaryCta.label}
           </Button>
           <Button href={c.secondaryCta.href} variant="ghost">

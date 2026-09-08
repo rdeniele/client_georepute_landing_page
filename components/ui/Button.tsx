@@ -17,7 +17,7 @@ export function Button({
 }: {
   href: string;
   children: ReactNode;
-  variant?: "primary" | "ghost";
+  variant?: "primary" | "ghost" | "conversion";
   className?: string;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);

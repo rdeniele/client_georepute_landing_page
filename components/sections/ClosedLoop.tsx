@@ -1,5 +1,6 @@
 import { loop as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Band } from "@/components/ui/Band";
 
 /**
  * Section 07 — The closed loop.
@@ -25,7 +26,8 @@ const LABEL_POS = [
 
 export function ClosedLoop() {
   return (
-    <section id="loop" className="section" data-section>
+    <section id="loop" className="section band band--tint" data-section>
+      <Band tone="tint" />
       <div className="shell loop">
         <div className="loop__aside">
           <SectionHeader
