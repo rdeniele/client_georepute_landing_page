@@ -1400,3 +1400,854 @@ per the client's palette), with dark mode one toggle away and persisted.
    available.
 2. Continue the accessibility pass for keyboard focus, contrast, and mobile
    reading order.
+
+---
+# 2026-09-08 — MARKETING-FOCUSED REDESIGN (moved off the "Signal Room" 3D direction)
+
+> Client brief for this session: pivot away from the technical/futuristic
+> intelligence-network aesthetic toward a bold, colourful, human,
+> marketing-first SaaS experience, using yoola.com as a principles reference
+> (not a template) — strong solid colour, confident typography, human
+> imagery, big animated numbers, clear CTAs. Sell the outcome, not the
+> architecture.
+
+## Completed
+
+* Removed every remaining "technical instrument" visual left over from the
+  Signal Room era:
+  * Deleted `components/ui/BandNetwork.tsx` (the inverted SVG node/edge
+    graphic drawn on colour bands) and stopped `Band`/`EditorialPhoto`
+    rendering it — colour bands are now flat solid fills, no overlay graphic.
+  * Deleted `components/ui/ScrollProgress.tsx` and its use in `SiteShell` —
+    the fixed instrument-style scroll rail (dot marks down the right edge)
+    was dashboard chrome, not conversion.
+  * Deleted `components/ui/PlatformConstellation.tsx` (arc/connector-line
+    diagram) and replaced it with `components/ui/PlatformMarquee.tsx` — a
+    simple looping row of coloured platform chips, per the brief's
+    "simpler marketing-oriented treatment" instruction for the AI-engine
+    icons (§20).
+  * Rewrote `components/sections/IntelligenceEngines.tsx` from an
+    interactive SVG node graph into a plain benefit-card grid
+    (`.engine-cards`): each card leads with a benefit sentence
+    ("Know whether AI systems recognize your business correctly.") with the
+    engine's technical name as small print underneath, per §15.
+  * Rewrote `components/sections/ClosedLoop.tsx` from a spinning SVG ring
+    into a simple four-step numbered row (`.how-steps`) — the "HOW IT WORKS"
+    pattern from §14, same PDCA content, no diagram required to follow it.
+  * Simplified the fixed `.void-wash` background from three overlapping
+    radial gradients to a flat solid colour (§1: "prioritise solid colours,
+    do not rely heavily on gradients").
+* Rebuilt the **band system** (`app/bands.css`) from a five-stop
+  gradient-per-band treatment (plus violet "blooms" drifting across the
+  white bands) into **flat solid fills**: white paper, solid light-lavender
+  tint (`#EDEAFF`), solid primary violet (`#610AE5`), a solid secondary
+  violet (`#7B3AEC`, new `colorAlt` tone) for variety, and solid near-black
+  (`#0A1020`, new `dark` tone) for the heaviest-emphasis proof section. Band
+  edges still feather softly into their neighbours (an edge-opacity mask, not
+  a colour gradient) so sections don't read as stacked rectangles.
+* Rebuilt the **hero** (`components/sections/Hero.tsx`) as one confident
+  block of solid violet rather than a half-white/half-colour split: huge
+  white headline, a human/business image placeholder on the right with a
+  "what AI sees about your business" glass readout, immediate CTA pair, the
+  platform marquee, and the real capability numbers (100+ / 6 / 7 / PDCA) —
+  colour, people, the big message and a button all in the first viewport,
+  per the brief's "final quality bar" (§29).
+* Softened copy toward outcomes rather than architecture (§15): new hero
+  eyebrow ("AI is already recommending your competitors") and supporting
+  line; reworded `engines`, `loop`, `decisionGraph`, and `executive` headlines
+  and body copy in `lib/content.ts` to lead with the benefit, keeping the
+  technical detail as the secondary line. Did **not** touch verified figures,
+  engine names, or the illustrative-data disclaimers — those stay exactly as
+  sourced from the live product.
+* Added a new **big-numbers proof section** —
+  `components/sections/BigNumbers.tsx` (`id="proof"`, solid dark band) —
+  between the problem statement and the rest of the page: four
+  animated counters (100+ analyses, 12 engines, 10 signals, 7 languages, all
+  real product figures, none invented), a primary CTA repeated here, and an
+  explicit "logo placeholder" row for future customer social proof (§19 — no
+  fabricated logos or testimonials).
+* Added reusable marketing primitives (§23): `Metric` + `MetricGroup` (a
+  count-up-once big number, IntersectionObserver + rAF, mirrors the existing
+  Executive Intelligence counter pattern), `ImagePlaceholder` (a generic,
+  explicitly-labelled placeholder for anything that isn't a full editorial
+  photo — used for the logo-placeholder row), and `PlatformMarquee`.
+* Re-ordered/re-coloured the home page's band rhythm into the brief's
+  attention → problem → proof → opportunity → product → differentiator →
+  proof → how-it-works → product visual → proof (dashboard) → what-you-get →
+  CTA arc: Hero(violet) → InvisibleDecision(white, problem) →
+  BigNumbers(dark, proof) → SignalMap(lavender) →
+  DecisionReconstruction(violet, product) → BlindSpot(white) →
+  IntelligenceEngines(secondary violet) → ClosedLoop(white, how-it-works) →
+  DecisionGraphSection(lavender) → ExecutiveIntelligence(white) →
+  ActionPlan(lavender) → FinalCta(violet).
+* Fixed two real contrast bugs surfaced by the new solid-colour bands (found
+  via computed-style inspection, not just eyeballing): the platform marquee
+  chip and the photo "IMAGE PLACEHOLDER" card are small **light cards that
+  float on any background** — they used theme tokens that flip to white text
+  when a colour band overrides `--color-ink`, which produced literal
+  white-text-on-white-card inside the violet hero. Both now use fixed,
+  band-independent colours instead of the flippable tokens, matching the
+  same treatment already given to `ImagePlaceholder`.
+
+## Creative Direction
+
+* **From:** "Signal Room" — a dark cinematic instrument panel, an abstract
+  intelligence network as the primary visual identity, purple used sparingly
+  as a signal colour, editorial/technical tone throughout.
+* **To:** a bold, human, marketing-first SaaS page. Colour is now a
+  conversion tool used in confident solid blocks, not an accent reserved for
+  "active signals." Photography (or an honest, explicit placeholder for it)
+  represents the real business; product UI (Decision Reconstruction's cards,
+  the Executive Intelligence dashboard, the Decision Graph evidence panel)
+  represents what the visitor actually gets — there is no longer an abstract
+  network graphic standing in for either. Copy leads with outcomes
+  ("Know whether AI systems recognize your business correctly") and pushes
+  the technical name to the small print underneath.
+* This was already a continuation of a prior session's move away from the
+  original Three.js/WebGL scene (`git log`: "removed 3d", "CALMER MOTION +
+  FRAMED DECISION CARDS" in an earlier dated entry above) — that work had
+  already deleted the persistent canvas. This session finished the job by
+  removing the *2D* stand-ins for the same network idea (the SVG band
+  overlay, the constellation diagram, the interactive node graphs) and
+  replacing the background language itself (gradients → solid colour).
+
+## Colour System
+
+* Tokens are unchanged and already matched the brief exactly:
+  `#610AE5` (primary violet / `--color-signal-core` / `--band-color`),
+  `#7B3AEC` (secondary violet / `--color-signal` / `--band-color-alt`),
+  `#EDEAFF` (light lavender / `--color-raised` / `--band-tint`), `#F5F3FF`
+  (very light / `--color-signal-veil`), `#FFFFFF`, `#0A1020` (dark /
+  `--color-base` in dark mode / `--band-dark`).
+* `app/bands.css` now defines five **flat** tones instead of gradients:
+  `paper` (white), `tint` (solid `#EDEAFF`), `color` (solid `#610AE5`),
+  `colorAlt` (solid `#7B3AEC`), `dark` (solid `#0A1020`). Dark mode
+  re-points the same five variables to darker equivalents so the rhythm
+  (not the treatment) is what's shared across themes.
+* Gradients that remain, deliberately, because they "genuinely improve" a
+  specific spot rather than serving as the page's base treatment (§1): the
+  photo veil (a two-stop tint for text legibility over a photograph, not a
+  background gradient), the closing CTA's photo-veil-over-image treatment,
+  and the button hover glow. No section background is a gradient any more.
+* Band edges still use a soft opacity mask at the top/bottom of each plate so
+  one solid colour dissolves into the next rather than cutting on a hard
+  line — this is an edge treatment, not a colour gradient, and stays well
+  under the bar the brief sets for "a gradient that genuinely improves it."
+
+## Photography
+
+* Photo system (`lib/photos.ts`, `components/ui/EditorialPhoto.tsx`) was
+  already exactly what this brief asks for and needed no rework: every photo
+  slot is declared with a real client-facing spec (orientation, minimum
+  width, subject, composition) and renders an explicit
+  **"IMAGE PLACEHOLDER"** card (dashed border, diagonal hatch, the spec text
+  visible in place) until `src` points at a real file — never stock imagery,
+  never a silent guess.
+* Photos still required from the client, in priority order:
+  1. **Hero** (`hero`) — portrait, 1400px+. A real business or customer
+     environment; people at work, a client meeting, a physical premises, a
+     decision being made. Subject weighted low/to one side so the glass
+     readout has room.
+  2. **The invisible decision** (`decision`) — landscape, 1800px+. Real
+     customer context: a person comparing options, searching, deciding.
+     Bleeds off the page edge to the right.
+  3. **Final CTA background** (`close`) — landscape, 2400px+, very wide. A
+     real business, team or market at work — the organisation the page has
+     been talking about. Currently not rendered at all (the component
+     checks `photos.close.src` and skips the whole photo layer when absent,
+     so an empty placeholder doesn't flatten the CTA band's own violet).
+* New: a generic `ImagePlaceholder` component for smaller, non-photographic
+  slots — used for four "LOGO" placeholders in the new proof section
+  (`components/sections/BigNumbers.tsx`), explicitly labelled
+  "Client logo pending." No customer names or logos exist in the repo; none
+  were fabricated.
+
+## Product / Marketing
+
+* **New CTAs / CTA repetition:** the primary CTA ("Analyze My Business") now
+  appears in the hero, again in the new proof section, and again at the
+  page's close — the existing product route (`#analyze` → the Decision
+  Reconstruction flow) is unchanged; no invented subscription/pricing flow
+  was added, per the brief's explicit instruction not to invent pricing.
+* **Metrics used (all real, none invented):** 100+ deep analyses, 12
+  intelligence engines, 10 signals resolved into one decision position, 7
+  languages. Sourced from `lib/content.ts`'s existing `capabilities` array
+  and the `engines`/`signals` content, which the file's own header states are
+  taken from the live product.
+* **Product visuals kept as real product UI, not diagrams:** Decision
+  Reconstruction's six-card process, the Executive Intelligence dashboard
+  (dial + measure bars, still carries its "illustrative values" disclaimer),
+  and the Decision Graph evidence panel are unchanged in function — they were
+  already product UI, not decoration, and already satisfy §11.
+* **Social proof:** no real logos, testimonials or case studies exist yet in
+  the repo or the brief's source material. Added one explicitly-labelled
+  placeholder row (`components/sections/BigNumbers.tsx`) rather than
+  fabricating any, per §19.
+
+## Animation
+
+* **Number animations:** `components/ui/Metric.tsx` counts 0 → target once,
+  triggered by `IntersectionObserver`, eased with a cubic ease-out, writing
+  straight to the DOM via `requestAnimationFrame` (no re-renders) — the same
+  proven pattern the pre-existing Executive Intelligence dial/counters use.
+  Settles instantly under `prefers-reduced-motion`.
+* **Scroll animations:** unchanged — the existing `[data-reveal]` /
+  `[data-draw]` IntersectionObserver vocabulary (`lib/useReveal.ts`) is reused
+  everywhere; no new reveal mechanism was introduced.
+* **Card / marquee animations:** the platform marquee is a pure CSS
+  `translateX` loop (duplicated track, `-50%` shift) that pauses on
+  hover/focus and falls back to a static wrapped row under reduced motion.
+  Engine benefit cards lift 4px on hover (`transform` + `box-shadow` only).
+* **Removed:** the inverted SVG "network" overlay that used to animate
+  travelling dashes/pulses across colour bands (`bandnet-pulse`,
+  `bandnet-bridge`, `bandnet-breathe` keyframes) — deleted along with
+  `BandNetwork.tsx`. The fixed instrument-style scroll rail's dot/label
+  transitions are gone with `ScrollProgress.tsx`. The interactive node-graph
+  hover/focus wiring in the old Intelligence Engines section is gone with the
+  rewrite (Decision Graph's equivalent interaction in §08 was kept — it
+  behaves as a real product evidence panel, not decoration).
+* No Three.js/WebGL was reintroduced. The 3D source files noted as unused in
+  the 2026-09-07 "CALMER MOTION" entry above are still present on disk and
+  still not mounted anywhere; this session did not touch them.
+
+## Theme
+
+* Light remains the default and dark remains an explicit, persisted visitor
+  choice — the theme system (`lib/theme.tsx`, the inline pre-hydration
+  script in `app/layout.tsx`) was not changed.
+* Both themes were re-verified against the new flat band colours: dark mode
+  re-points `--band-paper/tint/color/colorAlt/dark` to darker equivalents
+  (verified via computed `background-color` on each section's plate — see
+  Known Issues for what could not be *pixel* verified), so the same rhythm
+  holds in both themes rather than one theme being an inversion of the
+  other.
+
+## Files Changed
+
+New:
+* `components/ui/PlatformMarquee.tsx`
+* `components/ui/Metric.tsx`
+* `components/ui/MetricGroup.tsx`
+* `components/ui/ImagePlaceholder.tsx`
+* `components/sections/BigNumbers.tsx`
+* `app/marketing.css`
+
+Deleted:
+* `components/ui/BandNetwork.tsx`
+* `components/ui/PlatformConstellation.tsx`
+* `components/ui/ScrollProgress.tsx`
+
+Modified:
+* `app/bands.css` (gradients → solid fills; new `colorAlt`/`dark` tones)
+* `app/ui.css` (hero rebuilt as a solid block; platform constellation CSS
+  replaced with marquee CSS; `.void-wash` simplified to a flat colour;
+  marquee-chip colours pinned band-independent)
+* `app/layout.tsx` (imports `marketing.css`)
+* `components/ui/Band.tsx` (drops the SVG network overlay; `network` prop
+  kept as a harmless no-op for call-site compatibility; adds `colorAlt`/
+  `dark` to `BandTone`)
+* `components/ui/EditorialPhoto.tsx` (drops the `bridge`/`BandNetwork` line
+  effect; `bridge` prop kept as a no-op)
+* `components/layout/SiteShell.tsx` (drops `ScrollProgress`; `home` prop kept
+  as a no-op for call-site compatibility)
+* `components/sections/Hero.tsx` (full rewrite — see Completed)
+* `components/sections/IntelligenceEngines.tsx` (full rewrite — benefit
+  cards)
+* `components/sections/ClosedLoop.tsx` (full rewrite — four-step row)
+* `components/sections/SignalMap.tsx` (band tone `color` → `tint`)
+* `components/sections/DecisionReconstruction.tsx` (added a solid violet
+  `Band`; this is now the page's explicit "product" moment)
+* `lib/content.ts` (hero eyebrow/supporting copy; `engines` items gained a
+  `benefit` field and reworded headline/body; `loop` stages reworded around
+  "how it works"; `decisionGraph` and `executive` headline/body reworded
+  toward outcomes)
+* `lib/i18n.ts` (secondary hero CTA now points at `#proof`, the new section,
+  in every locale — was `#signals`)
+* `components/pages/HomePage.tsx` (inserts `BigNumbers` after
+  `InvisibleDecision`)
+* `handoff.md` (this entry)
+
+## Current State
+
+* `npm run typecheck` and `npm run build` both pass clean.
+* No horizontal overflow at 375px or 1440px (`document.documentElement
+  .scrollWidth === clientWidth` verified at both).
+* Verified via direct DOM/computed-style inspection (background colours,
+  text colours, contrast-relevant values) for every home-page section in
+  both themes: the solid band rhythm is intact end to end (violet → white →
+  dark → lavender → violet → white → violet-alt → white → lavender → white →
+  lavender → violet), and dark mode re-points every band tone rather than
+  leaving any section stuck on its light-mode fill.
+* Visually confirmed on real renders (mobile 375px and desktop 1440px, both
+  themes): hero, the platform marquee, the capability numbers, the "invisible
+  decision" problem section, and one engine benefit card, plus the light and
+  dark mode toggle itself.
+* Fixed, and re-verified fixed: the marquee-chip and image-placeholder
+  white-on-white contrast bug described in Completed.
+* Removed the now-dead `.loop__*` (old spinning-ring) and `.rail*` (old
+  scroll-rail) CSS blocks and the `data-band` attribute `ScrollProvider` used
+  to write for the rail's benefit; typecheck and build re-confirmed clean
+  after each removal.
+
+## Known Issues
+
+* **The animated counters (both the new `Metric` component and the
+  pre-existing Executive Intelligence dial) could not be pixel-verified
+  completing their count-up in this session's browser tool** —
+  `requestAnimationFrame` measurably produced 0 frames in a 1.2–1.5s window
+  in this sandbox (confirmed independently twice), and the *pre-existing,
+  untouched* Executive Intelligence counters showed the identical stuck
+  behaviour, which is what confirms this is an environment limitation and
+  not a defect in the new code. The component correctly settles instantly
+  under `prefers-reduced-motion`, and its logic mirrors the existing,
+  shipped counter exactly. Re-verify count-up completion on a real device
+  before calling this fully done.
+* **Full-page pixel screenshots were intermittently unavailable** in this
+  session's preview browser — the same "stopped producing frames" fault
+  documented in earlier entries of this file. Where a screenshot came back
+  blank, the DOM was independently confirmed correct (element present,
+  `data-revealed="true"`, in-viewport `getBoundingClientRect`, correct
+  computed colours) before moving on — but a genuine live-device pass
+  covering every section (not just the ones a screenshot happened to catch)
+  has not been done this session.
+* `SignalMap`, `BlindSpot`, `DecisionGraphSection`, `ExecutiveIntelligence`,
+  and `ActionPlan` were re-coloured onto the new solid-band system and
+  content-tweaked in two cases, but were **not** otherwise redesigned this
+  session — their internal layouts (a ledger list, a dual timeline, an
+  interactive evidence graph, a dashboard, a numbered list) are carried over
+  from the previous direction. They read fine on solid colour (verified via
+  DOM/contrast), but a full pass to make each one feel as "marketing-first"
+  as the new hero/proof/engines sections has not been done.
+* Dead-CSS cleanup was partially done: the standalone `.loop__*` block (old
+  spinning-ring CSS, ~136 lines) and the standalone `.rail*` block (old
+  scroll-rail CSS) were both fully removed from `app/sections.css`/
+  `app/ui.css` and rebuilt/typechecked clean. The `.engines__*` node-graph
+  selectors were **not** removed — in `app/sections.css` they're combined in
+  shared rules with `.dgraph__*` (e.g. `.engines__edges, .dgraph__edges { ... }`,
+  under the `SHARED GRAPH CANVAS — sections 06 and 08` heading), and
+  `DecisionGraphSection` (section 08) still actively uses the `.dgraph__*`
+  half of every one of those rules — surgically splitting them was judged
+  too risky to do without dedicated attention. `app/subpages.css` was not
+  audited at all.
+* `BigNumbers.tsx` hardcodes 100/12/7 rather than reading them from
+  `lib/content.ts`'s `capabilities` array — the values match today, but they
+  will silently drift if `capabilities` is edited later without this file
+  also being updated.
+* The subpages (`components/pages/DecisionReconstructionPage.tsx`,
+  `NavSubpage.tsx`) still pass `network` to `Band` in a few places; this is
+  harmless (the prop is now a no-op) but the calls should be cleaned up, and
+  those pages have **not** been given the marketing-first treatment this
+  session applied to the home page.
+* `npm run lint` remains unwired (no ESLint installed) — carried over from
+  every previous session.
+
+## Next Recommended Tasks
+
+1. **Get a real device/browser pass** (not this session's flaky preview) to
+   watch the `Metric` counters and the Executive Intelligence dial actually
+   animate, at both mobile and desktop width, both themes.
+2. **Finish the dead-CSS cleanup**: `.loop__*` and `.rail*` are already
+   removed. What's left is `app/sections.css`'s `SHARED GRAPH CANVAS —
+   sections 06 and 08` block, where the old `.engines__*` node-graph
+   selectors are combined with the still-live `.dgraph__*` ones in the same
+   rules — split each combined selector and drop only the `.engines__*` half.
+   `app/subpages.css` hasn't been checked at all.
+3. **Extend the marketing-first pass to `SignalMap`, `BlindSpot`,
+   `DecisionGraphSection`, `ExecutiveIntelligence`, and `ActionPlan`** — they
+   work and read correctly on the new solid bands, but were not redesigned
+   for the new direction the way Hero/BigNumbers/Engines/ClosedLoop were.
+4. **Wire `BigNumbers`'s metrics to `lib/content.ts`'s `capabilities` array**
+   instead of the current hardcoded values, so they can't drift apart.
+5. **Get the three photographs from the client** (see Photography above,
+   priority order given) — the layout, aspect ratios, and crops are already
+   final; dropping in `src` is a one-line change per slot in `lib/photos.ts`.
+6. **Decide on and source real customer logos/testimonials** for the
+   `BigNumbers` proof-row placeholder, or explicitly decide to keep it as a
+   number-only section if none will be available soon.
+7. Apply the same marketing-first review to the subpages
+   (`DecisionReconstructionPage`, `NavSubpage`) — they still carry
+   `network` props left over from the old `Band` API and haven't been
+   brought in line with the home page's new direction.
+
+---
+# 2026-09-08 — TOOLING INSTALL + CLOSING OUT PHASE 1'S KNOWN ISSUES
+
+> Client asked, in the same message: (1) install a named set of external
+> design/skill packages, then (2) redesign the page toward the marketing-first
+> direction. Re-reading this handoff first showed (2) was already substantially
+> done in the previous entry above ("MARKETING-FOCUSED REDESIGN") — the working
+> tree still carries that exact diff, uncommitted. This session did not
+> re-litigate that direction or redo it; it installed the requested tooling and
+> closed out two of that entry's own "Known Issues"/"Next Recommended Tasks"
+> items (#4 and part of #2 and #7), verified with a real rendered page rather
+> than assumption.
+
+## Completed
+
+* **Installed every package the client named:**
+  * `npx skills add emilkowalski/skills` — added `animate`, `animate-expo`,
+    `animation-vocabulary`, `apple-design`, `ask-sonner`, `emil-design-eng`,
+    `find-animation-opportunities`, `improve-animations`, `pick-ui-library`,
+    `prototype`, `review-animations`, `write-swift` to `.claude/skills/`
+    (symlinked from `.agents/skills/`).
+  * `npx skills add anthropics/skills --skill frontend-design --agent
+    claude-code` — added `frontend-design`.
+  * `npx skills add Leonxlnx/taste-skill` — added `design-taste-frontend`,
+    `design-taste-frontend-v1`, `stitch-design-taste`, `high-end-visual-design`,
+    `minimalist-ui`, `industrial-brutalist-ui`, `gpt-taste`, `brandkit`,
+    `image-to-code`, `imagegen-frontend-web`, `imagegen-frontend-mobile`,
+    `redesign-existing-projects`, `full-output-enforcement`.
+  * `claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` +
+    `claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill` — installed at
+    user scope (not project-local).
+  * `npx impeccable install` — installed the `impeccable` skill plus a
+    post-edit design-quality hook (project scope, into `.claude` and
+    `.agents`); it is now firing after every `Edit`/`Write` in this session.
+  * All of these are additive, global/project tooling — no application code
+    was touched by the installers themselves. `.claude/skills/`, `.agents/`,
+    `.codex/`, `skills-lock.json`, `.claude/settings.local.json`, and
+    `.claude/agents/` are new and currently **untracked** — nothing was
+    committed.
+  * Running `npm run dev` for the first time under Next.js 16 also
+    auto-generated `AGENTS.md` and `CLAUDE.md` at the repo root (Next's
+    built-in `agentRules` feature, on by default) — unrelated to the skill
+    installs, also untracked. The client should decide whether to keep,
+    gitignore, or disable these (`agentRules: false` in `next.config.ts`).
+* **Closed the "hardcoded 100/12/7" drift risk** flagged in the previous
+  entry's Known Issues (#4 of its Next Recommended Tasks): `BigNumbers.tsx`
+  no longer hardcodes its metric values.
+  * `lib/content.ts`: `capabilities[0]` and `capabilities[2]` (the "100+"
+    analyses and "7" languages entries) gained `numeric`/`suffix` fields
+    alongside their existing display `value` string, so the same source
+    feeds both the static Hero capability strip and the animated proof-section
+    counters.
+  * `lib/content.ts`: the `engines` object gained `count: 12`, sitting right
+    next to the existing prose that already asserted "Twelve engines" in
+    `engines.body` — the number was already a verified fact in the file, just
+    not machine-readable before.
+  * `BigNumbers.tsx` now reads `capabilities[0]`, `engines.count`, and
+    `capabilities[2]` instead of literal `100`, `12`, `7`. `signals.items
+    .length` was already dynamic and untouched.
+  * Caught and fixed my own regression before it shipped: a first pass also
+    pulled the *label* text from `capabilities[2]`, which silently shortened
+    the metric's copy from "Languages GeoRepute runs in" to bare "Languages"
+    — inconsistent with the other three metrics' full-sentence labels. Only
+    the numeric value and suffix are shared now; the marketing copy for that
+    metric stays hand-written in `BigNumbers.tsx`.
+* **Finished the dead-CSS split** the previous entry left half-done (its
+  Known Issues: the `SHARED GRAPH CANVAS — sections 06 and 08` block in
+  `app/sections.css` combined live `.dgraph__*` selectors with dead
+  `.engines__*` ones from the old node-graph version of Intelligence Engines).
+  Confirmed via grep that no `.engines__*` class is referenced anywhere in
+  `IntelligenceEngines.tsx` (it's a benefit-card grid now), then removed the
+  `.engines`/`.engines__*` half of every combined selector and deleted the
+  now fully-dead "06 — THE INTELLIGENCE ENGINES" rule block (readout
+  positioning + its mobile override) that only ever styled that graph.
+  `.dgraph__*` — the section 08 Decision Graph still actively uses these — is
+  untouched.
+* **Removed the two leftover no-op `network` props** on subpages' `Band`
+  calls (`NavSubpage.tsx`, `DecisionReconstructionPage.tsx`), per the previous
+  entry's Known Issues. `FinalCta.tsx`'s `network` usage on the home page was
+  left alone — it's a live call site, not leftover cruft, and `Band`'s
+  `network` prop is deliberately kept as a harmless no-op for that kind of
+  call-site compatibility (see `Band.tsx`'s own doc comment).
+
+## Verification
+
+* `npx tsc --noEmit` — clean, twice (once before the label-regression fix,
+  once after).
+* `npm run build` — clean production build, all four routes compile
+  (`/`, `/_not-found`, `/[locale]`, `/[locale]/[...slug]`).
+* **No browser-automation tool was available in this environment** (no
+  Playwright install, no `chromium-cli`, no project-specific run skill for
+  this app) — unlike some earlier sessions in this file, there was no preview
+  browser to attempt pixel verification with at all, flaky or otherwise. In
+  its place: started `npm run dev`, fetched `/en` with `curl`, and grepped the
+  actual rendered HTML to confirm the new wiring is correct in practice, not
+  just in the source:
+  * The "100+" metric renders with its `+` suffix on the number and none of
+    the other three metrics do.
+  * "Languages GeoRepute runs in" renders as the fourth metric's full label
+    (confirming the regression fix took).
+  * "Deep business & marketing analyses" appears twice in the page (Hero's
+    static strip and the new proof-section counter), confirming the shared
+    `capabilities[0]` source reaches both places.
+  * This confirms markup/data correctness, not pixel layout, contrast, or the
+    count-up animation actually completing — an actual desktop+mobile,
+    both-theme visual pass (the top item in every prior session's "Next
+    Recommended Tasks" in this file) is **still outstanding** and should be
+    the very first thing the next session does, now with some of the newly
+    installed skills (`impeccable`, `frontend-design`, `redesign-existing-
+    projects`) available to help drive that review.
+
+## Files Changed
+
+* `lib/content.ts` (`capabilities[0]`/`capabilities[2]` gained `numeric`/
+  `suffix`; `engines` gained `count: 12`)
+* `components/sections/BigNumbers.tsx` (reads shared values instead of
+  hardcoding them)
+* `app/sections.css` (removed dead `.engines__*` selectors from the shared
+  graph-canvas block)
+* `components/pages/NavSubpage.tsx`, `components/pages/DecisionReconstructionPage.tsx`
+  (dropped the leftover no-op `network` prop)
+* `HANDOFF.md` (this entry)
+
+New, untracked, from tooling installs (not application code — see Completed):
+`.claude/skills/*` (new skills), `.agents/`, `.codex/`, `skills-lock.json`,
+`.claude/settings.local.json`, `.claude/agents/`, `AGENTS.md`, `CLAUDE.md`.
+
+## Current State
+
+* Everything the "MARKETING-FOCUSED REDESIGN" entry above describes as done
+  is still exactly as described — this session added to it, it didn't change
+  the direction or redo any of it.
+* The home page's proof-section numbers and the Hero capability strip now
+  provably share one source of truth for their figures; they cannot drift
+  apart by editing only one of them.
+* The shared graph-canvas CSS block now only contains rules the Decision
+  Graph section (08) actually uses.
+* Six new design/animation/taste skills packages and one design-quality edit
+  hook (`impeccable`) are installed and available for future sessions on this
+  project — none of their guidance has been retroactively applied to sections
+  built before this session; they were consulted only insofar as they
+  overlap with the project's own `georepute-landing-design` skill, which
+  remains the authoritative, GeoRepute-specific standard.
+
+## Known Issues
+
+* All Known Issues from the "MARKETING-FOCUSED REDESIGN" entry above still
+  apply **except** the ones explicitly closed in this entry (the metric
+  hardcoding, half of the dead-CSS cleanup, the two leftover `network`
+  props). In particular, still open:
+  * SignalMap, BlindSpot, DecisionGraphSection, ExecutiveIntelligence, and
+    ActionPlan still present as a ledger / dual timeline / interactive graph
+    / dashboard / numbered list rather than the "big number → short
+    explanation → supporting visual → CTA" storytelling pattern the brief
+    asks for in its §8–10 — they read fine on the new solid bands but were
+    not rebuilt this session or the previous one.
+  * No real photographs or customer logos exist yet (client-provided,
+    tracked in Photography above and in the previous entry).
+  * `npm run lint` remains unwired (no ESLint installed).
+  * The animated counters' actual on-screen count-up has *still* never been
+    watched complete in a real browser in any session recorded in this file.
+* New, from this session: `AGENTS.md`/`CLAUDE.md` were auto-generated at the
+  repo root by Next.js 16's `agentRules` feature the first time `npm run dev`
+  ran this session. They're untracked and harmless, but the client hasn't
+  been asked whether to keep them, gitignore them, or set `agentRules: false`
+  in `next.config.ts`.
+
+## Next Recommended Tasks
+
+1. **Get an actual browser in front of this page** — set up Playwright (or
+   whatever this environment can support) as a proper project run-skill so
+   future sessions stop hitting "no browser available" or "browser stopped
+   producing frames." This has blocked real visual QA across every session
+   in this file.
+2. **Rebuild SignalMap, BlindSpot, DecisionGraphSection, ExecutiveIntelligence,
+   and ActionPlan** in the marketing-first idiom the Hero/BigNumbers/Engines/
+   ClosedLoop sections already use — this is the largest remaining gap
+   between the current page and the brief.
+3. Decide on `AGENTS.md`/`CLAUDE.md`/`agentRules` (see Known Issues) and on
+   whether to commit or `.gitignore` the newly installed skill tooling.
+4. Everything else already listed in the previous entry's Next Recommended
+   Tasks (photography, customer logos, subpage marketing pass) remains
+   unaddressed and still applies.
+
+---
+# 2026-09-08 — CTA REPETITION + A BIG NUMBER FOR "SEE THE SIGNALS"
+
+> Continuation of the same session, same client thread. The previous entry's
+> Next Recommended Tasks #2 named all five remaining sections (SignalMap,
+> BlindSpot, DecisionGraphSection, ExecutiveIntelligence, ActionPlan) as one
+> "rebuild all five" item. Looking at each one individually first (rather than
+> rewriting on assumption) showed that framing overstated the gap for two of
+> them and understated a more useful, lower-risk fix.
+
+## Completed
+
+* **Reassessed, rather than rewrote, `DecisionGraphSection` (08) and
+  `ExecutiveIntelligence` (09).** Both are exactly what brief §11 asks for —
+  "product visuals... reports, recommendations, visibility results,
+  competitive insights" presented as real product UI, not decoration. §11
+  explicitly prefers this over abstract diagrams. Rebuilding either into a
+  big-number card would have thrown away working, accessible, keyboard-
+  operable product UI to chase a pattern the brief itself says these two
+  sections already satisfy. Left both structurally alone.
+* **What was genuinely missing across all five sections: a CTA.** Outside
+  Hero, BigNumbers, and FinalCta, none of them gave a visitor a next step —
+  which is a real gap against §17/§18 ("repeat the primary CTA strategically
+  throughout the page," "the subscription/purchase path should be obvious").
+  Added a shared `.section-cta` primitive (`app/marketing.css`) and placed it
+  in the two sections where a visitor is most likely to be persuaded
+  mid-scroll:
+  * **`SignalMap` (03)** — added a left-aligned, aside-column `Metric`
+    (`c.items.length`, i.e. **10**, driven from the same array the section
+    already renders — not hardcoded) labelled "signals, resolved into one
+    call", directly under the section header, then a ghost-style CTA below
+    it. This is the brief's §8–10 "BIG NUMBER → short explanation →
+    supporting visual → CTA" pattern applied to a section that was
+    previously just a ledger list with no number treatment and no CTA at
+    all — the ledger itself now reads as the "supporting visual" under the
+    number.
+  * **`DecisionGraphSection` (08)** — added a centered ghost CTA under the
+    interactive evidence graph, right where a visitor who just explored the
+    product UI is most primed to act.
+  * Both reuse `finalCta.primaryCta` (label "Analyze My Business", the
+    existing `#analyze` anchor) verbatim rather than inventing new CTA
+    copy — the previous entry's own Known Issues flagged CTA-wording
+    divergence as something to stop doing, not repeat.
+  * Left **`BlindSpot`** (05) and **`ActionPlan`** (10) without a new CTA.
+    BlindSpot's dual-timeline *is* the section's supporting visual already,
+    and its "already decided before the first measurable event" copy is
+    already benefit-framed — adding a number here would mean inventing a
+    percentage the product doesn't verify, which the brief explicitly
+    forbids (§8: "ONLY use real/verified numbers"). ActionPlan sits
+    immediately before `FinalCta` in `HomePage.tsx` — a CTA there would be
+    back-to-back with the page's actual close and read as redundant, not
+    "strategic."
+* Net result: "Analyze My Business" now appears **5 times** on the home page
+  (Hero, BigNumbers, SignalMap, DecisionGraphSection, FinalCta) — spread
+  across the page rather than clustered at the ends, and confirmed by
+  counting literal occurrences in the rendered HTML, not assumed from the
+  source.
+
+## Design Decisions
+
+* Chose targeted CTA/number insertions over a five-section rewrite because
+  the brief's own quality bar (§11, "show the actual value of the system...
+  product UI") already rates two of the five sections correctly built — the
+  actual gap was conversion touchpoints, not visual direction. Rewriting
+  working, previously-verified interactive UI (keyboard focus, evidence
+  panel, `aria-live` wiring) to chase a "make it more marketing" instruction
+  it already satisfies would have been scope creep and net risk for no
+  benefit the client asked for.
+* `.section-cta` is deliberately a small, reusable, unstyled-opinion
+  primitive (flex + margin-top, with a `--center` modifier) rather than a
+  copy of `.bignums__cta` — this project's convention is one CSS block per
+  section with section-prefixed classes (`.signals__`, `.dgraph__`, etc.);
+  a cross-section primitive belongs in `marketing.css` where the other
+  shared marketing primitives (`Metric`, `MetricGroup`, `ImagePlaceholder`)
+  already live, not duplicated per section.
+* The `SignalMap` metric is intentionally **not** inside a `.metric-group` —
+  that component's CSS centers its contents, which fits BigNumbers' 4-across
+  centered layout but not a single number inside a left-aligned sticky aside
+  column. Added two scoped overrides (`.signals__count .metric` /
+  `.metric__label`) rather than a variant prop on `Metric` itself, since this
+  is the only place a lone left-aligned metric is needed so far.
+
+## Technical Changes
+
+* `app/marketing.css` — added `.section-cta` / `.section-cta--center` and
+  `.signals__count` (+ its two left-alignment overrides).
+* `components/sections/SignalMap.tsx` — imports `Metric`, `Button`,
+  `finalCta`; renders the count metric and a ghost CTA in `.signals__aside`.
+* `components/sections/DecisionGraphSection.tsx` — imports `Button`,
+  `finalCta`; renders a centered ghost CTA after the graph panel.
+* No content, copy, or component was removed; no existing class was renamed
+  or restyled.
+
+## Verification
+
+* `npx tsc --noEmit` — clean.
+* `npm run build` — clean, same four routes.
+* Still no browser-automation tool in this environment (see the previous
+  entry — this is unchanged and remains the top Next Recommended Task).
+  Verified with `npm run dev` + `curl` against the rendered HTML instead:
+  * `class="signals__count"` and the label text "signals, resolved into one
+    call" are present in `/en`'s markup.
+  * Both `class="section-cta"` and `class="section-cta section-cta--center"`
+    are present (confirming both the default and `--center` variant render).
+  * "Analyze My Business" occurs exactly 5 times in the rendered page
+    (counted with `grep -o | wc -l`, not `grep -c`, after first getting a
+    misleading count of 1 from `-c` — the whole SSR document is one line, so
+    `-c` counts matching *lines*, not occurrences).
+  * Fetched `/he` (Hebrew, RTL) as well and confirmed `signals__count` still
+    renders there — the new elements don't break the RTL locale route.
+  * This is markup-presence verification, not a pixel/layout/contrast check
+    of the new elements at real viewport widths — that still requires an
+    actual browser, which this environment does not have.
+
+## Files Changed
+
+* `app/marketing.css`
+* `components/sections/SignalMap.tsx`
+* `components/sections/DecisionGraphSection.tsx`
+* `HANDOFF.md` (this entry)
+
+## Current State
+
+* Home page CTA presence is now: Hero (primary + secondary), BigNumbers,
+  SignalMap, DecisionGraphSection, FinalCta — five "Analyze My Business"
+  touchpoints spread through the scroll rather than only at the top and
+  bottom.
+* SignalMap now leads with an animated "10" before its ledger, matching the
+  brief's big-number storytelling pattern; the ledger itself is unchanged.
+* DecisionGraphSection and ExecutiveIntelligence remain their existing,
+  working, keyboard-accessible product-UI implementations — deliberately not
+  rebuilt (see Design Decisions).
+* BlindSpot and ActionPlan are unchanged from the previous entry.
+
+## Known Issues
+
+* Everything in the previous entry's Known Issues still applies **except**
+  "no CTA repetition mid-page" for SignalMap and DecisionGraphSection
+  specifically, which this entry addresses. BlindSpot, ExecutiveIntelligence,
+  and ActionPlan still have no CTA — a deliberate choice this session (see
+  Design Decisions), not an oversight, but worth the client's explicit
+  sign-off if they want CTAs literally everywhere regardless.
+* No real browser has verified this session's two visual additions render
+  without overlap/overflow at real widths — same standing limitation as
+  every prior entry.
+
+## Next Recommended Tasks
+
+1. **Still the standing #1**: get real browser automation into this
+   environment (Playwright or equivalent) so a visual pass can finally
+   happen — every session in this file, including this one, has had to
+   settle for markup-level verification instead.
+2. If the client wants BlindSpot / ExecutiveIntelligence / ActionPlan to also
+   carry a CTA despite the redundancy concern raised above, wire it the same
+   way (`.section-cta`, `finalCta.primaryCta`) — the primitive is now in
+   place and this would be a small, low-risk addition.
+3. Photography, customer logos/testimonials, and the subpage marketing pass
+   (`DecisionReconstructionPage`, `NavSubpage`) remain exactly as described
+   in the previous two entries — none of that was touched this session.
+
+---
+# 2026-09-08 — A REAL NUMBER FOR THE BLIND SPOT + BOLDER PROOF PILLS
+
+> Continuation of the same session. Client's next message was simply
+> "pls redesign now" — read as: stop auditing section-by-section and make the
+> two visually thinnest remaining sections (BlindSpot's diagram, ActionPlan's
+> plain-text metadata rows) actually look like the bold, colour-forward
+> direction the brief asks for, not just add a CTA to them.
+
+## Completed
+
+* **BlindSpot (05) now leads with a real, derived number instead of only a
+  small mono caption.** The component already encodes `TRAD_AT = [62, 74,
+  86, 100]` — conventional analytics' first plotted event sits at 62% along
+  the shared time axis, which is the section's entire point ("one map starts
+  when the decision is already over"). That figure was sitting unused as a
+  chart coordinate; it's now also a bold, animated headline stat: **"62%"**
+  with the label "of this decision is already over before conventional
+  analytics logs a single event", using the same `stat-lead` treatment
+  SignalMap introduced last entry. This is not a new or invented statistic —
+  it's the same number the diagram already plots, read out loud rather than
+  left implicit. The original `.blind__region-label` caption inside the
+  diagram is unchanged; the new stat sits above the whole visual as its
+  headline.
+* **Generalised `signals__count` into a shared `stat-lead` primitive**
+  (`app/marketing.css`) rather than writing near-duplicate CSS for
+  BlindSpot's stat — both SignalMap and BlindSpot now use the same class.
+  Any future section that leads with one real, derivable number (not a
+  `MetricGroup` of several) should reuse this rather than adding another
+  copy.
+* **Strengthened the blind-spot region's colour wash** — `.blind__region`'s
+  amber fill went from a barely-visible `0.03→0.08` alpha gradient to
+  `0.05→0.14`, and its dashed border from `0.5` to `0.65` alpha. Still a
+  restrained wash (this is annotating a real chart, not a hero band), but it
+  now actually registers as "this area is different" at a glance, which the
+  brief's §2 ("colour should catch attention") calls for and the previous
+  value did not deliver.
+* **ActionPlan (10)'s "Moves" field became a pill/badge instead of plain
+  bold-coloured text** (`.plan__measure`) — bordered, tinted violet chip
+  rather than a `color: var(--color-signal-lit) !important` span, giving
+  each intervention row a stronger, more scannable visual anchor.
+  * **Caught and fixed two real bugs before they shipped**, not after: the
+    first version used `background: var(--color-signal-mist)`, which is
+    literally the same hex (`#EDEAFF`) as the `tint` band ActionPlan sits
+    on — the pill would have been invisible on its own background. It also
+    used `color: var(--color-signal)` for small badge text, which this
+    project's own token file explicitly documents as failing AA for
+    anything but large text/borders (`--color-signal: #7b3aec; /* 3.30:1 —
+    large text, borders, UI only */`). Fixed to a fixed-alpha
+    `rgba(97,10,229,0.08)` fill (independent of whatever band it's dropped
+    onto) with a `var(--color-signal)` **border** (borders are an explicitly
+    sanctioned use of that token) and `var(--color-signal-lit)` text, which
+    is the token this codebase already uses everywhere else for small
+    accent text and is verified 7.6:1 (light) / 6.96:1 (dark).
+
+## Design Decisions
+
+* Did not touch `ExecutiveIntelligence` or `DecisionGraphSection` again this
+  pass — the previous entry's reasoning (they already are real product UI
+  per brief §11) still holds, and "redesign now" was read as "make the weak
+  spots bold," not "redo the sections that already work."
+* Chose to surface BlindSpot's existing chart data as a headline number
+  rather than invent a new "impact %" metric — the brief is explicit that
+  only real/verified figures may be used as proof (§8), and this section's
+  underlying data already contained one that had never been stated outright.
+* `stat-lead` was named generically (not `signals__count`) on the
+  expectation that a third section will eventually want the same "one big
+  derived number, left-aligned, above a supporting visual" pattern — this
+  keeps that from requiring a fourth near-identical CSS block.
+
+## Technical Changes
+
+* `app/marketing.css` — renamed/generalised `.signals__count` to `.stat-lead`
+  (same rules, wider `max-width: 34ch` on the label).
+* `components/sections/SignalMap.tsx` — updated to the renamed class (no
+  behavioural change).
+* `components/sections/BlindSpot.tsx` — imports `Metric`; renders a
+  `stat-lead` block using `TRAD_AT[0]` before the existing diagram.
+* `app/sections.css` — `.blind__region` alpha values raised;
+  `.plan__measure` restyled from coloured text to a bordered/tinted pill
+  with corrected, theme-safe tokens.
+
+## Verification
+
+* `npx tsc --noEmit` — clean.
+* `npm run build` — clean, same four routes.
+* Still no browser-automation tool in this environment. Verified via
+  `npm run dev` + `curl` against rendered `/en` and `/he`:
+  * `class="stat-lead"` appears exactly twice (SignalMap + BlindSpot).
+  * The new BlindSpot label text renders verbatim.
+  * `class="plan__measure"` appears exactly 5 times (once per action item).
+  * `/he` (RTL) still renders both `stat-lead` blocks — no locale breakage.
+  * This confirms markup and the two token/contrast bugs are fixed in the
+    CSS source; it does not confirm pixel layout or contrast **as rendered**
+    on a real screen — still blocked on there being no browser in this
+    environment (standing #1 task, unchanged).
+
+## Files Changed
+
+* `app/marketing.css`
+* `app/sections.css`
+* `components/sections/SignalMap.tsx`
+* `components/sections/BlindSpot.tsx`
+* `HANDOFF.md` (this entry)
+
+## Current State
+
+* BlindSpot now opens with an animated, real "62%" statement before its
+  timeline diagram, and the diagram's own amber region reads more clearly as
+  a distinct zone.
+* ActionPlan's five intervention rows each carry a themed pill for the
+  measure they move, rather than plain coloured text.
+* `DecisionGraphSection` and `ExecutiveIntelligence` remain intentionally
+  untouched (see Design Decisions, both this entry and the previous one).
+
+## Known Issues
+
+* Everything from the previous two entries still applies. Nothing was closed
+  out this pass beyond what's listed in Completed.
+* As with every prior entry: none of this session's visual changes have been
+  seen on an actual rendered screen. The contrast/token bugs caught in
+  `.plan__measure` are exactly the kind of thing that's easy to introduce
+  and easy to miss without one — a concrete argument for making the
+  standing #1 task (real browser automation) actually happen next.
+
+## Next Recommended Tasks
+
+1. **Still standing #1**: get real browser automation (Playwright or
+   equivalent) working in this environment. Three consecutive entries in
+   this file have now shipped CSS/visual changes verified only by markup
+   presence, not by looking at them.
+2. If further "bolder" passes are wanted, `DecisionGraphSection` and
+   `ExecutiveIntelligence` are the two sections most worth a second look —
+   they're structurally correct per brief §11 but could still take a colour/
+   typography pass (bigger stat type in the dial, stronger panel contrast)
+   without changing their interaction model.
+3. Photography, customer logos/testimonials, and the subpage marketing pass
+   remain untouched, as in every entry above.
