@@ -11,8 +11,8 @@ import { ThemeToggle } from "./ThemeToggle";
 /**
  * Primary navigation.
  *
- * Mirrors the live site: three mega-menu groups, two direct links, sign-in and
- * the primary CTA. Groups open on hover for pointer users but are real
+ * Mirrors the live site's three mega-menu groups, direct links, and primary CTA.
+ * Groups open on hover for pointer users but are real
  * `aria-expanded` buttons underneath, so the whole menu works from the keyboard
  * — Escape closes and returns focus to the trigger, and moving focus out of a
  * group closes it.
@@ -187,10 +187,7 @@ export function Navigation() {
         </nav>
 
         <div className="nav__actions">
-          <a href={localizedNav.signIn.href} className="nav__signin">
-            {localizedNav.signIn.label}
-          </a>
-          <details className="nav__locale">
+           <details className="nav__locale">
             <summary className="nav__locale-trigger">
               <span className="sr-only">{localeCopy.nav.language || "Language"}</span>
               <span aria-hidden="true">{locale.toUpperCase()}</span>
@@ -211,7 +208,7 @@ export function Navigation() {
             </div>
           </details>
           <ThemeToggle />
-          <Button href={localizedNav.cta.href} variant="primary" className="nav__cta">
+          <Button href={localizedNav.cta.href} variant="conversion" className="nav__cta">
             {localizedNav.cta.label}
           </Button>
           <button
@@ -278,11 +275,8 @@ export function Navigation() {
           </a>
         ))}
 
-        <div className="nav__drawer-actions">
-          <a href={localizedNav.signIn.href} className="nav__signin">
-            {localizedNav.signIn.label}
-          </a>
-          <Button href={localizedNav.cta.href} variant="primary">
+         <div className="nav__drawer-actions">
+           <Button href={localizedNav.cta.href} variant="conversion">
             {localizedNav.cta.label}
           </Button>
         </div>
