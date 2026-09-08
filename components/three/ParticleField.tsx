@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useTheme } from "@/lib/theme";
+import { scene as sceneState } from "@/lib/sceneStore";
 import { getSoftDot } from "./textures";
 
 // Ambient dust: dusty lavender in dark mode, a quiet deep violet in light so
@@ -111,8 +112,14 @@ export function ParticleField({
   const ref = useRef<THREE.Points>(null);
 
   useFrame((_, delta) => {
-    uniforms.uTime.value += Math.min(delta, 1 / 30);
-    if (ref.current) ref.current.rotation.y += delta * 0.006;
+    const dt = Math.min(delta, 1 / 30);
+    // A fast scroll briefly speeds up the drift and the field's own slow
+    // rotation — dust reacting to the visitor's own motion, never louder
+    // than that. sceneState.velocity is 0→1 and decays on its own in
+    // CameraRig, so this needs no state of its own here.
+    const kick = 1 + sceneState.velocity * 2.2;
+    uniforms.uTime.value += dt * kick;
+    if (ref.current) ref.current.rotation.y += dt * 0.006 * kick;
   });
 
   if (count === 0) return null;

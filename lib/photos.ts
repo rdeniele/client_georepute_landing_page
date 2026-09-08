@@ -69,6 +69,20 @@ export const photos = {
         "Landscape. Subject toward the right so the frame can bleed off the page edge. Room to crop from the left.",
     },
   },
+  overview: {
+    id: "overview",
+    src: "/screenshots/shot%203.png",
+    alt: "The GeoRepute overview dashboard: AI Overviews found, domains cited, and visibility trend for a tracked business.",
+    ratio: "16 / 10",
+    priority: 2,
+    spec: {
+      orientation: "landscape",
+      minWidth: 1800,
+      subject: "Product screenshot: the overview dashboard.",
+      composition:
+        "Landscape, used small as a second stacked window behind the primary decision-environment plate.",
+    },
+  },
   close: {
     id: "close",
     src: null,

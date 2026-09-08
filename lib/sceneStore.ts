@@ -22,6 +22,14 @@ export type SceneState = {
   focusedEngine: string | null;
   /** Decision-graph node id being focused in section 08, or null */
   focusedGraphNode: string | null;
+  /**
+   * How fast the visitor is scrolling right now, 0→1 (already clamped).
+   * Written by ScrollProvider on every Lenis tick, decayed toward 0 by
+   * whichever `useFrame` loop reads it — there is deliberately no owner that
+   * resets it, so the scene keeps reacting for a beat after scrolling stops
+   * instead of snapping back.
+   */
+  velocity: number;
 };
 
 export const scene: SceneState = {
@@ -33,6 +41,7 @@ export const scene: SceneState = {
   targetY: 0,
   focusedEngine: null,
   focusedGraphNode: null,
+  velocity: 0,
 };
 
 export type DeviceTier = "high" | "mid" | "low" | "none";

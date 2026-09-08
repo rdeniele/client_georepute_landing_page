@@ -5,9 +5,9 @@ import { useTheme } from "@/lib/theme";
 /**
  * Minimal premium theme switcher for the navigation.
  *
- * A 44px pill that swaps sun/moon glyphs. Light is the default experience, so
- * the control reads "switch to dark" at rest; the icon flips once the visitor
- * has chosen dark.
+ * A 44px pill that swaps sun/moon glyphs. Dark is the default experience, so
+ * the control reads "switch to light" at rest; the icon flips once the
+ * visitor has chosen light.
  */
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();

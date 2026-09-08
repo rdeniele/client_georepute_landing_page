@@ -36,6 +36,8 @@ export function SignalMap() {
               className="signal"
               data-reveal
               data-reveal-delay={i * 45}
+              data-cursor="live"
+              data-cursor-label="Signal"
             >
               <span className="signal__index">
                 {String(i + 1).padStart(2, "0")}

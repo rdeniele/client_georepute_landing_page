@@ -280,6 +280,15 @@ html.theme-dark {
   --surface-hover: rgba(255, 255, 255, 0.1);
   --glow-signal: rgba(255, 255, 255, 0.3);
   --glow-signal-soft: rgba(255, 255, 255, 0.16);
+  /* The global "live" tokens are tuned for a white/light page — a pastel
+     rose mist on white ink is exactly the low-contrast combination this
+     override system exists to prevent. Re-point them to a translucent,
+     always-dark-enough version so hovered text stays legible against the
+     violet/navy plate regardless of which theme is active. */
+  --color-live: #ffd6e9;
+  --color-live-lit: #ffffff;
+  --color-live-mist: rgba(255, 95, 162, 0.22);
+  --glow-live: rgba(255, 95, 162, 0.45);
   color: var(--color-ink);
 }
 
@@ -292,6 +301,26 @@ html.theme-dark {
 }
 .band--color .btn--primary:hover {
   --btn-bg: #f3ecff;
+}
+
+/* --- §06 override: the same colour band, pulled toward navy ---------------
+   Section 06 is the page's one dark/immersive moment — the network needs a
+   deeper, quieter floor than the brand-violet plate every other colour band
+   uses, so the coral hub and its signal paths have somewhere to stand out
+   against. Same feather/edge behaviour, just a colder, darker gradient. */
+.band__plate--engines {
+  background:
+    radial-gradient(
+      60% 54% at 90% 4%,
+      rgba(255, 90, 54, 0.14),
+      transparent 60%
+    ),
+    radial-gradient(
+      54% 50% at 6% 96%,
+      rgba(123, 58, 236, 0.22),
+      transparent 66%
+    ),
+    linear-gradient(165deg, #0d0620 0%, #1b0a44 32%, #2c0f6b 62%, #3a1188 100%);
 }
 
 /* ============================================================================
@@ -579,37 +608,6 @@ html.theme-dark .photo__reserved-spec {
   color: rgba(255, 255, 255, 0.88);
 }
 
-.photo__panel-live {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--font-mono);
-  font-size: var(--text-mono-xs);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.photo__panel-live::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #c4b5fd;
-  box-shadow: 0 0 10px 2px rgba(196, 181, 253, 0.8);
-  animation: panel-live 2.6s var(--ease-inout) infinite;
-}
-
-@keyframes panel-live {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 .photo__panel-rows {
   display: grid;
   gap: 7px;
@@ -654,55 +652,121 @@ html.theme-dark .photo__reserved-spec {
   align-items: center;
 }
 
-/* Runs off the page edge rather than stopping at the gutter. */
 .invis__photo {
   position: relative;
   z-index: 1;
   margin-right: calc(-1 * var(--shell-bleed));
 }
+
+/* A self-contained floating object, not a panel bleeding off the page edge —
+   intentional inside the column, clipped-by-viewport reads as a bug. */
+.invis__photo.browsercard {
+  margin-right: 0;
+  width: 100%;
+  min-width: 0;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+html[dir="rtl"] .invis__photo.browsercard {
+  margin-left: 0;
+}
 .invis__top > .sec-head {
   position: relative;
   z-index: 2;
 }
-.invis__photo .photo__frame {
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+
+/* A floating browser card: a soft tinted mat behind a white window, with the
+   traffic lights and the address pill floating directly over the product
+   screenshot rather than sitting in their own header strip — one light,
+   editorial object instead of chrome-plus-content. */
+.browsercard {
+  position: relative;
+  perspective: 1700px;
 }
 
-/* Section 02 image frame: a quiet browser window for the decision environment. */
-.invis__photo .photo__frame::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 3;
-  height: 52px;
-  background:
-    radial-gradient(circle at 20px 26px, #ff5f57 0 4px, transparent 4.5px),
-    radial-gradient(circle at 36px 26px, #febc2e 0 4px, transparent 4.5px),
-    radial-gradient(circle at 52px 26px, #28c840 0 4px, transparent 4.5px),
-    rgba(245, 243, 255, 0.92);
-  border-bottom: 1px solid rgba(27, 35, 64, 0.12);
-  pointer-events: none;
+.browsercard__mat {
+  position: relative;
+  padding: 16px;
+  border-radius: 26px;
+  background: linear-gradient(155deg, #eee9ff 0%, #f7f4ff 60%, #eef6ef 100%);
+  box-shadow: 0 50px 110px -50px rgba(41, 6, 96, 0.4);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: box-shadow 320ms var(--ease-out);
+}
+.browsercard:hover .browsercard__mat,
+.browsercard:focus-within .browsercard__mat {
+  box-shadow: 0 60px 130px -46px rgba(41, 6, 96, 0.5);
 }
 
-.invis__photo .photo__frame::after {
-  content: "georepute.ai / decision environment";
-  position: absolute;
-  top: 13px;
-  left: 88px;
-  right: 24px;
-  z-index: 4;
-  height: 26px;
+/* Chrome gets its own header strip and the screenshot fills what's left
+   below it — the screenshot already carries its own UI right up to its top
+   edge, so floating the address pill over it read as chrome overlapping
+   chrome. A fixed aspect-ratio on the window keeps the card's proportions
+   stable; the header's height comes out of that ratio, not on top of it. */
+.browsercard__window {
+  position: relative;
+  aspect-ratio: 8 / 5;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  isolation: isolate;
+}
+
+.browsercard__chrome {
+  position: relative;
+  flex: none;
+  height: 38px;
   display: flex;
   align-items: center;
-  padding-inline: 14px;
-  border: 1px solid rgba(27, 35, 64, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.72);
+  justify-content: center;
+  padding-inline: 16px;
+  background: linear-gradient(180deg, #fbfaff, #f3f1fb);
+  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+}
+
+.browsercard__imagewrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.browsercard__img {
+  object-fit: cover;
+  object-position: top;
+}
+
+.browsercard__lights {
+  position: absolute;
+  left: 16px;
+  display: flex;
+  gap: 6px;
+}
+.browsercard__light {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.browsercard__light--red {
+  background: #ff5f57;
+}
+.browsercard__light--amber {
+  background: #febc2e;
+}
+.browsercard__light--green {
+  background: #28c840;
+}
+.browsercard__url {
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(27, 35, 64, 0.08);
   color: var(--color-ink-faint);
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.05em;
-  pointer-events: none;
+  font-size: 10px;
+  letter-spacing: 0.02em;
 }
 
 html[dir="rtl"] .invis__photo {
@@ -726,8 +790,11 @@ html[dir="rtl"] .pull {
     margin-right: 0;
     margin-left: 0;
   }
-  .invis__photo .photo__frame {
-    border-radius: var(--radius-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .browsercard__mat {
+    transform: none !important;
   }
 }
 
@@ -774,8 +841,7 @@ html[dir="rtl"] .pull {
 @media (prefers-reduced-motion: reduce) {
   .bandnet__edge--bridge,
   .bandnet__pulse,
-  .bandnet__node,
-  .photo__panel-live::before {
+  .bandnet__node {
     animation: none !important;
   }
   .bandnet__pulse {

@@ -13,11 +13,6 @@ export function PlatformConstellation() {
       </p>
 
       <div className="platforms__stage" aria-label="Platforms monitored by GeoRepute">
-        <div className="platforms__core">
-          <span className="platforms__core-dot" aria-hidden="true" />
-          <span className="platforms__core-text">GeoRepute scans</span>
-        </div>
-
         <div className="platforms__viewport">
           <div className="platforms__track">
             {[0, 1].map((copy) => (

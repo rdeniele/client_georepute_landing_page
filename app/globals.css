@@ -78,6 +78,17 @@
   --color-gap: #b45309; /* 7.0:1 on white — risk, missing signal */
   --color-gap-core: #92400e;
 
+  /* --- Accent: rose = live / responding-to-you ---------------------------
+     Reserved for states the *visitor* causes, never decoration: the custom
+     cursor, a hovered/focused interactive node, an in-progress scroll
+     transform. Purple stays "this is GeoRepute," coral stays "act now" —
+     this is the third meaning, "this just reacted to you." #b3185f on white
+     ≈ 6.3:1 — safe for small UI text. */
+  --color-live: #b3185f;
+  --color-live-lit: #e8347f;
+  --color-live-mist: #ffe6f1;
+  --glow-live: rgba(255, 95, 162, 0.35);
+
   /* --- Surfaces & lines -------------------------------------------------- */
   --line: rgba(27, 35, 64, 0.1);
   --line-strong: rgba(27, 35, 64, 0.18);
@@ -163,6 +174,11 @@ html.theme-dark {
   --glow-signal: rgba(97, 10, 229, 0.35);
   --glow-signal-soft: rgba(123, 58, 236, 0.18);
   --glow-gap: rgba(255, 181, 71, 0.22);
+
+  --color-live: #ff5fa2;
+  --color-live-lit: #ff9cc7;
+  --color-live-mist: rgba(255, 95, 162, 0.14);
+  --glow-live: rgba(255, 95, 162, 0.4);
 
   --nav-floor: rgba(9, 14, 28, 0.95);
   --nav-panel-floor: rgba(9, 14, 28, 0.985);
@@ -410,6 +426,143 @@ html.lenis body {
   opacity: 0.035;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================================
+   CUSTOM CURSOR — only ever mounted on a fine pointer, motion allowed.
+   The native cursor is switched off exactly when the replacement is live, so
+   there is never a moment with neither. See components/ui/Cursor.tsx.
+   ========================================================================== */
+
+@media (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.cursor__dot {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-signal-lit);
+  transition: background-color var(--d-state) var(--ease-out);
+}
+
+.cursor__ring {
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  transition:
+    width var(--d-state) var(--ease-out),
+    height var(--d-state) var(--ease-out),
+    top var(--d-state) var(--ease-out),
+    left var(--d-state) var(--ease-out),
+    border-color var(--d-state) var(--ease-out),
+    background-color var(--d-state) var(--ease-out),
+    opacity var(--d-state) var(--ease-out);
+}
+
+.cursor__label {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-live-lit);
+  opacity: 0;
+  transition:
+    opacity var(--d-state) var(--ease-out),
+    transform var(--d-state) var(--ease-out);
+}
+
+/* Hovering a plain interactive element: the ring tightens toward the dot */
+.cursor--interactive .cursor__ring {
+  width: 12px;
+  height: 12px;
+  top: -6px;
+  left: -6px;
+  border-color: var(--color-signal);
+  background: var(--color-signal-mist);
+}
+.cursor--interactive .cursor__dot {
+  background: transparent;
+}
+
+/* Hovering something that reacts to focus (the graphs) — cursor turns live */
+.cursor--live .cursor__ring {
+  width: 52px;
+  height: 52px;
+  top: -26px;
+  left: -26px;
+  border-color: var(--color-live);
+  background: var(--color-live-mist);
+  box-shadow: 0 0 0 1px var(--glow-live);
+}
+.cursor--live .cursor__dot {
+  background: var(--color-live-lit);
+}
+.cursor--live .cursor__label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(2px);
+}
+
+/* Reduced motion, touch, or a coarse pointer never get the replacement —
+   the media query above already keeps the native cursor in that case. */
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .cursor {
+    display: none;
+  }
+}
+
+/* The cursor is fixed chrome outside every band, so — like the scroll rail
+   (see ui.css) — it cannot inherit a colour band's re-pointed tokens.
+   ScrollProvider publishes the section currently under the viewport centre
+   as `data-band` on <html>; over a violet/navy band the default purple ring
+   and dot would nearly disappear, so both switch to white here instead. */
+html[data-band="color"] .cursor__dot {
+  background: #ffffff;
+}
+html[data-band="color"] .cursor__ring {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+html[data-band="color"] .cursor--interactive .cursor__ring {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+}
+html[data-band="color"] .cursor--interactive .cursor__dot {
+  background: transparent;
+}
+html[data-band="color"] .cursor--live .cursor__ring {
+  border-color: #ffffff;
+  background: rgba(255, 95, 162, 0.28);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+html[data-band="color"] .cursor--live .cursor__dot {
+  background: #ffffff;
+}
+html[data-band="color"] .cursor__label {
+  color: #ffffff;
 }
 
 /* ============================================================================

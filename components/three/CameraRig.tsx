@@ -25,6 +25,10 @@ export function CameraRig() {
     sceneState.pointerX += (sceneState.targetX - sceneState.pointerX) * dt * 2.4;
     sceneState.pointerY += (sceneState.targetY - sceneState.pointerY) * dt * 2.4;
 
+    // Sole owner of the velocity decay — ScrollProvider only ever pushes it
+    // up, so it has to relax back to 0 somewhere once scrolling stops.
+    sceneState.velocity *= Math.max(0, 1 - dt * 2.6);
+
     target.copy(director.camPos);
     target.x += sceneState.pointerX * 0.7;
     target.y += -sceneState.pointerY * 0.45;

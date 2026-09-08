@@ -32,6 +32,14 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
         touchMultiplier: 1.6,
       });
 
+      // Scroll speed reaches the 3D scene as a single 0→1 number — a fast
+      // flick very briefly speeds up the ambient dust and camera settle
+      // (see ParticleField / CameraRig). Nothing here ever decays it back to
+      // 0; each frame consumer eases its own copy down, so the reaction
+      // trails off instead of cutting the instant scrolling stops.
+      lenis.on("scroll", (e: { velocity: number }) => {
+        scene.velocity = Math.min(1, Math.abs(e.velocity) / 60);
+      });
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add(onGsapTick);
       gsap.ticker.lagSmoothing(0);

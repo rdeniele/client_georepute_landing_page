@@ -4,6 +4,24 @@ import { PlatformConstellation } from "@/components/ui/PlatformConstellation";
 import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
 import { BandNetwork } from "@/components/ui/BandNetwork";
 import { getLocaleCopy } from "@/lib/i18n";
+import { HeroScrollFx } from "@/components/sections/HeroScrollFx";
+import {
+  MagnifyingGlass,
+  Brain,
+  Globe,
+  ArrowsClockwise,
+} from "@phosphor-icons/react/ssr";
+import type { IconProps } from "@phosphor-icons/react/lib";
+
+// Real, meaning-matched marks for the capability strip — never a generic
+// placeholder glyph. Keyed from lib/content.ts so copy and icon stay paired
+// in one place.
+const CAP_ICON: Record<string, React.ComponentType<IconProps>> = {
+  search: MagnifyingGlass,
+  brain: Brain,
+  globe: Globe,
+  cycle: ArrowsClockwise,
+};
 
 /**
  * Section 01 — Enter the system.
@@ -25,10 +43,11 @@ import { getLocaleCopy } from "@/lib/i18n";
 export function Hero({ locale = "en" }: { locale?: string }) {
   const copy = getLocaleCopy(locale).hero;
   const panel = locale === "he"
-    ? { title: "סביבת קבלת ההחלטות", live: "בסריקה", surfaces: "משטחים במעקב", signals: "אותות שנפתרו", position: "מיקום ההחלטה", state: "בשחזור" }
-    : { title: "Decision environment", live: "Scanning", surfaces: "Surfaces watched", signals: "Signals resolved", position: "Decision position", state: "Reconstructing" };
+    ? { title: "סביבת קבלת ההחלטות", surfaces: "משטחים במעקב", signals: "אותות שנפתרו", position: "מיקום ההחלטה", state: "בשחזור" }
+    : { title: "Decision environment", surfaces: "Surfaces watched", signals: "Signals resolved", position: "Decision position", state: "Reconstructing" };
   return (
     <section id="top" className="hero band band--split" data-section>
+      <HeroScrollFx />
       <div className="hero__stage">
         <div className="hero__env" aria-hidden="true">
           <BandNetwork className="bandnet--hero" />
@@ -92,7 +111,6 @@ export function Hero({ locale = "en" }: { locale?: string }) {
               <div className="photo__panel">
                 <div className="photo__panel-head">
                   <span className="photo__panel-label">{panel.title}</span>
-                  <span className="photo__panel-live">{panel.live}</span>
                 </div>
                 <dl className="photo__panel-rows">
                   <div className="photo__panel-row">
@@ -121,12 +139,20 @@ export function Hero({ locale = "en" }: { locale?: string }) {
       <div className="hero__foot" style={{ "--i": 7 } as React.CSSProperties}>
         <div className="shell hero__foot-shell">
           <ul className="hero__caps">
-            {capabilities.map((c) => (
-              <li key={c.label} className="hero__cap">
-                <span className="hero__cap-value">{c.value}</span>
-                <span className="hero__cap-label">{c.label}</span>
-              </li>
-            ))}
+            {capabilities.map((c) => {
+              const Icon = CAP_ICON[c.icon];
+              return (
+                <li key={c.label} className="hero__cap">
+                  <span className="hero__cap-icon" aria-hidden="true">
+                    <Icon size={16} weight="duotone" />
+                  </span>
+                  <span className="hero__cap-text">
+                    <span className="hero__cap-value">{c.value}</span>
+                    <span className="hero__cap-label">{c.label}</span>
+                  </span>
+                </li>
+              );
+            })}
           </ul>
           <span className="hero__hint">
             <span className="t-label">{copy.scrollHint}</span>

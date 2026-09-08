@@ -7,6 +7,7 @@ import { Navigation } from "@/components/ui/Navigation";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { LocaleAttributes } from "@/components/ui/LocaleAttributes";
 import { IntelligenceCanvas } from "@/components/three/IntelligenceCanvas";
+import { Cursor } from "@/components/ui/Cursor";
 
 export function SiteShell({
   children,
@@ -25,6 +26,7 @@ export function SiteShell({
   return (
     <ScrollProvider>
       <LocaleAttributes locale={locale} />
+      <Cursor />
       <div className="void-wash" aria-hidden="true" />
       {home && <IntelligenceCanvas />}
       <Navigation />

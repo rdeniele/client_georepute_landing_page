@@ -1,7 +1,7 @@
 import { invisibleDecision as c } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
-import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
+import { InvisibleBrowserStack } from "@/components/sections/InvisibleBrowserStack";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -33,13 +33,7 @@ export function InvisibleDecision({ locale = "en" }: { locale?: string }) {
             body={c.body}
           />
 
-          <EditorialPhoto
-            slot="decision"
-            tint="soft"
-            className="invis__photo"
-            reveal
-            locale={locale}
-          />
+          <InvisibleBrowserStack locale={locale} />
         </div>
 
         <div className="invis">

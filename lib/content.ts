@@ -115,7 +115,7 @@ export const nav = {
     { label: "Methodology", href: "/en/methodology" },
   ],
   signIn: { label: "Sign In", href: "/en/signin" },
-  cta: { label: "Start Analysis", href: "/en/app/reconstruct" },
+  cta: { label: "Start Analysis", href: "https://www.georepute.ai/signup" },
 } as const;
 
 export const hero = {
@@ -124,7 +124,7 @@ export const hero = {
   emphasis: ["Recognized.", "Recommended.", "Chosen."],
   supporting:
     "GeoRepute maps the decision environment around your business: across AI, search, reputation, competitors, and the signals that influence what customers choose.",
-  primaryCta: { label: "Analyze My Business", href: "#analyze" },
+  primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
   secondaryCta: { label: "Explore the Intelligence", href: "#signals" },
   scrollHint: "Enter the system",
 } as const;
@@ -487,10 +487,10 @@ export const actionPlan = {
 } as const;
 
 export const capabilities = [
-  { value: "100+", label: "Deep business & marketing analyses" },
-  { value: "6", label: "AI engines, plus Google" },
-  { value: "7", label: "Languages" },
-  { value: "PDCA", label: "Continuous measurement" },
+  { value: "100+", label: "Deep business & marketing analyses", icon: "search" },
+  { value: "6", label: "AI engines, plus Google", icon: "brain" },
+  { value: "7", label: "Languages", icon: "globe" },
+  { value: "PDCA", label: "Continuous measurement", icon: "cycle" },
 ] as const;
 
 export const finalCta = {
@@ -498,8 +498,8 @@ export const finalCta = {
   label: "Analyze my business",
   headline: "The decision is already happening.",
   body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
-  primaryCta: { label: "Analyze My Business", href: "#analyze" },
-  secondaryCta: { label: "Book an Executive Briefing", href: "#analyze" },
+  primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
+  secondaryCta: { label: "Book an Executive Briefing", href: "https://www.georepute.ai/signup" },
 } as const;
 
 export const footer = {

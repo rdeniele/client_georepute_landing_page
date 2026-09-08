@@ -123,6 +123,8 @@ export function DecisionGraphSection() {
                         }
                         aria-pressed={focus === n.id}
                         aria-describedby="dgraph-panel"
+                        data-cursor="live"
+                        data-cursor-label="Isolate"
                       >
                         <span className="dgraph__node-dot" aria-hidden="true" />
                         <span className="dgraph__node-name">{n.name}</span>

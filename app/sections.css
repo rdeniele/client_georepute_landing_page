@@ -212,7 +212,7 @@
 .signal__link {
   align-self: center;
   height: 1px;
-  background: var(--color-signal);
+  background: var(--color-live);
   transform: scaleX(0);
   transform-origin: right center;
   transition: transform var(--d-state) var(--ease-out);
@@ -221,7 +221,7 @@
   transform: scaleX(1);
 }
 .signal:hover .signal__index {
-  color: var(--color-signal-lit);
+  color: var(--color-live-lit);
 }
 .signal:hover .signal__q {
   color: var(--color-ink-dim);
@@ -833,7 +833,7 @@
 }
 .engines__edge.is-lit,
 .dgraph__edge.is-lit {
-  stroke: var(--color-signal-lit);
+  stroke: var(--color-live-lit);
   stroke-opacity: 0.85;
   stroke-width: 1.5;
 }
@@ -894,21 +894,24 @@
     transform var(--d-state) var(--ease-out);
 }
 
+/* Focus/hover uses the "live" rose, not brand purple — this is the state the
+   *visitor* just caused, and the cursor opens into the same colour over these
+   nodes (see .cursor--live in globals.css), so the two read as one system. */
 .engines__node:hover,
 .dgraph__node:hover,
 .engines__node.is-focus,
 .dgraph__node.is-focus {
-  border-color: var(--color-signal);
-  background: var(--color-signal-mist);
-  box-shadow: 0 10px 40px -14px var(--glow-signal);
+  border-color: var(--color-live);
+  background: var(--color-live-mist);
+  box-shadow: 0 10px 40px -14px var(--glow-live);
   transform: translateY(-2px);
 }
 .engines__node.is-focus .engines__node-dot,
 .dgraph__node.is-focus .dgraph__node-dot,
 .engines__node:hover .engines__node-dot,
 .dgraph__node:hover .dgraph__node-dot {
-  background: var(--color-signal-lit);
-  box-shadow: 0 0 14px 2px var(--glow-signal);
+  background: var(--color-live-lit);
+  box-shadow: 0 0 14px 2px var(--glow-live);
   transform: scale(1.25);
 }
 
@@ -927,6 +930,7 @@
 
 .engines__readout {
   position: absolute;
+  z-index: 2;
   left: 0;
   bottom: 0;
   width: min(24rem, 100%);
@@ -946,11 +950,210 @@
   color: var(--color-ink-faint);
 }
 
+/* --- Assembly: headline, then network, then signal ------------------------
+   `.engines` starts with edges undrawn and nodes collapsed; an
+   IntersectionObserver (see IntelligenceEngines.tsx) adds
+   `data-assembled="true"` once, staggered per element via `--d`, then
+   `data-active="true"` once the draw-in has finished — that second flag is
+   what switches on the looping signal-flow dashes, so the network never
+   pulses while it is still assembling. `prefers-reduced-motion` short-
+   circuits straight to the finished state. */
+.engines {
+  perspective: 1400px;
+}
+
+.engines__canvas-tilt {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-style: preserve-3d;
+  transition: transform 260ms var(--ease-out);
+  will-change: transform;
+}
+
+.engines__edge {
+  stroke-dasharray: var(--len, 140);
+  stroke-dashoffset: var(--len, 140);
+  transition: stroke-dashoffset 900ms var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+.engines[data-assembled="true"] .engines__edge {
+  stroke-dashoffset: 0;
+}
+
+/* Recognition's outgoing edges are the network's spine — lightly lit even at
+   rest, in coral rather than the neutral idle grey, so the hub reads as
+   "always on" before anyone touches it. */
+.engines__edge.is-primary {
+  stroke: rgba(255, 90, 54, 0.4);
+  stroke-opacity: 0.7;
+}
+.engines[data-focused="true"] .engines__edge.is-primary:not(.is-lit) {
+  stroke-opacity: 0.12;
+}
+
+.engines__node-wrap {
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(0.82);
+  transition:
+    opacity 520ms var(--ease-out),
+    transform 520ms var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+.engines[data-assembled="true"] .engines__node-wrap {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* A short dash travelling the primary paths once the network is fully
+   assembled — the same "signal, not glow" grammar as .bandnet__pulse. */
+.engines__signal {
+  fill: none;
+  stroke: #ff8a5c;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0;
+  stroke-dasharray: 8 130;
+}
+.engines[data-active="true"] .engines__signal {
+  opacity: 0.9;
+  animation: engines-signal 3.2s var(--ease-inout) infinite;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes engines-signal {
+  0% {
+    stroke-dashoffset: 138;
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.9;
+  }
+  72% {
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: -60;
+    opacity: 0;
+  }
+}
+
+/* The AI Recognition hub: larger, coral-lit, breathing gently even at rest —
+   the one node the rest of the system visibly depends on. */
+.engines__node.is-hub {
+  padding: 10px 20px 10px 14px;
+  border-color: rgba(255, 90, 54, 0.55);
+  background: rgba(255, 90, 54, 0.1);
+  box-shadow: 0 0 0 0 rgba(255, 90, 54, 0.28);
+  animation: engines-hub-breathe 3.6s var(--ease-inout) infinite;
+}
+.engines__node.is-hub .engines__node-dot {
+  background: #ff5a36;
+  box-shadow: 0 0 14px 3px rgba(255, 90, 54, 0.55);
+  width: 9px;
+  height: 9px;
+}
+.engines__node.is-hub .engines__node-name {
+  font-weight: 600;
+}
+.engines__node.is-hub:hover,
+.engines__node.is-hub.is-focus {
+  border-color: var(--color-live);
+  background: var(--color-live-mist);
+  animation-play-state: paused;
+}
+@keyframes engines-hub-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 90, 54, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 90, 54, 0);
+  }
+}
+
+/* Faint drifting atmosphere behind the graph — decoration only, capped well
+   below anything text needs to compete with. */
+.engines__atmosphere {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.engines__atmosphere span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.5;
+  animation: engines-drift 22s var(--ease-inout) infinite;
+}
+.engines__atmosphere span:nth-child(1) {
+  top: 8%;
+  left: 12%;
+  width: 160px;
+  height: 160px;
+  background: rgba(255, 90, 54, 0.22);
+  animation-duration: 26s;
+}
+.engines__atmosphere span:nth-child(2) {
+  bottom: 6%;
+  right: 16%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 200, 87, 0.14);
+  animation-duration: 30s;
+  animation-delay: -8s;
+}
+.engines__atmosphere span:nth-child(3) {
+  top: 46%;
+  right: 40%;
+  width: 130px;
+  height: 130px;
+  background: rgba(255, 95, 162, 0.12);
+  animation-duration: 24s;
+  animation-delay: -14s;
+}
+@keyframes engines-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .engines__edge,
+  .engines__node-wrap {
+    transition: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: none;
+  }
+  .engines__node.is-hub,
+  .engines__atmosphere span,
+  .engines__signal {
+    animation: none;
+  }
+  .engines__signal {
+    opacity: 0.5;
+  }
+}
+
 @media (max-width: 860px) {
   .engines {
     aspect-ratio: auto;
+    perspective: none;
+  }
+  .engines__canvas-tilt {
+    position: static;
+    transform: none !important;
   }
   .engines__edges {
+    display: none;
+  }
+  .engines__atmosphere {
     display: none;
   }
   .engines__nodes {
@@ -961,7 +1164,12 @@
   }
   .engines__node-wrap {
     position: static;
+    opacity: 1;
     transform: none;
+    transition: none;
+  }
+  .engines__node.is-hub {
+    animation: none;
   }
   .engines__readout {
     position: static;

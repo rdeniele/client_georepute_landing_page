@@ -36,10 +36,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Light is the default experience; the theme provider syncs this meta tag
-  // when the visitor switches to dark.
-  themeColor: "#F6F5FC",
-  colorScheme: "light",
+  // Dark is the default experience; the theme provider syncs this meta tag
+  // when the visitor switches to light.
+  themeColor: "#0A1020",
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({
@@ -50,12 +50,20 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${editorial.variable} ${mono.variable}`}
+      className={`theme-dark ${display.variable} ${editorial.variable} ${mono.variable}`}
       // The inline script below mutates class and color-scheme before React
       // hydrates, which is the point of it — React must not try to revert it.
       suppressHydrationWarning
     >
       <body>
+        {/* Dark is the server-rendered default (the class above). A visitor
+            who explicitly chose light needs that choice applied before first
+            paint too, or they see a dark flash on every return visit. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("georepute-theme")==="light"){document.documentElement.classList.remove("theme-dark");document.documentElement.style.colorScheme="light";document.querySelector('meta[name="theme-color"]')?.setAttribute("content","#F6F5FC")}}catch(e){}`,
+          }}
+        />
         {/* Scroll reveals start hidden and are shown by IntersectionObserver.
             If scripting is unavailable that observer never runs, so without
             this the entire page below the hero would stay blank. */}

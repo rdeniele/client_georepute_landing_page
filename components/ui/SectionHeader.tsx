@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ScrambleText } from "@/components/ui/ScrambleText";
 
 /**
  * Shared section chrome: file-card index, telemetry label, headline.
@@ -21,7 +22,7 @@ export function SectionHeader({
   return (
     <div className={`sec-head sec-head--${align}`}>
       <div className="sec-head__meta" data-reveal>
-        <span className="sec-head__index">{index}</span>
+        <ScrambleText text={index} className="sec-head__index" />
         <span className="t-label">{label}</span>
         <span className="sec-head__rule" data-draw />
       </div>
