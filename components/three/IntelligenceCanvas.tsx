@@ -64,6 +64,7 @@ export function IntelligenceCanvas() {
           powerPreference: "high-performance",
           stencil: false,
           depth: true,
+          preserveDrawingBuffer: true,
         }}
       >
         <PerformanceMonitor

@@ -56,14 +56,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        {/* Re-apply the visitor's persisted theme choice before first paint.
-            Light is the default, so no class means light — the dark class is
-            only ever added here or by the toggle. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem("georepute-theme");if(t==="dark"){document.documentElement.classList.add("theme-dark");document.documentElement.style.colorScheme="dark";document.querySelector("meta[name=theme-color]")?.setAttribute("content","#0A1020")}}catch(e){}`,
-          }}
-        />
         {/* Scroll reveals start hidden and are shown by IntersectionObserver.
             If scripting is unavailable that observer never runs, so without
             this the entire page below the hero would stay blank. */}

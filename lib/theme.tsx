@@ -14,9 +14,8 @@ import {
  *
  * LIGHT is the default experience by client requirement — the site must open
  * bright even when the OS prefers dark. DARK is an explicit visitor choice,
- * applied as `theme-dark` on <html> and persisted. A tiny inline script in
- * the layout re-applies the persisted class before first paint so the choice
- * survives reloads without a flash of the wrong theme.
+ * applied as `theme-dark` on <html> and persisted. The stored choice is adopted
+ * after hydration to keep the server and client renders identical.
  */
 
 export type Theme = "light" | "dark";
@@ -52,9 +51,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // The first client render has to match the server's, so it always starts
   // light and adopts the stored choice in an effect. Reading localStorage in
   // the initialiser instead produced a hydration mismatch on every control
-  // whose label depends on the theme. There is no flash: the inline script in
-  // the layout has already put the right class on <html> before first paint,
-  // and applyThemeClass deliberately holds off until that value is known.
+  // whose label depends on the theme.
   const [theme, setTheme] = useState<Theme>("light");
   const [adopted, setAdopted] = useState(false);
 

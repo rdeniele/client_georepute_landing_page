@@ -41,7 +41,7 @@ export type PhotoSlot = {
 export const photos = {
   hero: {
     id: "hero",
-    src: null,
+    src: "/screenshots/shot%202.png",
     alt: "A real GeoRepute customer environment: the business whose decision environment the network is mapping.",
     ratio: "4 / 5",
     priority: 1,
@@ -56,7 +56,7 @@ export const photos = {
   },
   decision: {
     id: "decision",
-    src: null,
+    src: "/screenshots/shot%201.png",
     alt: "A customer weighing alternatives: the moment the decision is actually shaped, before any analytics event fires.",
     ratio: "3 / 2",
     priority: 2,

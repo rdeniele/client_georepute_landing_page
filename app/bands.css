@@ -668,6 +668,43 @@ html.theme-dark .photo__reserved-spec {
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
+/* Section 02 image frame: a quiet browser window for the decision environment. */
+.invis__photo .photo__frame::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 52px;
+  background:
+    radial-gradient(circle at 20px 26px, #ff5f57 0 4px, transparent 4.5px),
+    radial-gradient(circle at 36px 26px, #febc2e 0 4px, transparent 4.5px),
+    radial-gradient(circle at 52px 26px, #28c840 0 4px, transparent 4.5px),
+    rgba(245, 243, 255, 0.92);
+  border-bottom: 1px solid rgba(27, 35, 64, 0.12);
+  pointer-events: none;
+}
+
+.invis__photo .photo__frame::after {
+  content: "georepute.ai / decision environment";
+  position: absolute;
+  top: 13px;
+  left: 88px;
+  right: 24px;
+  z-index: 4;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  padding-inline: 14px;
+  border: 1px solid rgba(27, 35, 64, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
 html[dir="rtl"] .invis__photo {
   margin-right: 0;
   margin-left: calc(-1 * var(--shell-bleed));
