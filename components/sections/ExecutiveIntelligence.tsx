@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { executive as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
-import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -169,14 +168,6 @@ export function ExecutiveIntelligence({ locale = "en" }: { locale?: string }) {
           </div>
         </div>
 
-        <ProductShot
-          src="/screenshots/UI1.png"
-          alt="GeoRepute's Brand Intelligence Dashboard: overall score, AI visibility, decision presence, narrative ownership, and the six-measure score breakdown behind the position."
-          url="app.georepute.ai/mission-control"
-          ratio="3 / 2"
-          size="wide"
-          className="exec__shot"
-        />
       </div>
     </section>
   );

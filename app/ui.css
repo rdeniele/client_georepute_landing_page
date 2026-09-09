@@ -1291,6 +1291,18 @@ html[dir="rtl"] .hero__word {
   max-width: 52ch;
 }
 
+.hero__support-preview {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.hero__support-more:has(details[open]) .hero__support-preview {
+  display: none;
+}
+
 .hero__support-more summary {
   width: fit-content;
   color: var(--color-ink-dim);

@@ -91,12 +91,16 @@ export function Hero({ locale = "en" }: { locale?: string }) {
               <Typewriter phrases={copy.typewriterPhrases} />
             </p>
 
-            <p
-              className="t-lead hero__support"
+            <div
+              className="hero__support-more"
               style={{ "--i": 6 } as React.CSSProperties}
             >
-              {copy.supporting}
-            </p>
+              <p className="t-lead hero__support-preview">{copy.supporting}</p>
+              <details>
+                <summary>Show more</summary>
+                <p className="t-lead hero__support">{copy.supporting}</p>
+              </details>
+            </div>
 
             <div
               className="hero__actions"

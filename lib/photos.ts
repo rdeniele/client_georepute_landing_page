@@ -41,7 +41,7 @@ export type PhotoSlot = {
 export const photos = {
   hero: {
     id: "hero",
-    src: "/screenshots/shot4.png",
+    src: "/screenshots/shot5.png",
     alt: "A real GeoRepute customer environment: the business whose decision environment the network is mapping.",
     ratio: "4 / 5",
     priority: 1,

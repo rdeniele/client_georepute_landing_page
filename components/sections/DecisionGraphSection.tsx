@@ -26,7 +26,9 @@ const POS: Record<string, [number, number]> = {
 
 export function DecisionGraphSection({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).decisionGraph;
-  const [focus, setFocus] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const focus = hovered ?? selected;
 
   const related = useMemo(() => {
     if (!focus) return null;
@@ -71,7 +73,7 @@ export function DecisionGraphSection({ locale = "en" }: { locale?: string }) {
             <div
               className="dgraph__canvas"
               data-focused={focus ? "true" : "false"}
-              onPointerLeave={() => setFocus(null)}
+              onPointerLeave={() => setHovered(null)}
             >
               <svg
                 className="dgraph__edges"
@@ -119,11 +121,13 @@ export function DecisionGraphSection({ locale = "en" }: { locale?: string }) {
                         className={`dgraph__node ${dim ? "is-dim" : ""} ${
                           focus === n.id ? "is-focus" : ""
                         }`}
-                        onPointerEnter={() => setFocus(n.id)}
-                        onFocus={() => setFocus(n.id)}
-                        onClick={() =>
-                          setFocus((f) => (f === n.id ? null : n.id))
-                        }
+                         onPointerEnter={() => setHovered(n.id)}
+                         onFocus={() => setHovered(n.id)}
+                         onClick={() =>
+                           setSelected((current) =>
+                             current === n.id ? null : n.id,
+                           )
+                         }
                         aria-pressed={focus === n.id}
                         aria-describedby="dgraph-panel"
                         data-cursor="live"

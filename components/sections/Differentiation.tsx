@@ -1,4 +1,5 @@
 import { getLocaleCopy } from "@/lib/i18n";
+import { ProductShot } from "@/components/ui/ProductShot";
 
 /**
  * Key differentiation statement, directly after the hero.
@@ -13,15 +14,24 @@ export function Differentiation({ locale = "en" }: { locale?: string }) {
   return (
     <section id="differentiation" className="section diff" data-section>
       <div className="shell diff__inner">
-        <p className="t-eyebrow diff__eyebrow" data-reveal>
-          {c.eyebrow}
-        </p>
-        <h2 className="diff__title" data-reveal data-reveal-delay="60">
-          {c.title}
-        </h2>
-        <p className="t-lead diff__body" data-reveal data-reveal-delay="120">
-          {c.body}
-        </p>
+        <div className="diff__copy">
+          <p className="t-eyebrow diff__eyebrow">
+            {c.eyebrow}
+          </p>
+          <h2 className="diff__title">
+            {c.title}
+          </h2>
+          <p className="t-lead diff__body">
+            {c.body}
+          </p>
+        </div>
+        <ProductShot
+          src="/screenshots/UI3.png"
+          alt="GeoRepute's full prompt list mapping commercial questions through the purchase decision."
+          url="app.georepute.ai/prompts"
+          ratio="1672 / 941"
+          className="diff__preview"
+        />
       </div>
     </section>
   );

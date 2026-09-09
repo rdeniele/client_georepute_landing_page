@@ -532,13 +532,53 @@
   margin: clamp(32px, 5vw, 52px) auto;
 }
 
+.recon__carousel-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.recon__carousel-controls button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-glass);
+  color: var(--color-ink);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background-color var(--d-micro) var(--ease-out),
+    border-color var(--d-micro) var(--ease-out),
+    transform var(--d-micro) var(--ease-out);
+}
+
+.recon__carousel-controls button:hover {
+  border-color: var(--color-signal);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+
+.recon__carousel-controls button:active {
+  transform: scale(0.96);
+}
+
 .recon__cards {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  display: flex;
+  gap: clamp(12px, 1.6vw, 20px);
   margin: 28px 0 0;
-  padding: 0;
+  padding: 0 0 14px;
   list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.recon__cards::-webkit-scrollbar {
+  display: none;
 }
 
 .recon__card {
@@ -546,12 +586,14 @@
   display: grid;
   align-content: start;
   gap: 12px;
+  flex: 0 0 clamp(280px, 31vw, 380px);
   min-height: 250px;
   padding: clamp(22px, 3vw, 32px);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-md);
   background: var(--surface-glass);
   box-shadow: 0 18px 45px -40px rgba(27, 35, 64, 0.6);
+  scroll-snap-align: start;
   opacity: 1;
   transition: border-color var(--d-micro) var(--ease-out),
     background-color var(--d-micro) var(--ease-out),
@@ -614,11 +656,8 @@
     line-height: 1.35;
   }
 
-  .recon__cards {
-    grid-template-columns: 1fr;
-  }
-
   .recon__card {
+    flex-basis: min(82vw, 360px);
     min-height: 0;
   }
 }
@@ -1855,7 +1894,14 @@
 }
 
 .diff__inner {
-  max-width: 68ch;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: clamp(36px, 7vw, 112px);
+}
+
+.diff__copy {
+  min-width: 0;
 }
 
 .diff__eyebrow {
@@ -1874,6 +1920,23 @@
 .diff__body {
   margin: 0;
   max-width: 62ch;
+}
+
+.diff__preview {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+}
+
+@media (max-width: 850px) {
+  .diff__inner {
+    grid-template-columns: 1fr;
+    gap: clamp(32px, 6vw, 56px);
+  }
+
+  .diff__preview {
+    max-width: 720px;
+  }
 }
 
 /* ============================================================================
@@ -1922,12 +1985,34 @@
   background: linear-gradient(90deg, var(--color-signal), var(--color-signal-lit));
 }
 
+.flow__viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.flow__track {
+  display: flex;
+  width: max-content;
+  animation: flow-marquee 34s linear infinite;
+}
+
+.flow__track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes flow-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .flow__row {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 clamp(10px, 1.6vw, 18px) 0 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: clamp(10px, 1.6vw, 18px);
 }
 
@@ -1939,18 +2024,7 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-full);
   background: var(--surface-glass);
-  opacity: 0.4;
-  transform: translateY(10px);
-  transition:
-    opacity 420ms var(--ease-out),
-    transform 420ms var(--ease-out),
-    border-color var(--d-state) var(--ease-out),
-    background-color var(--d-state) var(--ease-out);
-}
-
-.flow__step[data-active="true"] {
   opacity: 1;
-  transform: translateY(0);
   border-color: var(--color-signal-lit);
   background: var(--surface-hover);
 }
@@ -1969,8 +2043,18 @@
 }
 
 @media (max-width: 640px) {
+  .flow__track {
+    animation-duration: 28s;
+  }
+
   .flow__step-label {
-    white-space: normal;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow__track {
+    animation: none;
   }
 }
 

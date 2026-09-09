@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { engines as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
-import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -32,11 +31,13 @@ const HUB = "recognition";
 
 export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).engines;
-  const [focus, setFocus] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [assembled, setAssembled] = useState(false);
   const [active2, setActive2] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const focus = hovered ?? selected;
 
   const edges = useMemo(
     () =>
@@ -148,7 +149,7 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
           data-focused={focus ? "true" : "false"}
           data-assembled={assembled ? "true" : "false"}
           data-active={active2 ? "true" : "false"}
-          onPointerLeave={() => setFocus(null)}
+           onPointerLeave={() => setHovered(null)}
         >
           <div className="engines__atmosphere" aria-hidden="true">
             <span />
@@ -228,9 +229,13 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
                       className={`engines__node ${dim ? "is-dim" : ""} ${
                         focus === e.id ? "is-focus" : ""
                       } ${isHub ? "is-hub" : ""}`}
-                      onPointerEnter={() => setFocus(e.id)}
-                      onFocus={() => setFocus(e.id)}
-                      onClick={() => setFocus((f) => (f === e.id ? null : e.id))}
+                       onPointerEnter={() => setHovered(e.id)}
+                       onFocus={() => setHovered(e.id)}
+                       onClick={() =>
+                         setSelected((current) =>
+                           current === e.id ? null : e.id,
+                         )
+                       }
                       aria-pressed={focus === e.id}
                       aria-describedby="engines-readout"
                       data-cursor="live"
@@ -270,14 +275,6 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
           </div>
         </div>
 
-        <ProductShot
-          src="/screenshots/UI5.png"
-          alt="GeoRepute's Platform Comparison screen: mentioned vs. missed opportunities per AI engine, and brand visibility ranked against every competitor."
-          url="app.georepute.ai/competitors"
-          ratio="1672 / 941"
-          size="wide"
-          className="engines__shot"
-        />
       </div>
     </section>
   );

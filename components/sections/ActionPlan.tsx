@@ -1,7 +1,6 @@
 import { actionPlan as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
-import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -56,14 +55,6 @@ export function ActionPlan({ locale = "en" }: { locale?: string }) {
           ))}
         </ol>
 
-        <ProductShot
-          src="/screenshots/UI6.png"
-          alt="GeoRepute's Share of Voice screen: ranked mention share across every platform, with key takeaways and recommended opportunities to act on."
-          url="app.georepute.ai/share-of-voice"
-          ratio="1672 / 941"
-          size="wide"
-          className="plan__shot"
-        />
       </div>
     </section>
   );

@@ -1,5 +1,7 @@
+"use client";
+
+import { useRef } from "react";
 import { reconstruction as base } from "@/lib/content";
-import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -11,6 +13,15 @@ import { getLocaleCopy } from "@/lib/i18n";
 
 export function DecisionReconstruction({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).reconstruction;
+  const cardsRef = useRef<HTMLOListElement>(null);
+
+  const scrollCards = (direction: number) => {
+    cardsRef.current?.scrollBy({
+      left: direction * Math.max(280, cardsRef.current.clientWidth * 0.72),
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section
       id="reconstruct"
@@ -31,15 +42,16 @@ export function DecisionReconstruction({ locale = "en" }: { locale?: string }) {
           </div>
         </div>
 
-        <ProductShot
-          src="/screenshots/UI3.png"
-          alt="GeoRepute's full prompt list: every commercial question mapped from problem awareness through purchase decision, with visibility and sentiment scored per prompt."
-          url="app.georepute.ai/prompts"
-          ratio="1672 / 941"
-          className="recon__preview"
-        />
+        <div className="recon__carousel-controls" aria-label="Carousel controls">
+          <button type="button" onClick={() => scrollCards(-1)} aria-label="Previous stage">
+            <span aria-hidden="true">←</span>
+          </button>
+          <button type="button" onClick={() => scrollCards(1)} aria-label="Next stage">
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
 
-        <ol className="recon__cards">
+        <ol ref={cardsRef} className="recon__cards" aria-label="Decision reconstruction stages">
           {base.stages.map((s, i) => (
             <li
               key={s.key}
