@@ -58,6 +58,7 @@
 }
 
 .invis__track {
+  position: relative;
   display: flex;
   gap: 12px;
   list-style: none;
@@ -78,6 +79,20 @@
   border-radius: var(--radius-sm);
   border: 1px dashed var(--glow-gap);
   background: color-mix(in srgb, var(--color-gap) 5%, transparent);
+  animation: invis-marker-pulse 3.6s var(--ease-inout) infinite;
+}
+
+.invis__step:nth-child(2) .invis__marker { animation-delay: 300ms; }
+.invis__step:nth-child(3) .invis__marker { animation-delay: 600ms; }
+.invis__step:nth-child(4) .invis__marker { animation-delay: 900ms; }
+.invis__step:nth-child(5) .invis__marker { animation-delay: 1200ms; }
+.invis__step:nth-child(6) .invis__marker { animation-delay: 1500ms; }
+.invis__step:nth-child(7) .invis__marker { animation-delay: 1800ms; }
+
+@keyframes invis-marker-pulse {
+  0%, 100% { transform: translateY(0); box-shadow: none; }
+  12% { transform: translateY(-3px); box-shadow: 0 0 18px -5px var(--color-gap); }
+  24% { transform: translateY(0); }
 }
 
 .invis__step-label {
@@ -750,6 +765,26 @@
   background: var(--line);
 }
 
+.blind__track::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-gap);
+  box-shadow: 0 0 14px 2px var(--glow-gap);
+  animation: blind-signal-travel 5s var(--ease-inout) infinite;
+}
+
+@keyframes blind-signal-travel {
+  0%, 8% { left: 0; opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { left: calc(100% - 7px); opacity: 0; }
+}
+
 .blind__step {
   position: absolute;
   left: var(--at);
@@ -829,6 +864,11 @@
     right: auto;
     width: 1px;
     height: auto;
+  }
+  .blind__track::after {
+    top: 0;
+    left: 2px;
+    animation-name: blind-signal-travel-vertical;
   }
   .blind__step,
   .blind__step:first-child,
@@ -1898,6 +1938,20 @@
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   align-items: center;
   gap: clamp(36px, 7vw, 112px);
+}
+
+@keyframes blind-signal-travel-vertical {
+  0%, 8% { top: 0; opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { top: calc(100% - 7px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invis__marker,
+  .blind__track::after {
+    animation: none;
+  }
 }
 
 .diff__copy {
