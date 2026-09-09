@@ -30,7 +30,7 @@ export function SiteShell({
       <div className="void-wash" aria-hidden="true" />
       {home && <IntelligenceCanvas />}
       <Navigation />
-      {home && <ScrollProgress />}
+      {home && <ScrollProgress locale={locale} />}
       <main id="main" className="content">
         {children}
       </main>

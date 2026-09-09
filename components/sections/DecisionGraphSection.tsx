@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { decisionGraph as c } from "@/lib/content";
+import { decisionGraph as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 08 — The decision graph.
@@ -23,20 +24,22 @@ const POS: Record<string, [number, number]> = {
   action: [92, 49],
 };
 
-export function DecisionGraphSection() {
+export function DecisionGraphSection({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).decisionGraph;
   const [focus, setFocus] = useState<string | null>(null);
 
   const related = useMemo(() => {
     if (!focus) return null;
     const set = new Set<string>([focus]);
-    for (const [a, b] of c.edges) {
+    for (const [a, b] of base.edges) {
       if (a === focus) set.add(b);
       if (b === focus) set.add(a);
     }
     return set;
   }, [focus]);
 
-  const active = focus ? c.nodes.find((n) => n.id === focus) ?? null : null;
+  const activeIndex = focus ? base.nodes.findIndex((n) => n.id === focus) : -1;
+  const active = activeIndex >= 0 ? { ...base.nodes[activeIndex], ...c.nodes[activeIndex] } : null;
 
   return (
     <section id="graph" className="section band band--tint" data-section>
@@ -44,7 +47,7 @@ export function DecisionGraphSection() {
 
       <div className="shell">
         <SectionHeader
-          index={c.index}
+          index={base.index}
           label={c.label}
           headline={c.headline}
           body={c.body}
@@ -52,15 +55,15 @@ export function DecisionGraphSection() {
 
         <div className="dgraph glass" data-reveal>
           <div className="dgraph__bar">
-            <span className="t-label">Decision graph</span>
+            <span className="t-label">{c.barLabel}</span>
             <span className="dgraph__stat">
-              {c.nodes.length} nodes · {c.edges.length} edges
+              {base.nodes.length} {c.nodesLabel} · {base.edges.length} {c.edgesLabel}
             </span>
             <span
               className={`dgraph__state ${focus ? "is-live" : ""}`}
               aria-live="polite"
             >
-              {focus ? `Isolating ${active?.name}` : "All paths"}
+              {focus ? `${c.isolating} ${active?.name}` : c.allPaths}
             </span>
           </div>
 
@@ -76,7 +79,7 @@ export function DecisionGraphSection() {
                 preserveAspectRatio="none"
                 aria-hidden="true"
               >
-                {c.edges.map(([a, b]) => {
+                {base.edges.map(([a, b]) => {
                   const pa = POS[a];
                   const pb = POS[b];
                   const lit = related
@@ -97,7 +100,7 @@ export function DecisionGraphSection() {
               </svg>
 
               <ul className="dgraph__nodes">
-                {c.nodes.map((n) => {
+                {base.nodes.map((n, i) => {
                   const p = POS[n.id];
                   const dim = related ? !related.has(n.id) : false;
                   return (
@@ -124,11 +127,11 @@ export function DecisionGraphSection() {
                         aria-pressed={focus === n.id}
                         aria-describedby="dgraph-panel"
                         data-cursor="live"
-                        data-cursor-label="Isolate"
+                        data-cursor-label={c.isolateCursor}
                       >
                         <span className="dgraph__node-dot" aria-hidden="true" />
-                        <span className="dgraph__node-name">{n.name}</span>
-                        <span className="dgraph__node-kind">{n.kind}</span>
+                        <span className="dgraph__node-name">{c.nodes[i].name}</span>
+                        <span className="dgraph__node-kind">{c.nodes[i].kind}</span>
                       </button>
                     </li>
                   );
@@ -143,7 +146,7 @@ export function DecisionGraphSection() {
                   <h3 className="t-h4 dgraph__panel-title">{active.name}</h3>
                   <p className="dgraph__panel-detail">{active.detail}</p>
                   <span className="t-label dgraph__panel-legend">
-                    Supporting evidence
+                    {c.supportingEvidence}
                   </span>
                   <ul className="dgraph__evidence">
                     {active.evidence.map((e) => (
@@ -156,10 +159,9 @@ export function DecisionGraphSection() {
                 </>
               ) : (
                 <div className="dgraph__panel-idle">
-                  <span className="t-label">No node selected</span>
+                  <span className="t-label">{c.noNodeSelected}</span>
                   <p className="dgraph__panel-detail">
-                    Focus any node to isolate what connects to it and open its
-                    evidence.
+                    {c.noNodeHint}
                   </p>
                 </div>
               )}

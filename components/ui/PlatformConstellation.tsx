@@ -1,15 +1,16 @@
 "use client";
 
 import { PLATFORMS, PlatformGlyph } from "./PlatformGlyph";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /** First-stage proof of the surfaces GeoRepute scans. */
 
-export function PlatformConstellation() {
+export function PlatformConstellation({ locale = "en" }: { locale?: string }) {
+  const label = getLocaleCopy(locale).platformsLabel;
   return (
     <div className="platforms" data-reveal>
       <p className="platforms__label">
-        GeoRepute scans Google + 6 AI engines — the surfaces where your business
-        is discovered
+        {label}
       </p>
 
       <div className="platforms__stage" aria-label="Platforms monitored by GeoRepute">

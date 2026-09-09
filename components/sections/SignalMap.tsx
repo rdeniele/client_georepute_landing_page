@@ -1,6 +1,7 @@
-import { signals as c } from "@/lib/content";
+import { signals as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 03 — See the signals.
@@ -10,7 +11,8 @@ import { Band } from "@/components/ui/Band";
  * and lifts the question — the same illuminate-on-focus behaviour the graph
  * sections use, so the vocabulary stays consistent.
  */
-export function SignalMap() {
+export function SignalMap({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).signals;
   return (
     <section
       id="signals"
@@ -22,7 +24,7 @@ export function SignalMap() {
       <div className="shell signals">
         <div className="signals__aside">
           <SectionHeader
-            index={c.index}
+            index={base.index}
             label={c.label}
             headline={c.headline}
             body={c.body}
@@ -30,21 +32,21 @@ export function SignalMap() {
         </div>
 
         <ol className="signals__list">
-          {c.items.map((item, i) => (
+          {base.items.map((item, i) => (
             <li
               key={item.name}
               className="signal"
               data-reveal
               data-reveal-delay={i * 45}
               data-cursor="live"
-              data-cursor-label="Signal"
+              data-cursor-label={c.signalCursor}
             >
               <span className="signal__index">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="signal__body">
-                <span className="signal__name">{item.name}</span>
-                <span className="signal__q">{item.q}</span>
+                <span className="signal__name">{c.items[i].name}</span>
+                <span className="signal__q">{c.items[i].q}</span>
               </span>
               <span className="signal__link" aria-hidden="true" />
             </li>

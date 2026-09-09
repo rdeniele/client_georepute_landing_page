@@ -2,20 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { scene } from "@/lib/sceneStore";
-
-const MARKS = [
-  "Enter",
-  "Invisible",
-  "Signals",
-  "Decision",
-  "Blind spot",
-  "Engines",
-  "Loop",
-  "Graph",
-  "Executive",
-  "Action",
-  "Analyze",
-];
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Instrument-style progress rail.
@@ -23,7 +10,8 @@ const MARKS = [
  * Reads scroll position straight from the scene store on a rAF loop and
  * writes to the DOM — the component itself never re-renders while scrolling.
  */
-export function ScrollProgress() {
+export function ScrollProgress({ locale = "en" }: { locale?: string }) {
+  const MARKS = getLocaleCopy(locale).scrollRail;
   const fill = useRef<HTMLSpanElement>(null);
   const marks = useRef<HTMLOListElement>(null);
 

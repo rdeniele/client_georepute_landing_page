@@ -41,10 +41,9 @@ const CAP_ICON: Record<string, React.ComponentType<IconProps>> = {
  * of the story — reality and the invisible layer around it — in one viewport.
  */
 export function Hero({ locale = "en" }: { locale?: string }) {
-  const copy = getLocaleCopy(locale).hero;
-  const panel = locale === "he"
-    ? { title: "סביבת קבלת ההחלטות", surfaces: "משטחים במעקב", signals: "אותות שנפתרו", position: "מיקום ההחלטה", state: "בשחזור" }
-    : { title: "Decision environment", surfaces: "Surfaces watched", signals: "Signals resolved", position: "Decision position", state: "Reconstructing" };
+  const localeCopy = getLocaleCopy(locale);
+  const copy = localeCopy.hero;
+  const panel = localeCopy.heroPanel;
   return (
     <section id="top" className="hero band band--split" data-section>
       <HeroScrollFx />
@@ -133,13 +132,13 @@ export function Hero({ locale = "en" }: { locale?: string }) {
       </div>
 
       <div className="shell hero__constellation-shell">
-        <PlatformConstellation />
+        <PlatformConstellation locale={locale} />
       </div>
 
       <div className="hero__foot" style={{ "--i": 7 } as React.CSSProperties}>
         <div className="shell hero__foot-shell">
           <ul className="hero__caps">
-            {capabilities.map((c) => {
+            {capabilities.map((c, i) => {
               const Icon = CAP_ICON[c.icon];
               return (
                 <li key={c.label} className="hero__cap">
@@ -148,7 +147,7 @@ export function Hero({ locale = "en" }: { locale?: string }) {
                   </span>
                   <span className="hero__cap-text">
                     <span className="hero__cap-value">{c.value}</span>
-                    <span className="hero__cap-label">{c.label}</span>
+                    <span className="hero__cap-label">{localeCopy.capabilityLabels[i]}</span>
                   </span>
                 </li>
               );

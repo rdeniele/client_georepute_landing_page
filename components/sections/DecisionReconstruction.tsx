@@ -1,15 +1,15 @@
-import { reconstruction as c } from "@/lib/content";
+import { reconstruction as base } from "@/lib/content";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 04 — Watch a decision form.
- *
  * Section 04 — Watch a decision form.
  *
  * All six stages stay visible in a calm framed grid. Scroll changes emphasis
  * only, so the process remains understandable without a pinned sequence.
  */
 
-export function DecisionReconstruction() {
+export function DecisionReconstruction({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).reconstruction;
   return (
     <section
       id="reconstruct"
@@ -19,19 +19,19 @@ export function DecisionReconstruction() {
       <div className="shell recon__shell">
         <div className="recon__head">
           <div className="sec-head__meta recon__meta">
-            <span className="sec-head__index">{c.index}</span>
+            <span className="sec-head__index">{base.index}</span>
             <span className="t-label">{c.label}</span>
           </div>
           <h2 className="t-h3 recon__headline">{c.headline}</h2>
 
           <div className="recon__query glass">
-            <span className="t-label">Commercial question</span>
+            <span className="t-label">{c.commercialQuestion}</span>
             <p className="recon__query-text">{c.query}</p>
           </div>
         </div>
 
         <ol className="recon__cards">
-          {c.stages.map((s, i) => (
+          {base.stages.map((s, i) => (
             <li
               key={s.key}
               className="recon__card"
@@ -39,9 +39,9 @@ export function DecisionReconstruction() {
               <div className="recon__card-top">
                 <span className="recon__card-number">0{i + 1}</span>
               </div>
-              <span className="t-eyebrow">{s.label}</span>
-              <h3>{s.title}</h3>
-              <p>{s.detail}</p>
+              <span className="t-eyebrow">{c.stages[i].label}</span>
+              <h3>{c.stages[i].title}</h3>
+              <p>{c.stages[i].detail}</p>
             </li>
           ))}
         </ol>

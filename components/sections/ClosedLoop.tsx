@@ -1,6 +1,7 @@
-import { loop as c } from "@/lib/content";
+import { loop as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 07 — The closed loop.
@@ -24,14 +25,15 @@ const LABEL_POS = [
   [15.5, 15.5],
 ];
 
-export function ClosedLoop() {
+export function ClosedLoop({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).loop;
   return (
     <section id="loop" className="section band band--tint" data-section>
       <Band tone="tint" />
       <div className="shell loop">
         <div className="loop__aside">
           <SectionHeader
-            index={c.index}
+            index={base.index}
             label={c.label}
             headline={c.headline}
             body={c.body}
@@ -60,7 +62,7 @@ export function ClosedLoop() {
           </svg>
 
           <ol className="loop__labels">
-            {c.stages.map((s, i) => (
+            {base.stages.map((s, i) => (
               <li
                 key={s.key}
                 className="loop__label"
@@ -73,15 +75,15 @@ export function ClosedLoop() {
                 }
               >
                 <span className="loop__key">{s.key}</span>
-                <span className="loop__detail">{s.detail}</span>
+                <span className="loop__detail">{c.details[i]}</span>
               </li>
             ))}
           </ol>
 
           <p className="loop__centre">
-            <span className="t-label">Every cycle</span>
+            <span className="t-label">{c.everyCycle}</span>
             <span className="loop__centre-text t-editorial">
-              returns better informed
+              {c.returnsBetter}
             </span>
           </p>
         </div>

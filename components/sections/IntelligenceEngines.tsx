@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { engines as c } from "@/lib/content";
+import { engines as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 06 — The intelligence engines.
@@ -28,7 +29,8 @@ const POS: Record<string, [number, number]> = {
 
 const HUB = "recognition";
 
-export function IntelligenceEngines() {
+export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).engines;
   const [focus, setFocus] = useState<string | null>(null);
   const [assembled, setAssembled] = useState(false);
   const [active2, setActive2] = useState(false);
@@ -37,7 +39,7 @@ export function IntelligenceEngines() {
 
   const edges = useMemo(
     () =>
-      c.items.flatMap((e) =>
+      base.items.flatMap((e) =>
         e.feeds.map((to) => {
           const a = POS[e.id];
           const b = POS[to];
@@ -58,7 +60,8 @@ export function IntelligenceEngines() {
     return set;
   }, [focus, edges]);
 
-  const active = focus ? c.items.find((i) => i.id === focus) ?? null : null;
+  const activeIndex = focus ? base.items.findIndex((i) => i.id === focus) : -1;
+  const active = activeIndex >= 0 ? { ...base.items[activeIndex], ...c.items[activeIndex] } : null;
 
   // The network assembles once, the first time it enters view: edges draw,
   // nodes settle in, then — a beat later — the ambient signal starts
@@ -132,7 +135,7 @@ export function IntelligenceEngines() {
 
       <div className="shell">
         <SectionHeader
-          index={c.index}
+          index={base.index}
           label={c.label}
           headline={c.headline}
           body={c.body}
@@ -203,7 +206,7 @@ export function IntelligenceEngines() {
             </svg>
 
             <ul className="engines__nodes">
-              {c.items.map((e, i) => {
+              {base.items.map((e, i) => {
                 const p = POS[e.id];
                 const dim = related ? !related.has(e.id) : false;
                 const isHub = e.id === HUB;
@@ -230,10 +233,10 @@ export function IntelligenceEngines() {
                       aria-pressed={focus === e.id}
                       aria-describedby="engines-readout"
                       data-cursor="live"
-                      data-cursor-label={isHub ? "Source" : "Focus"}
+                      data-cursor-label={isHub ? c.sourceCursor : c.focusCursor}
                     >
                       <span className="engines__node-dot" aria-hidden="true" />
-                      <span className="engines__node-name">{e.name}</span>
+                      <span className="engines__node-name">{c.items[i].name}</span>
                     </button>
                   </li>
                 );
@@ -251,15 +254,15 @@ export function IntelligenceEngines() {
                 <span className="t-eyebrow">{active.name}</span>
                 <p className="engines__readout-q">{active.q}</p>
                 <span className="t-label engines__readout-feeds">
-                  Feeds {active.feeds.length}{" "}
-                  {active.feeds.length === 1 ? "engine" : "engines"}
+                  {c.feedsPrefix} {active.feeds.length}{" "}
+                  {active.feeds.length === 1 ? c.engineSingular : c.enginePlural}
                 </span>
               </>
             ) : (
               <>
-                <span className="t-label">Idle</span>
+                <span className="t-label">{c.idle}</span>
                 <p className="engines__readout-q engines__readout-q--idle">
-                  Focus an engine to isolate what it feeds.
+                  {c.idleHint}
                 </p>
               </>
             )}

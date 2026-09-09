@@ -1,6 +1,7 @@
-import { blindSpot as c } from "@/lib/content";
+import { blindSpot as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 05 — The blind spot.
@@ -14,7 +15,8 @@ import { Band } from "@/components/ui/Band";
 const GEO_AT = [0, 23, 46, 70, 100];
 const TRAD_AT = [62, 74, 86, 100];
 
-export function BlindSpot() {
+export function BlindSpot({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).blindSpot;
   return (
     <section
       id="blindspot"
@@ -25,7 +27,7 @@ export function BlindSpot() {
 
       <div className="shell">
         <SectionHeader
-          index={c.index}
+          index={base.index}
           label={c.label}
           headline={c.headline}
           body={c.body}
@@ -34,24 +36,24 @@ export function BlindSpot() {
         <div className="blind" data-reveal>
           <div className="blind__region" aria-hidden="true">
             <span className="blind__region-label">
-              Already decided before the first measurable event
+              {c.alreadyDecided}
             </span>
           </div>
 
           <div className="blind__row">
             <h3 className="blind__title blind__title--geo">
               <span className="blind__dot" aria-hidden="true" />
-              {c.georepute.title}
+              {c.georeputeTitle}
             </h3>
             <ol className="blind__track">
-              {c.georepute.steps.map((s, i) => (
+              {base.georepute.steps.map((s, i) => (
                 <li
                   key={s}
                   className="blind__step blind__step--geo"
                   style={{ "--at": `${GEO_AT[i]}%` } as React.CSSProperties}
                 >
                   <span className="blind__marker" aria-hidden="true" />
-                  <span className="blind__label">{s}</span>
+                  <span className="blind__label">{c.georeputeSteps[i]}</span>
                 </li>
               ))}
             </ol>
@@ -59,24 +61,24 @@ export function BlindSpot() {
 
           <div className="blind__axis" aria-hidden="true">
             <span className="t-label blind__axis-label">
-              One decision, left to right
+              {c.axisLabel}
             </span>
           </div>
 
           <div className="blind__row">
             <h3 className="blind__title blind__title--trad">
               <span className="blind__dot" aria-hidden="true" />
-              {c.traditional.title}
+              {c.traditionalTitle}
             </h3>
             <ol className="blind__track">
-              {c.traditional.steps.map((s, i) => (
+              {base.traditional.steps.map((s, i) => (
                 <li
                   key={s}
                   className="blind__step blind__step--trad"
                   style={{ "--at": `${TRAD_AT[i]}%` } as React.CSSProperties}
                 >
                   <span className="blind__marker" aria-hidden="true" />
-                  <span className="blind__label">{s}</span>
+                  <span className="blind__label">{c.traditionalSteps[i]}</span>
                 </li>
               ))}
             </ol>

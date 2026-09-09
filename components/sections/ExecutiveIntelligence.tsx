@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { executive as c } from "@/lib/content";
+import { executive as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 09 — Executive intelligence.
@@ -96,9 +97,10 @@ function band(v: number) {
 const DIAL_R = 78;
 const DIAL_C = 2 * Math.PI * DIAL_R;
 
-export function ExecutiveIntelligence() {
+export function ExecutiveIntelligence({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).executive;
   const root = useDashboardReveal();
-  const dialTarget = DIAL_C - (DIAL_C * c.position.value) / 100;
+  const dialTarget = DIAL_C - (DIAL_C * base.position.value) / 100;
 
   return (
     <section
@@ -110,7 +112,7 @@ export function ExecutiveIntelligence() {
 
       <div className="shell">
         <SectionHeader
-          index={c.index}
+          index={base.index}
           label={c.label}
           headline={c.headline}
           body={c.body}
@@ -118,7 +120,7 @@ export function ExecutiveIntelligence() {
 
         <div className="exec glass" ref={root} data-reveal>
           <div className="exec__bar">
-            <span className="t-label">Executive mission control</span>
+            <span className="t-label">{c.label}</span>
             <span className="exec__sample">{c.sampleNote}</span>
           </div>
 
@@ -140,25 +142,25 @@ export function ExecutiveIntelligence() {
               </svg>
               <div className="exec__position-text">
                 <span className="t-metric exec__position-value">
-                  <span data-count={c.position.value}>0</span>
+                  <span data-count={base.position.value}>0</span>
                 </span>
                 <span className="t-label exec__position-label">
-                  {c.position.label}
+                  {c.positionLabel}
                 </span>
-                <span className="exec__position-state">{c.position.state}</span>
+                <span className="exec__position-state">{c.positionState}</span>
               </div>
             </div>
 
             <ol className="exec__measures">
-              {c.measures.map((m) => (
+              {base.measures.map((m, i) => (
                 <li key={m.name} className={`measure ${band(m.value)}`}>
-                  <span className="measure__name">{m.name}</span>
+                  <span className="measure__name">{c.measureNames[i]}</span>
                   <span className="measure__track" aria-hidden="true">
                     <span className="measure__fill" data-meter={m.value} />
                   </span>
                   <span className="measure__value">
                     <span data-count={m.value}>0</span>
-                    <span className="sr-only"> out of 100</span>
+                    <span className="sr-only"> {c.outOf100}</span>
                   </span>
                 </li>
               ))}

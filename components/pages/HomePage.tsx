@@ -17,15 +17,15 @@ export function HomePage({ locale = "en" }: { locale?: string }) {
     <>
       <Hero locale={locale} />
       <InvisibleDecision locale={locale} />
-      <SignalMap />
-      <DecisionReconstruction />
-      <BlindSpot />
-      <IntelligenceEngines />
-      <ClosedLoop />
-      <DecisionGraphSection />
-      <ExecutiveIntelligence />
-      <ActionPlan />
-      <FinalCta />
+      <SignalMap locale={locale} />
+      <DecisionReconstruction locale={locale} />
+      <BlindSpot locale={locale} />
+      <IntelligenceEngines locale={locale} />
+      <ClosedLoop locale={locale} />
+      <DecisionGraphSection locale={locale} />
+      <ExecutiveIntelligence locale={locale} />
+      <ActionPlan locale={locale} />
+      <FinalCta locale={locale} />
     </>
   );
 }

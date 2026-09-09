@@ -1,4 +1,4 @@
-import { invisibleDecision as c } from "@/lib/content";
+import { invisibleDecision as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
 import { InvisibleBrowserStack } from "@/components/sections/InvisibleBrowserStack";
@@ -18,7 +18,7 @@ import { getLocaleCopy } from "@/lib/i18n";
  */
 export function InvisibleDecision({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).invisible;
-  const invisibleCount = c.timeline.filter((s) => !s.visible).length;
+  const invisibleCount = base.timeline.filter((s) => !s.visible).length;
 
   return (
     <section id="invisible" className="section band band--paper" data-section>
@@ -27,7 +27,7 @@ export function InvisibleDecision({ locale = "en" }: { locale?: string }) {
       <div className="shell">
         <div className="invis__top">
           <SectionHeader
-            index={c.index}
+            index={base.index}
             label={c.label}
             headline={c.headline}
             body={c.body}
@@ -55,7 +55,7 @@ export function InvisibleDecision({ locale = "en" }: { locale?: string }) {
           </div>
 
           <ol className="invis__track">
-            {c.timeline.map((step, i) => (
+            {base.timeline.map((step, i) => (
               <li
                 key={step.t}
                 className={`invis__step ${step.visible ? "is-visible" : ""}`}
@@ -63,9 +63,9 @@ export function InvisibleDecision({ locale = "en" }: { locale?: string }) {
                 data-reveal-delay={i * 60}
               >
                 <span className="invis__marker" aria-hidden="true" />
-                <span className="invis__step-label">{step.t}</span>
+                <span className="invis__step-label">{c.timeline[i]}</span>
                 {!step.visible && (
-                  <span className="sr-only">(not measured)</span>
+                  <span className="sr-only">({c.notMeasured})</span>
                 )}
               </li>
             ))}

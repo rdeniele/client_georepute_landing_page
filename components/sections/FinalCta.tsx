@@ -1,9 +1,10 @@
-import { finalCta as c } from "@/lib/content";
+import { finalCta as base } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Band } from "@/components/ui/Band";
 import { photos } from "@/lib/photos";
 import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
 import { SiteFooter } from "@/components/ui/SiteFooter";
+import { getLocaleCopy } from "@/lib/i18n";
 
 /**
  * Section 11 — Analyze my business.
@@ -16,7 +17,8 @@ import { SiteFooter } from "@/components/ui/SiteFooter";
  * The copy stays deliberately bare — one line, one supporting sentence, two
  * controls — because the composition is doing the argument.
  */
-export function FinalCta() {
+export function FinalCta({ locale = "en" }: { locale?: string }) {
+  const c = getLocaleCopy(locale).finalCta;
   return (
     <section
       id="analyze"
@@ -39,8 +41,7 @@ export function FinalCta() {
         </span>
 
         <h2 className="final__headline" data-reveal data-reveal-delay="80">
-          The decision is{" "}
-          <em className="t-editorial final__em">already happening.</em>
+          {c.headline}
         </h2>
 
         <p className="t-lead final__body" data-reveal data-reveal-delay="160">
@@ -48,16 +49,16 @@ export function FinalCta() {
         </p>
 
         <div className="final__actions" data-reveal data-reveal-delay="240">
-          <Button href={c.primaryCta.href} variant="conversion">
-            {c.primaryCta.label}
+          <Button href={base.primaryCta.href} variant="conversion">
+            {c.primaryCta}
           </Button>
-          <Button href={c.secondaryCta.href} variant="ghost">
-            {c.secondaryCta.label}
+          <Button href={base.secondaryCta.href} variant="ghost">
+            {c.secondaryCta}
           </Button>
         </div>
       </div>
 
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </section>
   );
 }
