@@ -636,6 +636,22 @@ html.theme-dark .photo__reserved-spec {
   font-variant-numeric: tabular-nums;
 }
 
+@media (max-width: 600px) {
+  .photo__panel-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .photo__panel-row dt,
+  .photo__panel-row dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .photo__panel-row dd {
+    text-align: right;
+  }
+}
+
 /* ============================================================================
    SECTION COMPOSITIONS — where the bands and the photography actually land.
    Proportions differ deliberately from section to section; the split is a

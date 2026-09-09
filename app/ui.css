@@ -1286,6 +1286,30 @@ html[dir="rtl"] .hero__word {
   }
 }
 
+@media (max-width: 600px) {
+  .typewriter {
+    display: inline;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .typewriter__text {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .hero__support-more summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+
+  .nav__locale-menu a {
+    min-height: 44px;
+  }
+}
+
 .hero__support-more {
   margin: clamp(24px, 3.2vw, 36px) 0 0;
   max-width: 52ch;
