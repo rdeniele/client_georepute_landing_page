@@ -1,6 +1,7 @@
 import { signals as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -28,6 +29,13 @@ export function SignalMap({ locale = "en" }: { locale?: string }) {
             label={c.label}
             headline={c.headline}
             body={c.body}
+          />
+          <ProductShot
+            src="/screenshots/UI2.png"
+            alt="GeoRepute's AI Visibility screen: platform mentions, sentiment, visibility score, and the prompts where the brand appears or is missed."
+            url="app.georepute.ai/ai-visibility"
+            ratio="3 / 2"
+            className="signals__shot"
           />
         </div>
 

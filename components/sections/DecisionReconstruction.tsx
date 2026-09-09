@@ -1,4 +1,5 @@
 import { reconstruction as base } from "@/lib/content";
+import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -29,6 +30,14 @@ export function DecisionReconstruction({ locale = "en" }: { locale?: string }) {
             <p className="recon__query-text">{c.query}</p>
           </div>
         </div>
+
+        <ProductShot
+          src="/screenshots/UI3.png"
+          alt="GeoRepute's full prompt list: every commercial question mapped from problem awareness through purchase decision, with visibility and sentiment scored per prompt."
+          url="app.georepute.ai/prompts"
+          ratio="1672 / 941"
+          className="recon__preview"
+        />
 
         <ol className="recon__cards">
           {base.stages.map((s, i) => (

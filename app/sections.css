@@ -157,6 +157,9 @@
 .signals__aside .sec-head {
   margin-bottom: 0;
 }
+.signals__shot {
+  margin-top: clamp(28px, 4vw, 44px);
+}
 
 .signals__list {
   list-style: none;
@@ -523,6 +526,10 @@
   font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.recon__preview {
+  margin: clamp(32px, 5vw, 52px) auto;
 }
 
 .recon__cards {
@@ -960,6 +967,10 @@
    circuits straight to the finished state. */
 .engines {
   perspective: 1400px;
+}
+
+.engines__shot {
+  margin-top: clamp(40px, 6vw, 64px);
 }
 
 .engines__canvas-tilt {
@@ -1482,6 +1493,10 @@
   overflow: hidden;
 }
 
+.exec__shot {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
 .exec__bar {
   display: flex;
   align-items: center;
@@ -1644,6 +1659,10 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.plan__shot {
+  margin-top: clamp(32px, 5vw, 48px);
 }
 
 .plan__item {

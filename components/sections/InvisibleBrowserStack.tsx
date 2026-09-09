@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { photos } from "@/lib/photos";
 
 /**
  * Section 02's product visual: a floating browser card, not a monitor or a
@@ -12,8 +11,10 @@ import { photos } from "@/lib/photos";
  * has its own UI at the top edge, and chrome overlapping chrome read as a
  * mistake, not as an editorial layering.
  *
- * Only `shot 3` for now — this slot will grow back into a second image once
- * there's a second hero screen worth showing here.
+ * Shows the "Missed Prompts" / customer decision journey screen — the
+ * clearest real-product proof of this section's claim: the four-stage
+ * journey (Awareness, Research, Supplier Selection, Purchase) a business
+ * never sees in conventional analytics.
  *
  * The card tilts a few degrees toward the cursor — capped small, skipped
  * under reduced motion or a coarse pointer.
@@ -21,7 +22,10 @@ import { photos } from "@/lib/photos";
 export function InvisibleBrowserStack({ locale = "en" }: { locale?: string }) {
   void locale;
   const cardRef = useRef<HTMLDivElement>(null);
-  const shot = photos.overview;
+  const shot = {
+    src: "/screenshots/UI4.png",
+    alt: "GeoRepute's Missed Prompts view: the four-stage customer decision journey — Awareness, Research, Supplier Selection, Purchase — and the questions your brand isn't showing up for.",
+  };
 
   useEffect(() => {
     const card = cardRef.current;
@@ -56,14 +60,14 @@ export function InvisibleBrowserStack({ locale = "en" }: { locale?: string }) {
   return (
     <div className="invis__photo browsercard">
       <div ref={cardRef} className="browsercard__mat">
-        <div className="browsercard__window">
+        <div className="browsercard__window" style={{ aspectRatio: "1672 / 941" }}>
           <div className="browsercard__chrome" aria-hidden="true">
             <span className="browsercard__lights">
               <span className="browsercard__light browsercard__light--red" />
               <span className="browsercard__light browsercard__light--amber" />
               <span className="browsercard__light browsercard__light--green" />
             </span>
-            <span className="browsercard__url">app.georepute.ai/overview</span>
+            <span className="browsercard__url">app.georepute.ai/decision-journey</span>
           </div>
           <div className="browsercard__imagewrap">
             {shot.src && (

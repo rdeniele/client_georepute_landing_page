@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { engines as base } from "@/lib/content";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Band } from "@/components/ui/Band";
+import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
@@ -268,6 +269,15 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
             )}
           </div>
         </div>
+
+        <ProductShot
+          src="/screenshots/UI5.png"
+          alt="GeoRepute's Platform Comparison screen: mentioned vs. missed opportunities per AI engine, and brand visibility ranked against every competitor."
+          url="app.georepute.ai/competitors"
+          ratio="1672 / 941"
+          size="wide"
+          className="engines__shot"
+        />
       </div>
     </section>
   );

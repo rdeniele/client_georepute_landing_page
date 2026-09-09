@@ -1458,3 +1458,115 @@ html[dir="rtl"] .hero__word {
     );
   }
 }
+
+/* ============================================================================
+   PRODUCT SHOT — reusable browser-chrome screenshot card
+   Used across the mid-page sections (signals, reconstruction, engines,
+   executive, action plan) to ground each section's claim in the real
+   product. Same visual language as the hero's .browsercard so every shot on
+   the page reads as one consistent object.
+   ========================================================================== */
+
+.shotcard {
+  position: relative;
+  perspective: 1700px;
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.shotcard--wide {
+  max-width: 50rem;
+}
+
+.shotcard__mat {
+  position: relative;
+  padding: clamp(10px, 1.6vw, 16px);
+  border-radius: 22px;
+  background: linear-gradient(155deg, #eee9ff 0%, #f7f4ff 60%, #eef6ef 100%);
+  box-shadow: 0 40px 90px -46px rgba(41, 6, 96, 0.35);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: box-shadow 320ms var(--ease-out);
+}
+.shotcard:hover .shotcard__mat,
+.shotcard:focus-within .shotcard__mat {
+  box-shadow: 0 50px 110px -42px rgba(41, 6, 96, 0.45);
+}
+
+.shotcard__window {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  isolation: isolate;
+}
+
+.shotcard__chrome {
+  position: relative;
+  flex: none;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 14px;
+  background: linear-gradient(180deg, #fbfaff, #f3f1fb);
+  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+}
+
+.shotcard__imagewrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.shotcard__img {
+  object-fit: cover;
+  object-position: top;
+}
+
+.shotcard__lights {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+}
+.shotcard__light {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.shotcard__light--red {
+  background: #ff5f57;
+}
+.shotcard__light--amber {
+  background: #febc2e;
+}
+.shotcard__light--green {
+  background: #28c840;
+}
+.shotcard__url {
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(27, 35, 64, 0.08);
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shotcard__mat {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .shotcard,
+  .shotcard--wide {
+    max-width: 100%;
+  }
+}
