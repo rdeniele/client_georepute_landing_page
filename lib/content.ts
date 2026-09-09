@@ -119,14 +119,81 @@ export const nav = {
 } as const;
 
 export const hero = {
-  eyebrow: "The intelligence & execution layer for modern agencies",
-  headlineLead: "See where your business is",
-  emphasis: ["Recognized.", "Recommended.", "Chosen."],
+  eyebrow: "Business & Marketing Intelligence + Execution Platform",
+  headlineWords: ["Understand More.", "Offer More.", "Deliver More."],
+  tagline: "For your business and every client you manage.",
+  typewriterPhrases: [
+    "Understand More.",
+    "Research Better.",
+    "Discover Opportunities.",
+    "Build Stronger Strategies.",
+    "Execute With Intelligence.",
+    "Measure What Matters.",
+    "Improve Continuously.",
+  ],
   supporting:
-    "GeoRepute maps the decision environment around your business: across AI, search, reputation, competitors, and the signals that influence what customers choose.",
-  primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
-  secondaryCta: { label: "Explore the Intelligence", href: "#signals" },
+    "GeoRepute is an international Business & Marketing Intelligence platform built for agencies, campaign managers, consultants and marketing teams that want to dramatically expand what they can understand, offer and execute. It connects market research, competitor intelligence, demand, audiences and ICP, Google and SEO, AI visibility, digital reputation, business opportunities, market expansion, strategy, proposal building, work plans, execution, measurement and continuous improvement in one working platform.",
+  /** Internal path — localized at render via localizePath(). */
+  primaryCta: { label: "Explore the Platform", href: "/en/app/reconstruct" },
+  /** External signup flow, same destination the rest of the page already uses for booking-style CTAs. */
+  secondaryCta: { label: "Book a Live Demo", href: "https://www.georepute.ai/signup" },
   scrollHint: "Enter the system",
+} as const;
+
+/** Section — key differentiation statement. Visibility is the starting point, not the destination. */
+export const differentiation = {
+  title: "Not another ranking dashboard.",
+  body: "Knowing where a business appears is only the starting point. GeoRepute helps understand why the business is in that position, what is happening around it, what competitors are doing, where demand exists, what opportunities are being missed, what should be done next, and how to execute it.",
+} as const;
+
+/** Section — the platform flow: information becoming action, in one continuous line. */
+export const platformFlow = {
+  label: "How the platform works",
+  headline: "From research to results, in one working system.",
+  steps: [
+    "Research",
+    "Intelligence",
+    "Opportunity",
+    "Decision",
+    "Strategy",
+    "Work Plan",
+    "Execution",
+    "Measurement",
+    "Improvement",
+  ],
+} as const;
+
+/** Section — the two connected use cases of the same platform. */
+export const valueAreas = {
+  label: "One platform, two connected use cases",
+  headline: "Built to grow your business — and every client you manage.",
+  business: {
+    title: "For Your Business",
+    items: [
+      "Research your own market",
+      "Identify new prospects and target audiences",
+      "Improve positioning and sales conversations",
+      "Build stronger proposals",
+      "Find new services and business opportunities",
+      "Reduce manual research time",
+      "Support business development and expansion",
+    ],
+  },
+  clients: {
+    title: "For Your Clients",
+    items: [
+      "Understand the client's business and market",
+      "Benchmark them against competitors",
+      "Analyze demand and target audiences",
+      "Identify missed opportunities",
+      "Understand Google, SEO and AI presence",
+      "Identify where to invest and where not to invest",
+      "Build strategy and an actionable work plan",
+      "Execute recommendations",
+      "Measure progress",
+      "Continuously improve",
+    ],
+  },
 } as const;
 
 /** Nodes orbiting the intelligence core in the hero scene. */
@@ -487,10 +554,10 @@ export const actionPlan = {
 } as const;
 
 export const capabilities = [
-  { value: "100+", label: "Deep business & marketing analyses", icon: "search" },
-  { value: "6", label: "AI engines, plus Google", icon: "brain" },
-  { value: "7", label: "Languages", icon: "globe" },
-  { value: "PDCA", label: "Continuous measurement", icon: "cycle" },
+  { value: "100+", label: "Business & Marketing Analyses", icon: "search" },
+  { value: "Google + 6 AI Engines", label: "Search & AI Intelligence", icon: "brain" },
+  { value: "7 Languages", label: "Local & International Market Research", icon: "globe" },
+  { value: "Continuous PDCA", label: "Execution, Measurement & Improvement", icon: "cycle" },
 ] as const;
 
 export const finalCta = {

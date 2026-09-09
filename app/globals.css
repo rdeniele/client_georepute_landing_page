@@ -648,8 +648,11 @@ html[data-band="color"] .cursor__label {
   .hero__eyebrow,
   .hero__lead,
   .hero__word,
+  .hero__tagline,
+  .hero__typewriter-line,
   .hero__support,
   .hero__actions,
+  .hero__plate,
   .hero__foot,
   .platforms,
   .platforms__chip {

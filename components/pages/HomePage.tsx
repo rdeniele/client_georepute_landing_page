@@ -1,6 +1,9 @@
 "use client";
 
 import { Hero } from "@/components/sections/Hero";
+import { Differentiation } from "@/components/sections/Differentiation";
+import { PlatformFlowSection } from "@/components/sections/PlatformFlowSection";
+import { ValueAreas } from "@/components/sections/ValueAreas";
 import { InvisibleDecision } from "@/components/sections/InvisibleDecision";
 import { SignalMap } from "@/components/sections/SignalMap";
 import { DecisionReconstruction } from "@/components/sections/DecisionReconstruction";
@@ -16,6 +19,9 @@ export function HomePage({ locale = "en" }: { locale?: string }) {
   return (
     <>
       <Hero locale={locale} />
+      <Differentiation locale={locale} />
+      <PlatformFlowSection locale={locale} />
+      <ValueAreas locale={locale} />
       <InvisibleDecision locale={locale} />
       <SignalMap locale={locale} />
       <DecisionReconstruction locale={locale} />

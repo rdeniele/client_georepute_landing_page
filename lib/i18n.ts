@@ -43,8 +43,9 @@ export type Copy = {
   navFeature: { eyebrow: string; title: string; desc: string; cta: string };
   hero: {
     eyebrow: string;
-    headlineLead: string;
-    emphasis: readonly string[];
+    headlineWords: readonly [string, string, string];
+    tagline: string;
+    typewriterPhrases: readonly string[];
     supporting: string;
     primaryCta: { label: string; href: string };
     secondaryCta: { label: string; href: string };
@@ -52,8 +53,17 @@ export type Copy = {
   };
   scrollRail: readonly string[];
   heroPanel: { title: string; surfaces: string; signals: string; position: string; state: string };
+  capabilityValues: readonly string[];
   capabilityLabels: readonly string[];
   platformsLabel: string;
+  differentiation: { eyebrow: string; title: string; body: string };
+  platformFlow: { label: string; headline: string; steps: readonly string[] };
+  valueAreas: {
+    label: string;
+    headline: string;
+    business: { title: string; items: readonly string[] };
+    clients: { title: string; items: readonly string[] };
+  };
   invisible: {
     label: string;
     headline: string;
@@ -160,18 +170,42 @@ const en: Copy = {
   navItems: {},
   navFeature: { eyebrow: "Signature experience", title: "Reconstruct the decision.", desc: "Ten surfaces, one commercial question, from what each engine understood to what must change next.", cta: "Open the reconstruction" },
   hero: {
-    eyebrow: "The intelligence & execution layer for modern agencies",
-    headlineLead: "See where your business is",
-    emphasis: ["Recognized.", "Recommended.", "Chosen."],
-    supporting: "GeoRepute maps the decision environment around your business: across AI, search, reputation, competitors, and the signals that influence what customers choose.",
-    primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "Explore the Intelligence", href: "#signals" },
+    eyebrow: "Business & Marketing Intelligence + Execution Platform",
+    headlineWords: ["Understand More.", "Offer More.", "Deliver More."],
+    tagline: "For your business and every client you manage.",
+    typewriterPhrases: ["Understand More.", "Research Better.", "Discover Opportunities.", "Build Stronger Strategies.", "Execute With Intelligence.", "Measure What Matters.", "Improve Continuously."],
+    supporting: "GeoRepute is an international Business & Marketing Intelligence platform built for agencies, campaign managers, consultants and marketing teams that want to dramatically expand what they can understand, offer and execute. It connects market research, competitor intelligence, demand, audiences and ICP, Google and SEO, AI visibility, digital reputation, business opportunities, market expansion, strategy, proposal building, work plans, execution, measurement and continuous improvement in one working platform.",
+    primaryCta: { label: "Explore the Platform", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "Book a Live Demo", href: "https://www.georepute.ai/signup" },
     scrollHint: "Enter the system",
   },
   scrollRail: ["Enter", "Invisible", "Signals", "Decision", "Blind spot", "Engines", "Loop", "Graph", "Executive", "Action", "Analyze"],
   heroPanel: { title: "Decision environment", surfaces: "Surfaces watched", signals: "Signals resolved", position: "Decision position", state: "Reconstructing" },
-  capabilityLabels: ["Deep business & marketing analyses", "AI engines, plus Google", "Languages", "Continuous measurement"],
-  platformsLabel: "GeoRepute scans Google + 6 AI engines — the surfaces where your business is discovered",
+  capabilityValues: ["100+", "Google + 6 AI Engines", "7 Languages", "Continuous PDCA"],
+  capabilityLabels: ["Business & Marketing Analyses", "Search & AI Intelligence", "Local & International Market Research", "Execution, Measurement & Improvement"],
+  platformsLabel: "Market, Business, Search & AI Intelligence — connected in one platform",
+  differentiation: {
+    eyebrow: "Not visibility. Understanding.",
+    title: "Not another ranking dashboard.",
+    body: "Knowing where a business appears is only the starting point. GeoRepute helps understand why the business is in that position, what is happening around it, what competitors are doing, where demand exists, what opportunities are being missed, what should be done next, and how to execute it.",
+  },
+  platformFlow: {
+    label: "How the platform works",
+    headline: "From research to results, in one working system.",
+    steps: ["Research", "Intelligence", "Opportunity", "Decision", "Strategy", "Work Plan", "Execution", "Measurement", "Improvement"],
+  },
+  valueAreas: {
+    label: "One platform, two connected use cases",
+    headline: "Built to grow your business — and every client you manage.",
+    business: {
+      title: "For Your Business",
+      items: ["Research your own market", "Identify new prospects and target audiences", "Improve positioning and sales conversations", "Build stronger proposals", "Find new services and business opportunities", "Reduce manual research time", "Support business development and expansion"],
+    },
+    clients: {
+      title: "For Your Clients",
+      items: ["Understand the client's business and market", "Benchmark them against competitors", "Analyze demand and target audiences", "Identify missed opportunities", "Understand Google, SEO and AI presence", "Identify where to invest and where not to invest", "Build strategy and an actionable work plan", "Execute recommendations", "Measure progress", "Continuously improve"],
+    },
+  },
   invisible: {
     label: "The invisible decision",
     headline: "Your analytics start after the decision has already been shaped.",
@@ -337,18 +371,42 @@ const he: Copy = {
   },
   navFeature: { eyebrow: "חוויית הדגל", title: "שחזרו את ההחלטה.", desc: "עשרה משטחים, שאלה מסחרית אחת, ממה שכל מנוע הבין ועד למה שצריך להשתנות הלאה.", cta: "פתחו את השחזור" },
   hero: {
-    eyebrow: "שכבת המודיעין והביצוע לסוכנויות מודרניות",
-    headlineLead: "ראו היכן העסק שלכם",
-    emphasis: ["מזוהה.", "מומלץ.", "נבחר."],
-    supporting: "GeoRepute ממפה את סביבת קבלת ההחלטות סביב העסק שלכם: בינה מלאכותית, חיפוש, מוניטין, מתחרים והאותות שמשפיעים על בחירת הלקוחות.",
-    primaryCta: { label: "נתחו את העסק שלי", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "גלו את המודיעין", href: "#signals" },
+    eyebrow: "פלטפורמת מודיעין עסקי ושיווקי + ביצוע",
+    headlineWords: ["להבין יותר.", "להציע יותר.", "לספק יותר."],
+    tagline: "עבור העסק שלכם וכל לקוח שאתם מנהלים.",
+    typewriterPhrases: ["להבין יותר.", "לחקור טוב יותר.", "לגלות הזדמנויות.", "לבנות אסטרטגיות חזקות יותר.", "לבצע בעזרת מודיעין.", "למדוד את מה שחשוב.", "להשתפר ברציפות."],
+    supporting: "GeoRepute היא פלטפורמת מודיעין עסקי ושיווקי בינלאומית שנבנתה עבור סוכנויות, מנהלי קמפיינים, יועצים וצוותי שיווק שרוצים להרחיב משמעותית את מה שהם יכולים להבין, להציע ולבצע. היא מחברת מחקר שוק, מודיעין מתחרים, ביקוש, קהלים ו-ICP, גוגל ו-SEO, נראות בבינה מלאכותית, מוניטין דיגיטלי, הזדמנויות עסקיות, התרחבות לשווקים, אסטרטגיה, בניית הצעות, תוכניות עבודה, ביצוע, מדידה ושיפור מתמיד — בפלטפורמה אחת פעילה.",
+    primaryCta: { label: "גלו את הפלטפורמה", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "קבעו הדגמה חיה", href: "https://www.georepute.ai/signup" },
     scrollHint: "היכנסו למערכת",
   },
   scrollRail: ["כניסה", "בלתי נראה", "אותות", "החלטה", "נקודה עיוורת", "מנועים", "לולאה", "גרף", "הנהלה", "פעולה", "ניתוח"],
   heroPanel: { title: "סביבת קבלת ההחלטות", surfaces: "משטחים במעקב", signals: "אותות שנפתרו", position: "מיקום ההחלטה", state: "בשחזור" },
-  capabilityLabels: ["ניתוחי עסק ושיווק מעמיקים", "מנועי בינה מלאכותית, בתוספת גוגל", "שפות", "מדידה מתמשכת"],
-  platformsLabel: "GeoRepute סורקת את גוגל ועוד 6 מנועי בינה מלאכותית — המשטחים שבהם העסק שלכם מתגלה",
+  capabilityValues: ["+100", "גוגל + 6 מנועי בינה מלאכותית", "7 שפות", "PDCA מתמשך"],
+  capabilityLabels: ["ניתוחי עסק ושיווק", "מודיעין חיפוש ובינה מלאכותית", "מחקר שוק מקומי ובינלאומי", "ביצוע, מדידה ושיפור"],
+  platformsLabel: "שוק, עסק, חיפוש ובינה מלאכותית — מחוברים בפלטפורמה אחת",
+  differentiation: {
+    eyebrow: "לא נראות. הבנה.",
+    title: "לא עוד לוח דירוגים.",
+    body: "לדעת היכן העסק מופיע הוא רק נקודת ההתחלה. GeoRepute עוזרת להבין מדוע העסק נמצא במיקום הזה, מה קורה סביבו, מה המתחרים עושים, היכן קיים ביקוש, אילו הזדמנויות מוחמצות, מה צריך לעשות הלאה, וכיצד לבצע זאת.",
+  },
+  platformFlow: {
+    label: "איך הפלטפורמה עובדת",
+    headline: "ממחקר לתוצאות, במערכת עבודה אחת.",
+    steps: ["מחקר", "מודיעין", "הזדמנות", "החלטה", "אסטרטגיה", "תוכנית עבודה", "ביצוע", "מדידה", "שיפור"],
+  },
+  valueAreas: {
+    label: "פלטפורמה אחת, שני שימושים מחוברים",
+    headline: "נבנתה כדי לצמח את העסק שלכם — ואת כל לקוח שאתם מנהלים.",
+    business: {
+      title: "עבור העסק שלכם",
+      items: ["חקרו את השוק שלכם", "זהו לידים וקהלי יעד חדשים", "שפרו מיצוב ושיחות מכירה", "בנו הצעות חזקות יותר", "מצאו שירותים והזדמנויות עסקיות חדשות", "צמצמו זמן מחקר ידני", "תמכו בפיתוח עסקי והתרחבות"],
+    },
+    clients: {
+      title: "עבור הלקוחות שלכם",
+      items: ["הבינו את העסק והשוק של הלקוח", "בצעו בנצ'מרק מול מתחרים", "נתחו ביקוש וקהלי יעד", "זהו הזדמנויות מוחמצות", "הבינו נוכחות בגוגל, SEO ובינה מלאכותית", "זהו היכן להשקיע והיכן לא", "בנו אסטרטגיה ותוכנית עבודה מעשית", "בצעו את ההמלצות", "מדדו התקדמות", "השתפרו ברציפות"],
+    },
+  },
   invisible: {
     label: "ההחלטה הבלתי נראית",
     headline: "האנליטיקה שלכם מתחילה אחרי שההחלטה כבר עוצבה.",
@@ -514,18 +572,42 @@ const ar: Copy = {
   },
   navFeature: { eyebrow: "تجربة مميزة", title: "إعادة بناء القرار.", desc: "عشر واجهات، سؤال تجاري واحد، من ما فهمه كل محرك إلى ما يجب أن يتغيّر تاليًا.", cta: "افتحوا إعادة البناء" },
   hero: {
-    eyebrow: "طبقة الذكاء والتنفيذ لوكالات التسويق الحديثة",
-    headlineLead: "اعرفوا أين يُعرَف نشاطكم التجاري",
-    emphasis: ["ويُوصى به.", "ويُختار."],
-    supporting: "ترسم GeoRepute بيئة القرار حول نشاطكم التجاري: عبر الذكاء الاصطناعي والبحث والسمعة والمنافسين والإشارات التي تؤثر في ما يختاره العملاء.",
-    primaryCta: { label: "حلّلوا نشاطكم التجاري", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "استكشفوا الذكاء", href: "#signals" },
+    eyebrow: "منصة الذكاء التجاري والتسويقي + التنفيذ",
+    headlineWords: ["افهموا أكثر.", "قدّموا أكثر.", "أنجزوا أكثر."],
+    tagline: "لنشاطكم التجاري ولكل عميل تديرونه.",
+    typewriterPhrases: ["افهموا أكثر.", "ابحثوا بشكل أفضل.", "اكتشفوا الفرص.", "ابنوا استراتيجيات أقوى.", "نفّذوا بذكاء.", "قيسوا ما يهم فعلاً.", "تحسّنوا باستمرار."],
+    supporting: "GeoRepute هي منصة ذكاء تجاري وتسويقي عالمية بُنيت للوكالات ومديري الحملات والاستشاريين وفرق التسويق الذين يريدون توسيع ما يمكنهم فهمه وتقديمه وتنفيذه بشكل كبير. تربط المنصة بين أبحاث السوق، وذكاء المنافسين، والطلب، والجماهير وملفات العملاء المثاليين، وجوجل وتحسين محركات البحث، والظهور عبر الذكاء الاصطناعي، والسمعة الرقمية، والفرص التجارية، والتوسع في الأسواق، والاستراتيجية، وبناء العروض، وخطط العمل، والتنفيذ، والقياس، والتحسين المستمر — في منصة عمل واحدة.",
+    primaryCta: { label: "استكشفوا المنصة", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "احجزوا عرضًا تجريبيًا مباشرًا", href: "https://www.georepute.ai/signup" },
     scrollHint: "ادخلوا إلى النظام",
   },
   scrollRail: ["دخول", "غير مرئي", "إشارات", "قرار", "نقطة عمياء", "محركات", "حلقة", "مخطط", "تنفيذي", "إجراء", "تحليل"],
   heroPanel: { title: "بيئة القرار", surfaces: "الواجهات المراقَبة", signals: "الإشارات المحلولة", position: "موقع القرار", state: "قيد إعادة البناء" },
-  capabilityLabels: ["تحليلات تجارية وتسويقية معمّقة", "محركات ذكاء اصطناعي، بالإضافة إلى جوجل", "لغات", "قياس مستمر"],
-  platformsLabel: "تفحص GeoRepute جوجل وستة محركات ذكاء اصطناعي أخرى — الواجهات التي يُكتشف فيها نشاطكم التجاري",
+  capabilityValues: ["+100", "جوجل + 6 محركات ذكاء اصطناعي", "7 لغات", "PDCA مستمر"],
+  capabilityLabels: ["تحليلات تجارية وتسويقية", "ذكاء البحث والذكاء الاصطناعي", "أبحاث سوق محلية ودولية", "التنفيذ والقياس والتحسين"],
+  differentiation: {
+    eyebrow: "ليس ظهورًا. بل فهمًا.",
+    title: "ليست لوحة تصنيف أخرى.",
+    body: "معرفة أين يظهر النشاط التجاري ليست سوى نقطة البداية. تساعد GeoRepute على فهم سبب وجود النشاط في هذا الموقع، وما يحدث حوله، وما يفعله المنافسون، وأين يوجد الطلب، وما هي الفرص الضائعة، وما الذي يجب فعله تاليًا، وكيفية تنفيذه.",
+  },
+  platformFlow: {
+    label: "كيف تعمل المنصة",
+    headline: "من البحث إلى النتائج، في نظام عمل واحد.",
+    steps: ["بحث", "ذكاء", "فرصة", "قرار", "استراتيجية", "خطة عمل", "تنفيذ", "قياس", "تحسين"],
+  },
+  valueAreas: {
+    label: "منصة واحدة، حالتا استخدام متصلتان",
+    headline: "صُممت لتنمية نشاطكم التجاري — وكل عميل تديرونه.",
+    business: {
+      title: "لنشاطكم التجاري",
+      items: ["ابحثوا في سوقكم الخاص", "حدّدوا آفاقًا وجماهير مستهدفة جديدة", "حسّنوا التموضع ومحادثات المبيعات", "ابنوا عروضًا أقوى", "اكتشفوا خدمات وفرصًا تجارية جديدة", "قلّلوا وقت البحث اليدوي", "ادعموا تطوير الأعمال والتوسع"],
+    },
+    clients: {
+      title: "لعملائكم",
+      items: ["افهموا نشاط العميل وسوقه", "قارنوه بالمنافسين", "حلّلوا الطلب والجماهير المستهدفة", "حدّدوا الفرص الضائعة", "افهموا حضوره في جوجل وSEO والذكاء الاصطناعي", "حدّدوا أين تستثمرون وأين لا", "ابنوا استراتيجية وخطة عمل قابلة للتنفيذ", "نفّذوا التوصيات", "قيسوا التقدم", "تحسّنوا باستمرار"],
+    },
+  },
+  platformsLabel: "السوق والأعمال والبحث والذكاء الاصطناعي — متصلة في منصة واحدة",
   invisible: {
     label: "القرار غير المرئي",
     headline: "تحليلاتكم تبدأ بعد أن يكون القرار قد تشكّل بالفعل.",
@@ -691,18 +773,42 @@ const ru: Copy = {
   },
   navFeature: { eyebrow: "Фирменный опыт", title: "Реконструировать решение.", desc: "Десять поверхностей, один коммерческий вопрос — от того, что понял каждый движок, до того, что нужно изменить дальше.", cta: "Открыть реконструкцию" },
   hero: {
-    eyebrow: "Слой интеллекта и исполнения для современных агентств",
-    headlineLead: "Узнайте, где ваш бизнес",
-    emphasis: ["распознают.", "рекомендуют.", "выбирают."],
-    supporting: "GeoRepute отображает среду принятия решений вокруг вашего бизнеса: ИИ, поиск, репутацию, конкурентов и сигналы, влияющие на выбор клиентов.",
-    primaryCta: { label: "Анализировать мой бизнес", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "Изучить интеллект", href: "#signals" },
+    eyebrow: "Платформа бизнес- и маркетинговой аналитики + исполнения",
+    headlineWords: ["Понимайте больше.", "Предлагайте больше.", "Делайте больше."],
+    tagline: "Для вашего бизнеса и каждого клиента, которым вы управляете.",
+    typewriterPhrases: ["Понимайте больше.", "Исследуйте лучше.", "Находите возможности.", "Стройте более сильные стратегии.", "Действуйте осознанно.", "Измеряйте то, что важно.", "Постоянно улучшайтесь."],
+    supporting: "GeoRepute — международная платформа бизнес- и маркетинговой аналитики, созданная для агентств, менеджеров кампаний, консультантов и маркетинговых команд, которые хотят значительно расширить то, что они способны понимать, предлагать и реализовывать. Она объединяет анализ рынка, аналитику конкурентов, спрос, аудитории и ICP, Google и SEO, видимость в ИИ, цифровую репутацию, бизнес-возможности, выход на новые рынки, стратегию, подготовку предложений, планы работ, исполнение, измерение и непрерывное улучшение в одной рабочей платформе.",
+    primaryCta: { label: "Изучить платформу", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "Записаться на живую демонстрацию", href: "https://www.georepute.ai/signup" },
     scrollHint: "Войти в систему",
   },
   scrollRail: ["Вход", "Невидимое", "Сигналы", "Решение", "Слепая зона", "Движки", "Цикл", "Граф", "Руководство", "Действие", "Анализ"],
+  capabilityValues: ["100+", "Google + 6 ИИ-систем", "7 языков", "Непрерывный PDCA"],
+  differentiation: {
+    eyebrow: "Не видимость. Понимание.",
+    title: "Это не ещё один рейтинг.",
+    body: "Знать, где появляется бизнес, — это лишь отправная точка. GeoRepute помогает понять, почему бизнес находится именно в этой позиции, что происходит вокруг него, что делают конкуренты, где есть спрос, какие возможности упускаются, что нужно делать дальше и как это реализовать.",
+  },
+  platformFlow: {
+    label: "Как работает платформа",
+    headline: "От исследования к результатам — в одной рабочей системе.",
+    steps: ["Исследование", "Аналитика", "Возможность", "Решение", "Стратегия", "План работ", "Исполнение", "Измерение", "Улучшение"],
+  },
+  valueAreas: {
+    label: "Одна платформа, два связанных сценария использования",
+    headline: "Создана, чтобы развивать ваш бизнес — и каждого клиента, которым вы управляете.",
+    business: {
+      title: "Для вашего бизнеса",
+      items: ["Исследуйте собственный рынок", "Находите новых потенциальных клиентов и целевые аудитории", "Улучшайте позиционирование и переговоры о продаже", "Создавайте более убедительные предложения", "Находите новые услуги и бизнес-возможности", "Сокращайте время на ручные исследования", "Поддерживайте развитие и расширение бизнеса"],
+    },
+    clients: {
+      title: "Для ваших клиентов",
+      items: ["Понимайте бизнес и рынок клиента", "Сравнивайте его с конкурентами", "Анализируйте спрос и целевые аудитории", "Выявляйте упущенные возможности", "Понимайте присутствие в Google, SEO и ИИ", "Определяйте, куда стоит инвестировать, а куда нет", "Стройте стратегию и практический план работ", "Реализуйте рекомендации", "Измеряйте прогресс", "Постоянно улучшайтесь"],
+    },
+  },
   heroPanel: { title: "Среда принятия решений", surfaces: "Отслеживаемые поверхности", signals: "Разрешённые сигналы", position: "Позиция решения", state: "Восстановление" },
-  capabilityLabels: ["Глубокий бизнес- и маркетинговый анализ", "ИИ-системы, плюс Google", "Языки", "Непрерывное измерение"],
-  platformsLabel: "GeoRepute сканирует Google и ещё 6 ИИ-систем — поверхности, на которых обнаруживают ваш бизнес",
+  capabilityLabels: ["Бизнес- и маркетинговая аналитика", "Поисковая и ИИ-аналитика", "Локальные и международные исследования рынка", "Исполнение, измерение и улучшение"],
+  platformsLabel: "Рынок, бизнес, поиск и ИИ-аналитика — объединены в одной платформе",
   invisible: {
     label: "Невидимое решение",
     headline: "Ваша аналитика начинается уже после того, как решение сформировалось.",
@@ -868,18 +974,42 @@ const fr: Copy = {
   },
   navFeature: { eyebrow: "Expérience signature", title: "Reconstruire la décision.", desc: "Dix surfaces, une question commerciale, de ce que chaque moteur a compris à ce qui doit changer ensuite.", cta: "Ouvrir la reconstruction" },
   hero: {
-    eyebrow: "La couche d’intelligence et d’exécution pour les agences modernes",
-    headlineLead: "Voyez où votre entreprise est",
-    emphasis: ["reconnue.", "recommandée.", "choisie."],
-    supporting: "GeoRepute cartographie l’environnement décisionnel autour de votre entreprise : IA, recherche, réputation, concurrents et signaux qui influencent les choix des clients.",
-    primaryCta: { label: "Analyser mon entreprise", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "Explorer l’intelligence", href: "#signals" },
+    eyebrow: "Plateforme d’intelligence commerciale et marketing + exécution",
+    headlineWords: ["Comprendre plus.", "Offrir plus.", "Livrer plus."],
+    tagline: "Pour votre entreprise et chaque client que vous gérez.",
+    typewriterPhrases: ["Comprendre plus.", "Mieux rechercher.", "Découvrir des opportunités.", "Bâtir des stratégies plus fortes.", "Exécuter avec intelligence.", "Mesurer ce qui compte.", "S’améliorer en continu."],
+    supporting: "GeoRepute est une plateforme internationale d’intelligence commerciale et marketing conçue pour les agences, les responsables de campagnes, les consultants et les équipes marketing qui veulent considérablement élargir ce qu’ils peuvent comprendre, offrir et exécuter. Elle relie l’étude de marché, l’intelligence concurrentielle, la demande, les audiences et l’ICP, Google et le SEO, la visibilité IA, la réputation numérique, les opportunités commerciales, l’expansion de marché, la stratégie, la construction de propositions, les plans d’action, l’exécution, la mesure et l’amélioration continue au sein d’une seule plateforme de travail.",
+    primaryCta: { label: "Explorer la plateforme", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "Réserver une démo en direct", href: "https://www.georepute.ai/signup" },
     scrollHint: "Entrer dans le système",
   },
   scrollRail: ["Entrer", "Invisible", "Signaux", "Décision", "Angle mort", "Moteurs", "Boucle", "Graphe", "Exécutif", "Action", "Analyser"],
+  capabilityValues: ["100+", "Google + 6 moteurs d’IA", "7 langues", "PDCA continu"],
+  differentiation: {
+    eyebrow: "Pas de la visibilité. De la compréhension.",
+    title: "Pas un tableau de classement de plus.",
+    body: "Savoir où une entreprise apparaît n’est que le point de départ. GeoRepute aide à comprendre pourquoi l’entreprise se trouve dans cette position, ce qui se passe autour d’elle, ce que font les concurrents, où se trouve la demande, quelles opportunités sont manquées, ce qu’il faut faire ensuite, et comment l’exécuter.",
+  },
+  platformFlow: {
+    label: "Comment fonctionne la plateforme",
+    headline: "De la recherche aux résultats, dans un seul système de travail.",
+    steps: ["Recherche", "Intelligence", "Opportunité", "Décision", "Stratégie", "Plan d’action", "Exécution", "Mesure", "Amélioration"],
+  },
+  valueAreas: {
+    label: "Une plateforme, deux cas d’usage connectés",
+    headline: "Conçue pour développer votre entreprise — et chaque client que vous gérez.",
+    business: {
+      title: "Pour votre entreprise",
+      items: ["Étudiez votre propre marché", "Identifiez de nouveaux prospects et audiences cibles", "Améliorez votre positionnement et vos échanges commerciaux", "Construisez des propositions plus solides", "Trouvez de nouveaux services et opportunités commerciales", "Réduisez le temps de recherche manuelle", "Soutenez le développement et l’expansion de l’entreprise"],
+    },
+    clients: {
+      title: "Pour vos clients",
+      items: ["Comprenez l’entreprise et le marché du client", "Comparez-le à ses concurrents", "Analysez la demande et les audiences cibles", "Identifiez les opportunités manquées", "Comprenez sa présence sur Google, le SEO et l’IA", "Identifiez où investir et où ne pas investir", "Construisez une stratégie et un plan d’action concret", "Exécutez les recommandations", "Mesurez les progrès", "Améliorez en continu"],
+    },
+  },
   heroPanel: { title: "Environnement décisionnel", surfaces: "Surfaces surveillées", signals: "Signaux résolus", position: "Position de décision", state: "Reconstruction" },
-  capabilityLabels: ["Analyses commerciales et marketing approfondies", "Moteurs d’IA, plus Google", "Langues", "Mesure continue"],
-  platformsLabel: "GeoRepute analyse Google et 6 moteurs d’IA supplémentaires — les surfaces où votre entreprise est découverte",
+  capabilityLabels: ["Analyses commerciales et marketing", "Intelligence de recherche et IA", "Étude de marché locale et internationale", "Exécution, mesure et amélioration"],
+  platformsLabel: "Marché, entreprise, recherche et intelligence IA — connectés en une seule plateforme",
   invisible: {
     label: "La décision invisible",
     headline: "Votre analytique ne commence qu’après que la décision a déjà pris forme.",
@@ -1045,18 +1175,42 @@ const es: Copy = {
   },
   navFeature: { eyebrow: "Experiencia insignia", title: "Reconstruir la decisión.", desc: "Diez superficies, una pregunta comercial, desde lo que cada motor entendió hasta lo que debe cambiar a continuación.", cta: "Abrir la reconstrucción" },
   hero: {
-    eyebrow: "La capa de inteligencia y ejecución para agencias modernas",
-    headlineLead: "Vea dónde su negocio es",
-    emphasis: ["reconocido.", "recomendado.", "elegido."],
-    supporting: "GeoRepute traza el entorno de decisión alrededor de su negocio: IA, búsqueda, reputación, competidores y las señales que influyen en lo que eligen los clientes.",
-    primaryCta: { label: "Analizar mi negocio", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "Explorar la inteligencia", href: "#signals" },
+    eyebrow: "Plataforma de inteligencia comercial y de marketing + ejecución",
+    headlineWords: ["Comprenda más.", "Ofrezca más.", "Entregue más."],
+    tagline: "Para su negocio y cada cliente que gestiona.",
+    typewriterPhrases: ["Comprenda más.", "Investigue mejor.", "Descubra oportunidades.", "Construya estrategias más sólidas.", "Ejecute con inteligencia.", "Mida lo que importa.", "Mejore continuamente."],
+    supporting: "GeoRepute es una plataforma internacional de inteligencia comercial y de marketing creada para agencias, gestores de campañas, consultores y equipos de marketing que quieren ampliar drásticamente lo que pueden comprender, ofrecer y ejecutar. Conecta la investigación de mercado, la inteligencia competitiva, la demanda, las audiencias y el ICP, Google y el SEO, la visibilidad en IA, la reputación digital, las oportunidades de negocio, la expansión de mercado, la estrategia, la creación de propuestas, los planes de trabajo, la ejecución, la medición y la mejora continua en una sola plataforma de trabajo.",
+    primaryCta: { label: "Explorar la plataforma", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "Reservar una demo en vivo", href: "https://www.georepute.ai/signup" },
     scrollHint: "Entrar en el sistema",
   },
   scrollRail: ["Entrar", "Invisible", "Señales", "Decisión", "Punto ciego", "Motores", "Bucle", "Grafo", "Ejecutivo", "Acción", "Analizar"],
+  capabilityValues: ["100+", "Google + 6 motores de IA", "7 idiomas", "PDCA continuo"],
+  differentiation: {
+    eyebrow: "No es visibilidad. Es comprensión.",
+    title: "No es otro panel de clasificación.",
+    body: "Saber dónde aparece un negocio es solo el punto de partida. GeoRepute ayuda a entender por qué el negocio está en esa posición, qué está ocurriendo a su alrededor, qué están haciendo los competidores, dónde existe demanda, qué oportunidades se están perdiendo, qué debe hacerse a continuación y cómo ejecutarlo.",
+  },
+  platformFlow: {
+    label: "Cómo funciona la plataforma",
+    headline: "De la investigación a los resultados, en un solo sistema de trabajo.",
+    steps: ["Investigación", "Inteligencia", "Oportunidad", "Decisión", "Estrategia", "Plan de trabajo", "Ejecución", "Medición", "Mejora"],
+  },
+  valueAreas: {
+    label: "Una plataforma, dos casos de uso conectados",
+    headline: "Creada para hacer crecer su negocio — y cada cliente que gestiona.",
+    business: {
+      title: "Para su negocio",
+      items: ["Investigue su propio mercado", "Identifique nuevos prospectos y audiencias objetivo", "Mejore el posicionamiento y las conversaciones de venta", "Construya propuestas más sólidas", "Encuentre nuevos servicios y oportunidades de negocio", "Reduzca el tiempo de investigación manual", "Apoye el desarrollo y la expansión del negocio"],
+    },
+    clients: {
+      title: "Para sus clientes",
+      items: ["Comprenda el negocio y el mercado del cliente", "Compárelo con la competencia", "Analice la demanda y las audiencias objetivo", "Identifique oportunidades perdidas", "Comprenda su presencia en Google, SEO e IA", "Identifique dónde invertir y dónde no", "Construya una estrategia y un plan de trabajo accionable", "Ejecute las recomendaciones", "Mida el progreso", "Mejore continuamente"],
+    },
+  },
   heroPanel: { title: "Entorno de decisión", surfaces: "Superficies vigiladas", signals: "Señales resueltas", position: "Posición de decisión", state: "Reconstruyendo" },
-  capabilityLabels: ["Análisis profundos de negocio y marketing", "Motores de IA, más Google", "Idiomas", "Medición continua"],
-  platformsLabel: "GeoRepute analiza Google y 6 motores de IA más — las superficies donde se descubre su negocio",
+  capabilityLabels: ["Análisis comerciales y de marketing", "Inteligencia de búsqueda e IA", "Investigación de mercado local e internacional", "Ejecución, medición y mejora"],
+  platformsLabel: "Mercado, negocio, búsqueda e inteligencia de IA — conectados en una sola plataforma",
   invisible: {
     label: "La decisión invisible",
     headline: "Su analítica comienza después de que la decisión ya se ha formado.",
@@ -1222,18 +1376,42 @@ const pt: Copy = {
   },
   navFeature: { eyebrow: "Experiência de assinatura", title: "Reconstruir a decisão.", desc: "Dez superfícies, uma pergunta comercial, desde o que cada mecanismo entendeu até o que precisa mudar a seguir.", cta: "Abrir a reconstrução" },
   hero: {
-    eyebrow: "A camada de inteligência e execução para agências modernas",
-    headlineLead: "Veja onde o seu negócio é",
-    emphasis: ["reconhecido.", "recomendado.", "escolhido."],
-    supporting: "A GeoRepute mapeia o ambiente de decisão em torno do seu negócio: IA, pesquisa, reputação, concorrentes e os sinais que influenciam as escolhas dos clientes.",
-    primaryCta: { label: "Analisar o meu negócio", href: "https://www.georepute.ai/signup" },
-    secondaryCta: { label: "Explorar a inteligência", href: "#signals" },
+    eyebrow: "Plataforma de inteligência de negócios e marketing + execução",
+    headlineWords: ["Compreenda mais.", "Ofereça mais.", "Entregue mais."],
+    tagline: "Para o seu negócio e cada cliente que você gerencia.",
+    typewriterPhrases: ["Compreenda mais.", "Pesquise melhor.", "Descubra oportunidades.", "Construa estratégias mais fortes.", "Execute com inteligência.", "Meça o que importa.", "Melhore continuamente."],
+    supporting: "A GeoRepute é uma plataforma internacional de inteligência de negócios e marketing criada para agências, gestores de campanhas, consultores e equipes de marketing que querem expandir drasticamente o que conseguem compreender, oferecer e executar. Ela conecta pesquisa de mercado, inteligência competitiva, demanda, audiências e ICP, Google e SEO, visibilidade em IA, reputação digital, oportunidades de negócio, expansão de mercado, estratégia, construção de propostas, planos de trabalho, execução, medição e melhoria contínua em uma única plataforma de trabalho.",
+    primaryCta: { label: "Explorar a plataforma", href: "/en/app/reconstruct" },
+    secondaryCta: { label: "Agendar uma demonstração ao vivo", href: "https://www.georepute.ai/signup" },
     scrollHint: "Entrar no sistema",
   },
   scrollRail: ["Entrar", "Invisível", "Sinais", "Decisão", "Ponto cego", "Motores", "Ciclo", "Grafo", "Executivo", "Ação", "Analisar"],
   heroPanel: { title: "Ambiente de decisão", surfaces: "Superfícies monitoradas", signals: "Sinais resolvidos", position: "Posição de decisão", state: "Reconstruindo" },
-  capabilityLabels: ["Análises profundas de negócios e marketing", "Motores de IA, além do Google", "Idiomas", "Medição contínua"],
-  platformsLabel: "A GeoRepute analisa o Google e mais 6 motores de IA — as superfícies onde o seu negócio é descoberto",
+  capabilityValues: ["100+", "Google + 6 motores de IA", "7 idiomas", "PDCA contínuo"],
+  capabilityLabels: ["Análises de negócios e marketing", "Inteligência de busca e IA", "Pesquisa de mercado local e internacional", "Execução, medição e melhoria"],
+  platformsLabel: "Mercado, negócios, busca e inteligência de IA — conectados em uma única plataforma",
+  differentiation: {
+    eyebrow: "Não é visibilidade. É compreensão.",
+    title: "Não é mais um painel de ranking.",
+    body: "Saber onde um negócio aparece é apenas o ponto de partida. A GeoRepute ajuda a entender por que o negócio está nessa posição, o que está acontecendo ao seu redor, o que os concorrentes estão fazendo, onde existe demanda, quais oportunidades estão sendo perdidas, o que deve ser feito a seguir e como executar isso.",
+  },
+  platformFlow: {
+    label: "Como a plataforma funciona",
+    headline: "Da pesquisa aos resultados, em um único sistema de trabalho.",
+    steps: ["Pesquisa", "Inteligência", "Oportunidade", "Decisão", "Estratégia", "Plano de trabalho", "Execução", "Medição", "Melhoria"],
+  },
+  valueAreas: {
+    label: "Uma plataforma, dois casos de uso conectados",
+    headline: "Criada para fazer crescer o seu negócio — e cada cliente que você gerencia.",
+    business: {
+      title: "Para o seu negócio",
+      items: ["Pesquise o seu próprio mercado", "Identifique novos prospects e públicos-alvo", "Melhore o posicionamento e as conversas de venda", "Construa propostas mais sólidas", "Encontre novos serviços e oportunidades de negócio", "Reduza o tempo de pesquisa manual", "Apoie o desenvolvimento e a expansão do negócio"],
+    },
+    clients: {
+      title: "Para os seus clientes",
+      items: ["Compreenda o negócio e o mercado do cliente", "Compare-o com os concorrentes", "Analise a demanda e os públicos-alvo", "Identifique oportunidades perdidas", "Compreenda a presença no Google, SEO e IA", "Identifique onde investir e onde não investir", "Construa uma estratégia e um plano de trabalho acionável", "Execute as recomendações", "Meça o progresso", "Melhore continuamente"],
+    },
+  },
   invisible: {
     label: "A decisão invisível",
     headline: "Sua análise começa depois que a decisão já foi moldada.",

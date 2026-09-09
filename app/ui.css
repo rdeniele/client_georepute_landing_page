@@ -1155,6 +1155,9 @@ html[dir="rtl"] .hero__plate .photo__img {
 .hero__eyebrow,
 .hero__lead,
 .hero__word,
+.hero__tagline,
+.hero__typewriter-line,
+.hero__support-more,
 .hero__support,
 .hero__actions,
 .hero__foot {
@@ -1228,9 +1231,96 @@ html[dir="rtl"] .hero__word {
   letter-spacing: -0.02em;
 }
 
+/* Short, declarative — the "who this is for" line that grounds the three
+   headline payoffs before the rotating line adds motion. */
+.hero__tagline {
+  margin: clamp(16px, 2.4vw, 24px) 0 0;
+  max-width: 42ch;
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--color-ink-dim);
+}
+
+/* The rotating line. Fixed min-height (one line at this font-size) so typing
+   and deleting only ever changes the text's own width — never the page's
+   vertical rhythm around it. */
+.hero__typewriter-line {
+  margin: clamp(14px, 2vw, 20px) 0 0;
+  min-height: 1.6em;
+}
+
+.typewriter {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-signal-lit);
+}
+
+.typewriter__text {
+  white-space: pre;
+}
+
+/* One steady caret — a slow, gentle pulse, never a hard blink. */
+.typewriter__caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-inline-start: 2px;
+  background: currentColor;
+  animation: typewriter-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes typewriter-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.15; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter__caret {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+.hero__support-more {
+  margin: clamp(24px, 3.2vw, 36px) 0 0;
+  max-width: 52ch;
+}
+
+.hero__support-more summary {
+  width: fit-content;
+  color: var(--color-ink-dim);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm);
+  letter-spacing: 0.04em;
+  list-style: none;
+  transition: color var(--d-micro) var(--ease-out);
+}
+
+.hero__support-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.hero__support-more summary::after {
+  content: " +";
+  color: var(--color-signal-lit);
+}
+
+.hero__support-more[open] summary::after {
+  content: " −";
+}
+
+.hero__support-more summary:hover {
+  color: var(--color-ink);
+}
+
 .hero__support {
-  margin: clamp(32px, 4vw, 48px) 0 0;
-  max-width: 46ch;
+  margin: 12px 0 0;
 }
 
 .hero__actions {

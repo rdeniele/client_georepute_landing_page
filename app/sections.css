@@ -1841,3 +1841,218 @@
     margin-inline-start: 0;
   }
 }
+
+/* ============================================================================
+   DIFFERENTIATION — "Not another ranking dashboard."
+   Directly after the hero. Deliberately spare: a label, a short prominent
+   claim, one paragraph. It exists to reframe before the visitor scrolls any
+   further, not to teach — so it never grows past this.
+   ========================================================================== */
+
+.diff {
+  padding-block: clamp(64px, 9vw, 120px);
+  background: var(--band-paper-soft, var(--surface-hover));
+}
+
+.diff__inner {
+  max-width: 68ch;
+}
+
+.diff__eyebrow {
+  margin: 0 0 16px;
+}
+
+.diff__title {
+  margin: 0 0 20px;
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
+.diff__body {
+  margin: 0;
+  max-width: 62ch;
+}
+
+/* ============================================================================
+   PLATFORM FLOW — Research → Intelligence → Opportunity → Decision →
+   Strategy → Work Plan → Execution → Measurement → Improvement.
+   A single scrubbed ScrollTrigger lights up steps in sequence as the section
+   passes through view — no pinning, the visitor's own scroll stays in
+   control throughout.
+   ========================================================================== */
+
+.flow {
+  padding-block: clamp(64px, 9vw, 120px);
+}
+
+.flow__inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.flow__eyebrow {
+  margin: 0 0 16px;
+}
+
+.flow__headline {
+  margin: 0 0 clamp(36px, 5vw, 56px);
+  max-width: 28ch;
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
+.flow__rail {
+  position: relative;
+  height: 2px;
+  margin-bottom: clamp(20px, 3vw, 32px);
+  background: var(--line-strong);
+  overflow: hidden;
+}
+
+.flow__rail-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--color-signal), var(--color-signal-lit));
+}
+
+.flow__row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(10px, 1.6vw, 18px);
+}
+
+.flow__step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-glass);
+  opacity: 0.4;
+  transform: translateY(10px);
+  transition:
+    opacity 420ms var(--ease-out),
+    transform 420ms var(--ease-out),
+    border-color var(--d-state) var(--ease-out),
+    background-color var(--d-state) var(--ease-out);
+}
+
+.flow__step[data-active="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  border-color: var(--color-signal-lit);
+  background: var(--surface-hover);
+}
+
+.flow__step-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  color: var(--color-signal-lit);
+}
+
+.flow__step-label {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .flow__step-label {
+    white-space: normal;
+  }
+}
+
+/* ============================================================================
+   VALUE AREAS — two connected use cases of one platform.
+   ========================================================================== */
+
+.values {
+  padding-block: clamp(64px, 9vw, 120px);
+}
+
+.values__eyebrow {
+  margin: 0 0 16px;
+}
+
+.values__headline {
+  margin: 0 0 clamp(36px, 5vw, 56px);
+  max-width: 32ch;
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
+.values__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 32px);
+}
+
+.values__card {
+  padding: clamp(28px, 3vw, 40px);
+}
+
+.values__card-title {
+  margin: 0 0 clamp(18px, 2.4vw, 26px);
+  font-size: var(--text-h4);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.values__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.values__item {
+  position: relative;
+  padding-left: 22px;
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--color-ink-dim);
+}
+
+.values__item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-signal-lit);
+}
+
+html[dir="rtl"] .values__item {
+  padding-left: 0;
+  padding-right: 22px;
+}
+html[dir="rtl"] .values__item::before {
+  left: auto;
+  right: 0;
+}
+
+@media (max-width: 780px) {
+  .values__grid {
+    grid-template-columns: 1fr;
+  }
+}

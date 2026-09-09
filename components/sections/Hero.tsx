@@ -1,9 +1,10 @@
-import { hero, capabilities } from "@/lib/content";
+import { capabilities } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { PlatformConstellation } from "@/components/ui/PlatformConstellation";
 import { EditorialPhoto } from "@/components/ui/EditorialPhoto";
 import { BandNetwork } from "@/components/ui/BandNetwork";
-import { getLocaleCopy } from "@/lib/i18n";
+import { Typewriter } from "@/components/ui/Typewriter";
+import { getLocaleCopy, localizePath, normalizeLocale } from "@/lib/i18n";
 import { HeroScrollFx } from "@/components/sections/HeroScrollFx";
 import {
   MagnifyingGlass,
@@ -44,6 +45,9 @@ export function Hero({ locale = "en" }: { locale?: string }) {
   const localeCopy = getLocaleCopy(locale);
   const copy = localeCopy.hero;
   const panel = localeCopy.heroPanel;
+  const primaryHref = copy.primaryCta.href.startsWith("/en")
+    ? localizePath(copy.primaryCta.href, normalizeLocale(locale))
+    : copy.primaryCta.href;
   return (
     <section id="top" className="hero band band--split" data-section>
       <HeroScrollFx />
@@ -62,17 +66,11 @@ export function Hero({ locale = "en" }: { locale?: string }) {
             </p>
 
             <h1 className="hero__headline">
-              <span
-                className="hero__lead"
-                style={{ "--i": 1 } as React.CSSProperties}
-              >
-                {copy.headlineLead}
-              </span>
-              {copy.emphasis.map((word, i) => (
+              {copy.headlineWords.map((word, i) => (
                 <span
                   key={word}
                   className={`hero__word ${i === 2 ? "hero__word--chosen" : ""}`}
-                  style={{ "--i": 2 + i, "--indent": i } as React.CSSProperties}
+                  style={{ "--i": 1 + i, "--indent": i } as React.CSSProperties}
                 >
                   {word}
                 </span>
@@ -80,17 +78,31 @@ export function Hero({ locale = "en" }: { locale?: string }) {
             </h1>
 
             <p
-              className="t-lead hero__support"
+              className="hero__tagline"
+              style={{ "--i": 4 } as React.CSSProperties}
+            >
+              {copy.tagline}
+            </p>
+
+            <p
+              className="hero__typewriter-line"
               style={{ "--i": 5 } as React.CSSProperties}
+            >
+              <Typewriter phrases={copy.typewriterPhrases} />
+            </p>
+
+            <p
+              className="t-lead hero__support"
+              style={{ "--i": 6 } as React.CSSProperties}
             >
               {copy.supporting}
             </p>
 
             <div
               className="hero__actions"
-              style={{ "--i": 6 } as React.CSSProperties}
+              style={{ "--i": 7 } as React.CSSProperties}
             >
-              <Button href={copy.primaryCta.href} variant="conversion">
+              <Button href={primaryHref} variant="conversion">
                 {copy.primaryCta.label}
               </Button>
               <Button href={copy.secondaryCta.href} variant="ghost">
@@ -104,7 +116,7 @@ export function Hero({ locale = "en" }: { locale?: string }) {
             decision environment the network extends into. */}
           <div
             className="hero__plate"
-            style={{ "--i": 4 } as React.CSSProperties}
+            style={{ "--i": 8 } as React.CSSProperties}
           >
             <EditorialPhoto slot="hero" bridge tint="soft" locale={locale}>
               <div className="photo__panel">
@@ -135,7 +147,7 @@ export function Hero({ locale = "en" }: { locale?: string }) {
         <PlatformConstellation locale={locale} />
       </div>
 
-      <div className="hero__foot" style={{ "--i": 7 } as React.CSSProperties}>
+      <div className="hero__foot" style={{ "--i": 9 } as React.CSSProperties}>
         <div className="shell hero__foot-shell">
           <ul className="hero__caps">
             {capabilities.map((c, i) => {
@@ -146,7 +158,7 @@ export function Hero({ locale = "en" }: { locale?: string }) {
                     <Icon size={16} weight="duotone" />
                   </span>
                   <span className="hero__cap-text">
-                    <span className="hero__cap-value">{c.value}</span>
+                    <span className="hero__cap-value">{localeCopy.capabilityValues[i]}</span>
                     <span className="hero__cap-label">{localeCopy.capabilityLabels[i]}</span>
                   </span>
                 </li>
