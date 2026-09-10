@@ -157,6 +157,11 @@ export type Copy = {
     primaryCta: string;
     secondaryCta: string;
   };
+  results: {
+    label: string;
+    headline: string;
+    stats: readonly [string, string, string, string];
+  };
   footer: { tagline: string; note: string };
 };
 
@@ -345,6 +350,16 @@ const en: Copy = {
     body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
     primaryCta: "Analyze My Business",
     secondaryCta: "Book an Executive Briefing",
+  },
+  results: {
+    label: "Measured on the live platform",
+    headline: "Results agencies are already seeing.",
+    stats: [
+      "Average AI visibility increase",
+      "AI search platforms tracked — GPT, Gemini, Perplexity and more",
+      "Auto-generated intelligence reports",
+      "Average ROI reported by active accounts",
+    ],
   },
   footer: {
     tagline: "The intelligence & execution layer for modern agencies.",
@@ -547,6 +562,16 @@ const he: Copy = {
     primaryCta: "נתחו את העסק שלי",
     secondaryCta: "קבעו תדריך להנהלה",
   },
+  results: {
+    label: "נמדד בפלטפורמה החיה",
+    headline: "התוצאות שסוכנויות כבר רואות.",
+    stats: [
+      "עלייה ממוצעת בנראות בבינה מלאכותית",
+      "פלטפורמות חיפוש בבינה מלאכותית במעקב — GPT,‏ Gemini,‏ Perplexity ועוד",
+      "דוחות מודיעין שנוצרים אוטומטית",
+      "החזר השקעה ממוצע כפי שמדווח על ידי חשבונות פעילים",
+    ],
+  },
   footer: {
     tagline: "שכבת המודיעין והביצוע לסוכנויות מודרניות.",
     note: "פלטפורמות מסורתיות מייעלות ערוצים. GeoRepute משחזרת החלטות.",
@@ -747,6 +772,16 @@ const ar: Copy = {
     body: "توضح لكم GeoRepute أين يحدث، ولماذا يتغيّر، وما الذي يجب تغييره تاليًا.",
     primaryCta: "حلّلوا نشاطكم التجاري",
     secondaryCta: "احجزوا إحاطة تنفيذية",
+  },
+  results: {
+    label: "قياسات من المنصة الفعلية",
+    headline: "النتائج التي تراها الوكالات بالفعل.",
+    stats: [
+      "الزيادة المتوسطة في ظهور الذكاء الاصطناعي",
+      "منصات بحث الذكاء الاصطناعي المتابَعة — GPT وGemini وPerplexity وغيرها",
+      "تقارير معلوماتية تُنشأ تلقائيًا",
+      "متوسط العائد على الاستثمار الذي تسجله الحسابات النشطة",
+    ],
   },
   footer: {
     tagline: "طبقة الذكاء والتنفيذ لوكالات التسويق الحديثة.",
@@ -949,6 +984,16 @@ const ru: Copy = {
     primaryCta: "Анализировать мой бизнес",
     secondaryCta: "Записаться на брифинг для руководителей",
   },
+  results: {
+    label: "Измерено на живой платформе",
+    headline: "Результаты, которые агентства уже видят.",
+    stats: [
+      "Средний рост видимости в ИИ",
+      "ИИ-поисковых платформ под наблюдением — GPT, Gemini, Perplexity и другие",
+      "Автоматически формируемых аналитических отчётов",
+      "Средняя рентабельность инвестиций у активных аккаунтов",
+    ],
+  },
   footer: {
     tagline: "Слой интеллекта и исполнения для современных агентств.",
     note: "Традиционные платформы оптимизируют каналы. GeoRepute восстанавливает решения.",
@@ -1149,6 +1194,16 @@ const fr: Copy = {
     body: "GeoRepute vous montre où elle se produit, pourquoi elle évolue, et ce qu’il faut changer ensuite.",
     primaryCta: "Analyser mon entreprise",
     secondaryCta: "Réserver un briefing exécutif",
+  },
+  results: {
+    label: "Mesuré sur la plateforme en direct",
+    headline: "Les résultats que les agences constatent déjà.",
+    stats: [
+      "Augmentation moyenne de la visibilité IA",
+      "Plateformes de recherche IA suivies — GPT, Gemini, Perplexity et plus",
+      "Rapports d'intelligence générés automatiquement",
+      "ROI moyen déclaré par les comptes actifs",
+    ],
   },
   footer: {
     tagline: "La couche d’intelligence et d’exécution pour les agences modernes.",
@@ -1351,6 +1406,16 @@ const es: Copy = {
     primaryCta: "Analizar mi negocio",
     secondaryCta: "Reservar una sesión ejecutiva",
   },
+  results: {
+    label: "Medido en la plataforma en vivo",
+    headline: "Los resultados que las agencias ya están viendo.",
+    stats: [
+      "Aumento promedio de visibilidad en IA",
+      "Plataformas de búsqueda IA monitoreadas — GPT, Gemini, Perplexity y más",
+      "Informes de inteligencia generados automáticamente",
+      "ROI promedio reportado por cuentas activas",
+    ],
+  },
   footer: {
     tagline: "La capa de inteligencia y ejecución para agencias modernas.",
     note: "Las plataformas tradicionales optimizan canales. GeoRepute reconstruye decisiones.",
@@ -1551,6 +1616,16 @@ const pt: Copy = {
     body: "A GeoRepute mostra onde ela acontece, por que muda, e o que fazer a seguir.",
     primaryCta: "Analisar meu negócio",
     secondaryCta: "Agendar um briefing executivo",
+  },
+  results: {
+    label: "Medido na plataforma em produção",
+    headline: "Os resultados que as agências já estão vendo.",
+    stats: [
+      "Aumento médio de visibilidade em IA",
+      "Plataformas de busca por IA monitoradas — GPT, Gemini, Perplexity e mais",
+      "Relatórios de inteligência gerados automaticamente",
+      "ROI médio reportado por contas ativas",
+    ],
   },
   footer: {
     tagline: "A camada de inteligência e execução para agências modernas.",

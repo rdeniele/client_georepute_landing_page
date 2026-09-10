@@ -13,6 +13,7 @@ import { ClosedLoop } from "@/components/sections/ClosedLoop";
 import { DecisionGraphSection } from "@/components/sections/DecisionGraphSection";
 import { ExecutiveIntelligence } from "@/components/sections/ExecutiveIntelligence";
 import { ActionPlan } from "@/components/sections/ActionPlan";
+import { Results } from "@/components/sections/Results";
 import { FinalCta } from "@/components/sections/FinalCta";
 
 export function HomePage({ locale = "en" }: { locale?: string }) {
@@ -31,6 +32,7 @@ export function HomePage({ locale = "en" }: { locale?: string }) {
       <DecisionGraphSection locale={locale} />
       <ExecutiveIntelligence locale={locale} />
       <ActionPlan locale={locale} />
+      <Results locale={locale} />
       <FinalCta locale={locale} />
     </>
   );

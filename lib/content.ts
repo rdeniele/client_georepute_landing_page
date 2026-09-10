@@ -560,6 +560,20 @@ export const capabilities = [
   { value: "Continuous PDCA", label: "Execution, Measurement & Improvement", icon: "cycle" },
 ] as const;
 
+/**
+ * Section — measured results, published on the live GeoRepute site's own
+ * marketing pages (georepute.ai). Not part of the numbered section sequence:
+ * a compact trust strip ahead of the close, not a signature surface.
+ */
+export const results = {
+  stats: [
+    { value: 340, prefix: "", suffix: "%", decimals: 0 },
+    { value: 50, prefix: "", suffix: "+", decimals: 0 },
+    { value: 50, prefix: "", suffix: "+", decimals: 0 },
+    { value: 8.5, prefix: "", suffix: "x", decimals: 1 },
+  ],
+} as const;
+
 export const finalCta = {
   index: "11",
   label: "Analyze my business",
