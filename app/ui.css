@@ -1338,6 +1338,36 @@ html[dir="rtl"] .hero__word {
   transition: color var(--d-micro) var(--ease-out);
 }
 
+.hero__support-show-less {
+  display: none;
+}
+
+.hero__support-more details[open] .hero__support-show-more {
+  display: none;
+}
+
+.hero__support-more details[open] .hero__support-show-less {
+  display: inline;
+}
+
+.hero__support-more details .hero__support {
+  display: block;
+  max-height: 0;
+  margin-block: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 260ms var(--ease-out),
+    margin-top 260ms var(--ease-out),
+    opacity 180ms var(--ease-out);
+}
+
+.hero__support-more details[open] .hero__support {
+  max-height: 28rem;
+  margin-top: 12px;
+  opacity: 1;
+}
+
 .hero__support-more summary::-webkit-details-marker {
   display: none;
 }

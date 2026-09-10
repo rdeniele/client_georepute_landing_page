@@ -97,7 +97,10 @@ export function Hero({ locale = "en" }: { locale?: string }) {
             >
               <p className="t-lead hero__support-preview">{copy.supporting}</p>
               <details>
-                <summary>Show more</summary>
+                <summary>
+                  <span className="hero__support-show-more">Show More</span>
+                  <span className="hero__support-show-less">Show Less</span>
+                </summary>
                 <p className="t-lead hero__support">{copy.supporting}</p>
               </details>
             </div>
