@@ -561,6 +561,25 @@ export const capabilities = [
 ] as const;
 
 /**
+ * Section — interactive "try it" widget, directly after the hero. The
+ * visitor enters a business name; the panel that appears uses the same
+ * measure vocabulary as the executive dashboard so it reads as the same
+ * product, but the values are fixed illustrative numbers, never a real
+ * analysis — marked sample: true per this file's own convention, and kept
+ * blurred behind an unlock CTA rather than ever presented as a real result.
+ */
+export const tryTool = {
+  sample: true,
+  measures: [
+    { name: "AI Recognition", value: 38 },
+    { name: "Google vs AI Visibility Gap", value: 64 },
+    { name: "Competitor Advantage", value: 71 },
+    { name: "Decision Position", value: 45 },
+  ],
+  unlockHref: "https://www.georepute.ai/signup",
+} as const;
+
+/**
  * Section — measured results, published on the live GeoRepute site's own
  * marketing pages (georepute.ai). Not part of the numbered section sequence:
  * a compact trust strip ahead of the close, not a signature surface.

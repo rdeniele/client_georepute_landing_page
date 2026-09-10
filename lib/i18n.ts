@@ -162,6 +162,20 @@ export type Copy = {
     headline: string;
     stats: readonly [string, string, string, string];
   };
+  tryTool: {
+    label: string;
+    headline: string;
+    body: string;
+    placeholder: string;
+    submitCta: string;
+    analyzing: string;
+    resultsLabel: string;
+    measureNames: readonly [string, string, string, string];
+    sampleNote: string;
+    unlockHeadline: string;
+    unlockBody: string;
+    unlockCta: string;
+  };
   footer: { tagline: string; note: string };
 };
 
@@ -350,6 +364,20 @@ const en: Copy = {
     body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
     primaryCta: "Analyze My Business",
     secondaryCta: "Book an Executive Briefing",
+  },
+  tryTool: {
+    label: "Try it on your business",
+    headline: "See how AI engines talk about you.",
+    body: "Enter a business name and watch the same measures the platform tracks resolve in real time.",
+    placeholder: "Enter a business name…",
+    submitCta: "Run Analysis",
+    analyzing: "Reading AI engines…",
+    resultsLabel: "Preview for",
+    measureNames: ["AI Recognition", "Google vs AI Visibility Gap", "Competitor Advantage", "Decision Position"],
+    sampleNote: "Illustrative preview — the full report runs live on the platform.",
+    unlockHeadline: "This is the preview.",
+    unlockBody: "Create a free account to run the real analysis on your business.",
+    unlockCta: "Unlock My Full Report",
   },
   results: {
     label: "Measured on the live platform",
@@ -562,6 +590,20 @@ const he: Copy = {
     primaryCta: "נתחו את העסק שלי",
     secondaryCta: "קבעו תדריך להנהלה",
   },
+  tryTool: {
+    label: "נסו זאת על העסק שלכם",
+    headline: "ראו איך מנועי בינה מלאכותית מדברים עליכם.",
+    body: "הזינו שם עסק וצפו באותם מדדים שהפלטפורמה עוקבת אחריהם מתגבשים בזמן אמת.",
+    placeholder: "הזינו שם עסק…",
+    submitCta: "הריצו ניתוח",
+    analyzing: "קוראים את מנועי הבינה המלאכותית…",
+    resultsLabel: "תצוגה מקדימה עבור",
+    measureNames: ["הכרה בבינה מלאכותית", "פער נראות גוגל מול בינה מלאכותית", "יתרון מתחרים", "מיקום ההחלטה"],
+    sampleNote: "תצוגה מקדימה להמחשה — הדוח המלא רץ בזמן אמת בפלטפורמה.",
+    unlockHeadline: "זו התצוגה המקדימה.",
+    unlockBody: "צרו חשבון חינמי כדי להריץ את הניתוח האמיתי על העסק שלכם.",
+    unlockCta: "פתחו את הדוח המלא שלי",
+  },
   results: {
     label: "נמדד בפלטפורמה החיה",
     headline: "התוצאות שסוכנויות כבר רואות.",
@@ -772,6 +814,20 @@ const ar: Copy = {
     body: "توضح لكم GeoRepute أين يحدث، ولماذا يتغيّر، وما الذي يجب تغييره تاليًا.",
     primaryCta: "حلّلوا نشاطكم التجاري",
     secondaryCta: "احجزوا إحاطة تنفيذية",
+  },
+  tryTool: {
+    label: "جرّبوا ذلك على نشاطكم التجاري",
+    headline: "شاهدوا كيف تتحدث محركات الذكاء الاصطناعي عنكم.",
+    body: "أدخلوا اسم النشاط التجاري وشاهدوا نفس المقاييس التي تتابعها المنصة تتشكل في الوقت الفعلي.",
+    placeholder: "أدخلوا اسم النشاط التجاري…",
+    submitCta: "تشغيل التحليل",
+    analyzing: "قراءة محركات الذكاء الاصطناعي…",
+    resultsLabel: "معاينة لـ",
+    measureNames: ["التعرف بالذكاء الاصطناعي", "فرق الظهور بين جوجل والذكاء الاصطناعي", "ميزة المنافسين", "موضع القرار"],
+    sampleNote: "معاينة توضيحية — التقرير الكامل يعمل مباشرة على المنصة.",
+    unlockHeadline: "هذه هي المعاينة.",
+    unlockBody: "أنشئوا حسابًا مجانيًا لتشغيل التحليل الحقيقي لنشاطكم التجاري.",
+    unlockCta: "افتحوا تقريري الكامل",
   },
   results: {
     label: "قياسات من المنصة الفعلية",
@@ -984,6 +1040,20 @@ const ru: Copy = {
     primaryCta: "Анализировать мой бизнес",
     secondaryCta: "Записаться на брифинг для руководителей",
   },
+  tryTool: {
+    label: "Проверьте на своём бизнесе",
+    headline: "Узнайте, как ИИ-системы говорят о вас.",
+    body: "Введите название бизнеса и посмотрите, как те же показатели, которые отслеживает платформа, формируются в реальном времени.",
+    placeholder: "Введите название бизнеса…",
+    submitCta: "Запустить анализ",
+    analyzing: "Считываем данные ИИ-систем…",
+    resultsLabel: "Предпросмотр для",
+    measureNames: ["Распознавание ИИ", "Разрыв видимости: Google и ИИ", "Преимущество конкурентов", "Позиция решения"],
+    sampleNote: "Иллюстративный предпросмотр — полный отчёт формируется в реальном времени на платформе.",
+    unlockHeadline: "Это предпросмотр.",
+    unlockBody: "Создайте бесплатный аккаунт, чтобы запустить настоящий анализ вашего бизнеса.",
+    unlockCta: "Открыть полный отчёт",
+  },
   results: {
     label: "Измерено на живой платформе",
     headline: "Результаты, которые агентства уже видят.",
@@ -1194,6 +1264,20 @@ const fr: Copy = {
     body: "GeoRepute vous montre où elle se produit, pourquoi elle évolue, et ce qu’il faut changer ensuite.",
     primaryCta: "Analyser mon entreprise",
     secondaryCta: "Réserver un briefing exécutif",
+  },
+  tryTool: {
+    label: "Essayez avec votre entreprise",
+    headline: "Découvrez comment les IA parlent de vous.",
+    body: "Saisissez un nom d'entreprise et regardez les mêmes mesures suivies par la plateforme se former en temps réel.",
+    placeholder: "Saisissez un nom d'entreprise…",
+    submitCta: "Lancer l'analyse",
+    analyzing: "Lecture des moteurs IA…",
+    resultsLabel: "Aperçu pour",
+    measureNames: ["Reconnaissance IA", "Écart de visibilité Google / IA", "Avantage concurrentiel", "Position de décision"],
+    sampleNote: "Aperçu illustratif — le rapport complet s'exécute en direct sur la plateforme.",
+    unlockHeadline: "Ceci est l'aperçu.",
+    unlockBody: "Créez un compte gratuit pour lancer la véritable analyse de votre entreprise.",
+    unlockCta: "Débloquer mon rapport complet",
   },
   results: {
     label: "Mesuré sur la plateforme en direct",
@@ -1406,6 +1490,20 @@ const es: Copy = {
     primaryCta: "Analizar mi negocio",
     secondaryCta: "Reservar una sesión ejecutiva",
   },
+  tryTool: {
+    label: "Pruébalo con tu negocio",
+    headline: "Descubre cómo hablan de ti las IA.",
+    body: "Introduce el nombre de un negocio y observa cómo se forman en tiempo real las mismas métricas que sigue la plataforma.",
+    placeholder: "Introduce el nombre de un negocio…",
+    submitCta: "Ejecutar análisis",
+    analyzing: "Leyendo motores de IA…",
+    resultsLabel: "Vista previa para",
+    measureNames: ["Reconocimiento de IA", "Brecha de visibilidad Google/IA", "Ventaja competitiva", "Posición de decisión"],
+    sampleNote: "Vista previa ilustrativa — el informe completo se ejecuta en vivo en la plataforma.",
+    unlockHeadline: "Esto es la vista previa.",
+    unlockBody: "Crea una cuenta gratuita para ejecutar el análisis real de tu negocio.",
+    unlockCta: "Desbloquear mi informe completo",
+  },
   results: {
     label: "Medido en la plataforma en vivo",
     headline: "Los resultados que las agencias ya están viendo.",
@@ -1616,6 +1714,20 @@ const pt: Copy = {
     body: "A GeoRepute mostra onde ela acontece, por que muda, e o que fazer a seguir.",
     primaryCta: "Analisar meu negócio",
     secondaryCta: "Agendar um briefing executivo",
+  },
+  tryTool: {
+    label: "Experimente com o seu negócio",
+    headline: "Veja como as IAs falam sobre você.",
+    body: "Digite o nome de um negócio e veja as mesmas métricas que a plataforma acompanha se formarem em tempo real.",
+    placeholder: "Digite o nome de um negócio…",
+    submitCta: "Executar análise",
+    analyzing: "Lendo mecanismos de IA…",
+    resultsLabel: "Pré-visualização para",
+    measureNames: ["Reconhecimento por IA", "Diferença de visibilidade Google/IA", "Vantagem competitiva", "Posição de decisão"],
+    sampleNote: "Pré-visualização ilustrativa — o relatório completo é executado em tempo real na plataforma.",
+    unlockHeadline: "Esta é a pré-visualização.",
+    unlockBody: "Crie uma conta gratuita para executar a análise real do seu negócio.",
+    unlockCta: "Desbloquear meu relatório completo",
   },
   results: {
     label: "Medido na plataforma em produção",
