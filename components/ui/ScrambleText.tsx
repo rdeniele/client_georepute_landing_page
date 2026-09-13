@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 const GLYPHS = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /**
- * A short label that decodes into its real value once it enters view —
+ * A short label that decodes into its real value once it enters view,
  * every `<span className="sec-head__index">02</span>` in the page becomes
  * this. Deliberately reserved for two-to-three character index badges: long
  * enough to read as "resolving," short enough that the churn settles in a

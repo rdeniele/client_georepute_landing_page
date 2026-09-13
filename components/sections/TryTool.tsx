@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/Button";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Try it — directly after the hero. The visitor types a business name and
+ * Try it, directly after the hero. The visitor types a business name and
  * watches a results panel resolve using the same measure vocabulary as the
  * executive dashboard, then the panel goes behind a blur with an unlock CTA
- * to the live platform. The values are fixed and illustrative — never a real
- * analysis — which is why the panel carries the same sample-note discipline
+ * to the live platform. The values are fixed and illustrative, never a real
+ * analysis, which is why the panel carries the same sample-note discipline
  * as the executive dashboard instead of pretending to be a live scan.
  */
 

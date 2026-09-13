@@ -19,13 +19,13 @@ import { getRingDot, getSoftDot } from "./textures";
 // bright analytical background (the canvas itself is multiplied into it).
 const PALETTE = {
   light: {
-    signal: new THREE.Color("#5b21c7"),
-    core: new THREE.Color("#610ae5"),
+    signal: new THREE.Color("#5928d4"),
+    core: new THREE.Color("#6b34e8"),
     hairline: new THREE.Color("#4a3a7a"),
   },
   dark: {
-    signal: new THREE.Color("#a78bfa"),
-    core: new THREE.Color("#7b3aec"),
+    signal: new THREE.Color("#a88bf5"),
+    core: new THREE.Color("#7947ea"),
     hairline: new THREE.Color("#46527a"),
   },
 };
@@ -220,7 +220,7 @@ export function IntelligenceNetwork({
 
   // Theme switch: repoint the colour uniforms so the scene follows the page
   // without rebuilding geometry or shaders. In light mode the additive
-  // colours are multiplied into the bright page, which darkens them — lift
+  // colours are multiplied into the bright page, which darkens them, lift
   // them so the multiplied result keeps a readable violet instead of
   // collapsing to near-black.
   useEffect(() => {
@@ -249,7 +249,7 @@ export function IntelligenceNetwork({
     [linkGeom, nodeGeom, coreGeom],
   );
 
-  // Eased mirrors of the director's targets — the scene never snaps
+  // Eased mirrors of the director's targets, the scene never snaps
   const act = useMemo(() => new Float32Array(nodes.length), [nodes.length]);
   const focusAmt = useMemo(() => new Float32Array(nodes.length), [nodes.length]);
   const dimEase = useRef(0);

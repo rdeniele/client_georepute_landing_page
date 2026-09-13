@@ -4,10 +4,10 @@ import { Band } from "@/components/ui/Band";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 10 — From insight to action.
+ * Section 10, From insight to action.
  *
  * Each intervention names the measure it is expected to move, who owns it and
- * by when — the section exists to show the system resolving into something
+ * by when, the section exists to show the system resolving into something
  * accountable, so those three fields matter more than the card styling.
  */
 export function ActionPlan({ locale = "en" }: { locale?: string }) {

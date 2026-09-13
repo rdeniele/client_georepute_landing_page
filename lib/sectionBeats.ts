@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
  *
  * Every section contributes one or more anchors on the scroll axis. On each
  * scroll update the viewport centre is located between two anchors and their
- * beats are blended — so the camera, node activation and focus travel all move
+ * beats are blended, so the camera, node activation and focus travel all move
  * *with* the scroll rather than being retargeted at a threshold. Applying beats
  * discretely on `onEnter` is what made nodes appear to snap between sections.
  *
@@ -24,7 +24,7 @@ type Entry = { selector: string; beats: Beat[] };
 
 const ENTRIES: Entry[] = [
   {
-    // 01 — the whole environment, held at a distance
+    // 01, the whole environment, held at a distance
     selector: "#top",
     beats: [
       {
@@ -36,7 +36,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 02 — customer intent travels forward; a question enters the system
+    // 02, customer intent travels forward; a question enters the system
     selector: "#invisible",
     beats: [
       {
@@ -48,7 +48,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 03 — the measure field: many systems lit at once, none singled out
+    // 03, the measure field: many systems lit at once, none singled out
     selector: "#signals",
     beats: [
       {
@@ -69,7 +69,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 04 — the pinned reconstruction, one beat per step
+    // 04, the pinned reconstruction, one beat per step
     selector: "#reconstruct",
     beats: [
       {
@@ -111,7 +111,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 05 — sighted down the causal chain, so it reads as one line of events
+    // 05, sighted down the causal chain, so it reads as one line of events
     selector: "#blindspot",
     beats: [
       {
@@ -132,7 +132,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 06 — pulled back with the entire system live
+    // 06, pulled back with the entire system live
     selector: "#engines",
     beats: [
       {
@@ -159,7 +159,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 07 — the feedback loop: an outcome feeding back into the market
+    // 07, the feedback loop: an outcome feeding back into the market
     selector: "#loop",
     beats: [
       {
@@ -171,7 +171,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 08 — recedes so the interactive graph owns the viewport
+    // 08, recedes so the interactive graph owns the viewport
     selector: "#graph",
     beats: [
       {
@@ -183,7 +183,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 09 — furthest back and dimmest; the dashboard is the subject here
+    // 09, furthest back and dimmest; the dashboard is the subject here
     selector: "#executive",
     beats: [
       {
@@ -195,7 +195,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 10 — back to a working distance with the decision path lit
+    // 10, back to a working distance with the decision path lit
     selector: "#action",
     beats: [
       {
@@ -207,7 +207,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    // 11 — everything converges on the core
+    // 11, everything converges on the core
     selector: "#analyze",
     beats: [
       {

@@ -8,6 +8,7 @@ import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { LocaleAttributes } from "@/components/ui/LocaleAttributes";
 import { IntelligenceCanvas } from "@/components/three/IntelligenceCanvas";
 import { Cursor } from "@/components/ui/Cursor";
+import { IntroModal } from "@/components/intro/IntroModal";
 
 export function SiteShell({
   children,
@@ -20,7 +21,7 @@ export function SiteShell({
 }) {
   useReveal();
   // The camera timeline is keyed to this page's own section ids (#top,
-  // #invisible, #signals, ...) — only meaningful on the home page.
+  // #invisible, #signals...), only meaningful on the home page.
   useSectionBeats(home);
 
   return (
@@ -34,6 +35,7 @@ export function SiteShell({
       <main id="main" className="content">
         {children}
       </main>
+      <IntroModal locale={locale} />
     </ScrollProvider>
   );
 }

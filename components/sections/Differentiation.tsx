@@ -4,10 +4,10 @@ import { ProductShot } from "@/components/ui/ProductShot";
 /**
  * Key differentiation statement, directly after the hero.
  *
- * One job: stop the visitor from filing GeoRepute under "ranking tracker"
- * before they've scrolled past the fold. Deliberately spare — a label, a
- * short prominent title, one paragraph — so it reads as a statement, not
- * another content block.
+ * One job: stop the visitor from filing GeoRepute under "another tool"
+ * before they've scrolled past the fold. Three struck-through categories it
+ * is not, then the one line that says what it is: intelligence that stays
+ * with the business when people change.
  */
 export function Differentiation({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).differentiation;
@@ -18,10 +18,17 @@ export function Differentiation({ locale = "en" }: { locale?: string }) {
           <p className="t-eyebrow diff__eyebrow">
             {c.eyebrow}
           </p>
-          <h2 className="diff__title">
+          <ul className="diff__nots">
+            {c.negations.map((n, i) => (
+              <li key={n} data-reveal data-reveal-delay={String(i * 90)}>
+                {n}
+              </li>
+            ))}
+          </ul>
+          <h2 className="diff__title" data-reveal data-reveal-delay="300">
             {c.title}
           </h2>
-          <p className="t-lead diff__body">
+          <p className="t-lead diff__body" data-reveal data-reveal-delay="380">
             {c.body}
           </p>
         </div>

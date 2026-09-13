@@ -5,11 +5,11 @@ import { ProductShot } from "@/components/ui/ProductShot";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 03 — See the signals.
+ * Section 03, See the signals.
  *
  * A ledger, not a card grid. Each measure is one hairline row: index, name,
  * and the question it actually answers. Focusing a row draws its connector
- * and lifts the question — the same illuminate-on-focus behaviour the graph
+ * and lifts the question, the same illuminate-on-focus behaviour the graph
  * sections use, so the vocabulary stays consistent.
  */
 export function SignalMap({ locale = "en" }: { locale?: string }) {

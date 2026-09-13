@@ -7,7 +7,7 @@ import { Band } from "@/components/ui/Band";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 06 — The intelligence engines.
+ * Section 06, The intelligence engines.
  *
  * A graph rather than a card grid. Nodes are real buttons positioned over an
  * SVG edge layer, so the whole thing is keyboard-navigable and screen-readable
@@ -66,7 +66,7 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
   const active = activeIndex >= 0 ? { ...base.items[activeIndex], ...c.items[activeIndex] } : null;
 
   // The network assembles once, the first time it enters view: edges draw,
-  // nodes settle in, then — a beat later — the ambient signal starts
+  // nodes settle in, then, a beat later, the ambient signal starts
   // flowing on the hub's paths. Three states, not one, so "drawn" and
   // "alive" can be styled differently instead of arriving in the same frame.
   useEffect(() => {
@@ -92,7 +92,7 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
     return () => io.disconnect();
   }, []);
 
-  // A light perspective tilt toward the cursor — the network as a physical
+  // A light perspective tilt toward the cursor, the network as a physical
   // instrument panel, not a flat diagram. Capped small and skipped for
   // reduced motion / touch, same discipline as the hero's browser stack.
   useEffect(() => {
@@ -131,7 +131,7 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
       className="section band band--color"
       data-section
     >
-      {/* No band network here — this section already draws its own graph,
+      {/* No band network here, this section already draws its own graph,
           and two overlapping node fields fight each other. */}
       <Band tone="color" edge="feather" className="band__plate--engines" />
 

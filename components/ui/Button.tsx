@@ -6,7 +6,7 @@ import { useRef, type ReactNode } from "react";
  * Magnetic CTA.
  *
  * The button leans toward the cursor while hovered and settles back on exit.
- * Movement is capped small — it should register as responsiveness, not as a
+ * Movement is capped small, it should register as responsiveness, not as a
  * toy. Transform only, and the whole effect is skipped under reduced motion.
  */
 export function Button({

@@ -5,8 +5,8 @@ import { BandNetwork } from "./BandNetwork";
  * The page's background rhythm.
  *
  * "Half-white / half-colour" is a pacing device, not a template: a band is a
- * horizontal environment the section sits inside, and the sequence of them —
- * paper, tint, colour, paper — is what stops the page reading as one
+ * horizontal environment the section sits inside, and the sequence of them,
+ * paper, tint, colour, paper, is what stops the page reading as one
  * continuous treatment. Sections still choose their own internal asymmetry.
  *
  * `paper` and `tint` are translucent, so the persistent WebGL network reads
@@ -25,7 +25,7 @@ export function Band({
   className = "",
 }: {
   tone: BandTone;
-  /** Colour bands only — draw the inverted intelligence network on the plate. */
+  /** Colour bands only, draw the inverted intelligence network on the plate. */
   network?: boolean;
   /** How the plate meets the bands above and below it. */
   edge?: "feather" | "hard" | "top-hard" | "bottom-hard";

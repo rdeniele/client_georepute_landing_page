@@ -14,7 +14,7 @@ import { ThemeToggle } from "./ThemeToggle";
  * Mirrors the live site's three mega-menu groups, direct links, and primary CTA.
  * Groups open on hover for pointer users but are real
  * `aria-expanded` buttons underneath, so the whole menu works from the keyboard
- * — Escape closes and returns focus to the trigger, and moving focus out of a
+ *, Escape closes and returns focus to the trigger, and moving focus out of a
  * group closes it.
  *
  * Starts transparent over the hero and gains a glass backing once the page has
@@ -83,7 +83,7 @@ export function Navigation() {
       onPointerLeave={() => !coarse && setOpen(null)}
     >
       <div className="nav__shell">
-        <a href={localizedNav.brand.href} className="nav__brand" aria-label={`${localizedNav.brand.name} — home`}>
+        <a href={localizedNav.brand.href} className="nav__brand" aria-label={`${localizedNav.brand.name} home`}>
           <Image
             src={logo}
             alt=""

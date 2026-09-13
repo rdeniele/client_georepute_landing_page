@@ -4,7 +4,7 @@ import * as THREE from "three";
  * The intelligence network's cast.
  *
  * Every node is a named participant in how a commercial decision actually
- * forms, and every edge is a real causal relationship — not decoration. The
+ * forms, and every edge is a real causal relationship, not decoration. The
  * chain reads question → intent → interpretation → evidence → authority →
  * recommendation → decision → outcome, with context systems feeding in from
  * depth. Sections activate individual nodes and pull them toward the viewer,
@@ -31,9 +31,9 @@ export type NodeId =
 export type NodeDef = {
   id: NodeId;
   label: string;
-  /** Dispersed position — how the environment looks before it is understood */
+  /** Dispersed position, how the environment looks before it is understood */
   home: [number, number, number];
-  /** Resolved position — the clean causal arc the page resolves toward */
+  /** Resolved position, the clean causal arc the page resolves toward */
   resolved: [number, number, number];
   /** Chain nodes carry the decision; context nodes feed it from depth */
   role: "chain" | "context";
@@ -93,7 +93,7 @@ export const EDGES: [NodeId, NodeId][] = [
   ["reputation", "authority"],
   ["market", "competitors"],
   ["evidence", "competitors"],
-  // the loop back — an outcome changes the market it came from
+  // the loop back, an outcome changes the market it came from
   ["outcome", "market"],
 ];
 
@@ -112,7 +112,7 @@ function hash(i: number) {
 }
 
 export function buildNetwork(maxNodes: number) {
-  // Chain nodes are never dropped — the causal story has to survive on the
+  // Chain nodes are never dropped, the causal story has to survive on the
   // smallest device. Context nodes are what a reduced budget gives up.
   const chain = NODES.filter((n) => n.role === "chain");
   const context = NODES.filter((n) => n.role === "context");
@@ -142,7 +142,7 @@ export function buildNetwork(maxNodes: number) {
 const SAMPLES = 22;
 
 /**
- * All edges flattened into one LineSegments geometry — the whole network is a
+ * All edges flattened into one LineSegments geometry, the whole network is a
  * single draw call. `aT` carries position along the edge so the travelling
  * signal runs in the shader, and `aLink` lets per-edge activation be uploaded
  * as a small attribute rather than rebuilt geometry.

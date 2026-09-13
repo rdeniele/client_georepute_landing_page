@@ -25,7 +25,7 @@ export type SceneState = {
   /**
    * How fast the visitor is scrolling right now, 0→1 (already clamped).
    * Written by ScrollProvider on every Lenis tick, decayed toward 0 by
-   * whichever `useFrame` loop reads it — there is deliberately no owner that
+   * whichever `useFrame` loop reads it, there is deliberately no owner that
    * resets it, so the scene keeps reacting for a beat after scrolling stops
    * instead of snapping back.
    */
@@ -47,7 +47,7 @@ export const scene: SceneState = {
 export type DeviceTier = "high" | "mid" | "low" | "none";
 
 /**
- * Decides how much scene to build. Called once on mount — never per frame.
+ * Decides how much scene to build. Called once on mount, never per frame.
  * `none` means no WebGL at all: reduced-motion users and machines without a
  * usable context get the static fallback instead.
  */

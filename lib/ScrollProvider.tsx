@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
  * Lenis smooths the scroll, GSAP's ticker drives it, and ScrollTrigger is
  * told to read position from Lenis so section triggers and the 3D camera stay
  * on the same clock. Scroll progress and pointer are written straight into the
- * scene store — the React tree is never re-rendered by either.
+ * scene store, the React tree is never re-rendered by either.
  */
 export function ScrollProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -26,13 +26,13 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     if (!reduced) {
       lenis = new Lenis({
         duration: 1.15,
-        // Long, settling ease-out — the page should feel weighted, not springy
+        // Long, settling ease-out, the page should feel weighted, not springy
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         touchMultiplier: 1.6,
       });
 
-      // Scroll speed reaches the 3D scene as a single 0→1 number — a fast
+      // Scroll speed reaches the 3D scene as a single 0→1 number, a fast
       // flick very briefly speeds up the ambient dust and camera settle
       // (see ParticleField / CameraRig). Nothing here ever decays it back to
       // 0; each frame consumer eases its own copy down, so the reaction
@@ -58,7 +58,7 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     // --- Which section owns the viewport ---------------------------------
     // Also publishes the owning section's band tone on <html>, because the
     // fixed chrome (the scroll rail) sits outside every band and cannot
-    // inherit its tokens — on a colour band its dark ink would vanish.
+    // inherit its tokens, on a colour band its dark ink would vanish.
     const root = document.documentElement;
     const sectionTriggers = gsap.utils
       .toArray<HTMLElement>("[data-section]")
@@ -86,11 +86,19 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("pointermove", onPointer, { passive: true });
 
+    // The entry introduction pauses smooth scrolling while it owns the screen
+    const onLock = (e: Event) => {
+      if ((e as CustomEvent<boolean>).detail) lenis?.stop();
+      else lenis?.start();
+    };
+    window.addEventListener("georepute:scroll-lock", onLock);
+
     // Fonts change layout height; recalculate once they land
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
     return () => {
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("georepute:scroll-lock", onLock);
       progressTrigger.kill();
       sectionTriggers.forEach((t) => t.kill());
       delete root.dataset.band;

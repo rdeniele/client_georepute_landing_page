@@ -246,6 +246,12 @@
   white-space: nowrap;
 }
 
+.subnav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 .subnav a,
 .subnav__label {
   color: var(--color-ink-dim);

@@ -3,7 +3,7 @@
  *
  * Shown to visitors who ask for reduced motion or whose device has no usable
  * WebGL context. It is the same idea rendered as a diagram rather than a
- * degraded version of the scene — the page never reads as broken, just quiet.
+ * degraded version of the scene, the page never reads as broken, just quiet.
  */
 
 const NODES: [number, number, number][] = [

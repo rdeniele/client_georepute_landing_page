@@ -1,12 +1,12 @@
 /* ============================================================================
-   BAND SYSTEM — the half-white / half-colour rhythm
+   BAND SYSTEM, the half-white / half-colour rhythm
 
    The page alternates between three environments: paper (white, dominant),
    tint (soft lavender) and colour (the GeoRepute brand environment). The
    sequence is what stops the page reading as one continuous treatment.
 
    Paper and tint are translucent, so the persistent WebGL network reads
-   straight through them as violet ink — that is where it looks strongest in
+   straight through them as violet ink, that is where it looks strongest in
    light mode. Colour plates are opaque and carry an inverted SVG network
    instead, because the plate is painted above the fixed canvas.
 
@@ -19,21 +19,21 @@
   --band-paper: rgba(255, 255, 255, 0.9);
   --band-paper-soft: rgba(255, 255, 255, 0.55);
 
-  /* Violet drifting through the white bands — the page is one environment at
+  /* Violet drifting through the white bands, the page is one environment at
      varying density, not white panels alternating with purple ones. */
-  --band-bloom: rgba(123, 58, 236, 0.11);
-  --band-bloom-strong: rgba(97, 10, 229, 0.2);
+  --band-bloom: rgba(121, 71, 234, 0.11);
+  --band-bloom-strong: rgba(107, 52, 232, 0.2);
 
-  --band-tint-a: rgba(246, 243, 255, 0.95);
-  --band-tint-b: rgba(236, 231, 255, 0.96);
-  --band-tint-c: rgba(226, 218, 253, 0.96);
+  --band-tint-a: rgba(246, 244, 255, 0.95);
+  --band-tint-b: rgba(237, 232, 255, 0.96);
+  --band-tint-c: rgba(226, 217, 253, 0.96);
 
   /* Five stops through the violet range: indigo → brand → lifted. */
-  --band-color-a: #3a0785;
-  --band-color-b: #4d09b8;
-  --band-color-c: #610ae5;
-  --band-color-d: #6e22de;
-  --band-color-e: #7b3aec;
+  --band-color-a: #3a1896;
+  --band-color-b: #4a22bc;
+  --band-color-c: #5928d4;
+  --band-color-d: #6b34e8;
+  --band-color-e: #7947ea;
 
   --band-net: rgba(255, 255, 255, 0.5);
   --band-net-lit: #ffffff;
@@ -45,22 +45,22 @@
 }
 
 html.theme-dark {
-  /* The void is already the paper — a white plate here would destroy it. */
-  --band-paper: rgba(10, 16, 32, 0.32);
-  --band-paper-soft: rgba(10, 16, 32, 0.12);
+  /* The void is already the paper, a white plate here would destroy it. */
+  --band-paper: rgba(12, 17, 52, 0.32);
+  --band-paper-soft: rgba(12, 17, 52, 0.12);
 
   --band-bloom: rgba(167, 139, 250, 0.09);
   --band-bloom-strong: rgba(139, 92, 246, 0.18);
 
-  --band-tint-a: rgba(20, 15, 46, 0.5);
-  --band-tint-b: rgba(28, 19, 60, 0.55);
-  --band-tint-c: rgba(38, 24, 78, 0.6);
+  --band-tint-a: rgba(18, 22, 66, 0.5);
+  --band-tint-b: rgba(27, 26, 86, 0.55);
+  --band-tint-c: rgba(40, 30, 112, 0.6);
 
-  --band-color-a: #1d0350;
-  --band-color-b: #300674;
-  --band-color-c: #46099f;
-  --band-color-d: #5b13c4;
-  --band-color-e: #6c26d8;
+  --band-color-a: #1a0f5a;
+  --band-color-b: #2c1486;
+  --band-color-c: #421db0;
+  --band-color-d: #5728d0;
+  --band-color-e: #6b34e8;
 
   --band-net: rgba(196, 181, 253, 0.42);
   --band-net-lit: #ddd1ff;
@@ -73,12 +73,12 @@ html.theme-dark {
   isolation: isolate;
   /* Plates, bleeding photographs and the network's slice all run past the
      section's box on purpose. `clip` bounds them at the page edge without
-     creating a scroll container — `hidden` here would break sticky
+     creating a scroll container, `hidden` here would break sticky
      descendants. */
   overflow-x: clip;
 }
 
-/* Everything the section renders sits above its own plate — except anything
+/* Everything the section renders sits above its own plate, except anything
    explicitly marked as another background layer. */
 .band > *:not(.band__plate):not(.band__bg) {
   position: relative;
@@ -103,7 +103,7 @@ html.theme-dark {
 
 /* Bands must not read as stacked rectangles. The fade is measured in pixels
    against the overhang, so the band reaches full strength exactly where its
-   section begins — copy never lands in the gradient — and the transition is a
+   section begins, copy never lands in the gradient, and the transition is a
    long violet wash across the neighbouring white. */
 .band__plate--edge-feather {
   -webkit-mask-image: linear-gradient(
@@ -122,7 +122,7 @@ html.theme-dark {
   );
 }
 .band__plate--edge-top-hard {
-  /* Cuts at the top, fades at the bottom — so it only needs the lower
+  /* Cuts at the top, fades at the bottom, so it only needs the lower
      overhang. */
   top: 0;
   -webkit-mask-image: linear-gradient(
@@ -137,7 +137,7 @@ html.theme-dark {
   );
 }
 .band__plate--edge-bottom-hard {
-  /* Nothing fades at the bottom, so nothing needs to hang past it — and on the
+  /* Nothing fades at the bottom, so nothing needs to hang past it, and on the
      last section an overhang would add dead scroll to the document. */
   bottom: 0;
   -webkit-mask-image: linear-gradient(
@@ -154,7 +154,7 @@ html.theme-dark {
    low density, so the page reads as one violet environment that opens and
    closes rather than as white panels alternating with purple ones. The white
    veil underneath still calms the WebGL network where the copy sits.
-   The strong bloom is capped at 20%: at its centre body ink #4C5678 measures
+   The strong bloom is capped at 20%: at its centre body ink #4A4F75 measures
    4.93:1, and anything denser drops under AA. */
 .band__plate--paper {
   background:
@@ -204,7 +204,7 @@ html.theme-dark {
 
 /* Bloom densities are capped by contrast, not taste. The darkest point of the
    band is the top-right bloom over the gradient's lavender end, where body ink
-   #4C5678 measures 4.58:1 — any denser and body copy fails AA. */
+   #4A4F75 measures 4.58:1, any denser and body copy fails AA. */
 
 .band__plate--tint {
   background:
@@ -216,7 +216,7 @@ html.theme-dark {
     ),
     radial-gradient(
       58% 54% at 4% 100%,
-      rgba(97, 10, 229, 0.1),
+      rgba(107, 52, 232, 0.1),
       transparent 66%
     ),
     linear-gradient(
@@ -231,8 +231,8 @@ html.theme-dark {
 
 /* Six stops rather than a flat fill, so the band moves through indigo, brand
    violet and a lifted violet instead of reading as one printed panel. The
-   feathered top and bottom dissolve it into the paper above and below — the
-   join is a gradient, not a line. The lightest stop is capped at #7B3AEC so
+   feathered top and bottom dissolve it into the paper above and below, the
+   join is a gradient, not a line. The lightest stop is capped at #7947EA so
    white copy clears AA (5.74:1) everywhere on the band. */
 .band__plate--color {
   background:
@@ -258,16 +258,16 @@ html.theme-dark {
     );
 }
 
-/* Inside a colour band every component restyles from the token layer — no
+/* Inside a colour band every component restyles from the token layer, no
    component needs a colour-band variant of its own.
-   Contrast against the gradient's lightest stop (#7B3AEC, L 0.133):
+   Contrast against the gradient's lightest stop (#7947EA, L 0.133):
    #FFF 5.74:1 · 90% white 4.94:1 · 88% white 4.79:1 · #EDE4FF 4.68:1.
    Every stop darker than that only improves. */
 .band--color {
   --color-ink: #ffffff;
   --color-ink-dim: rgba(255, 255, 255, 0.9);
   --color-ink-faint: rgba(255, 255, 255, 0.88);
-  --color-signal-lit: #ede4ff;
+  --color-signal-lit: #ede8ff;
   --color-signal: #c4b5fd;
   --color-signal-mist: rgba(255, 255, 255, 0.14);
   --color-signal-veil: rgba(255, 255, 255, 0.08);
@@ -280,51 +280,55 @@ html.theme-dark {
   --surface-hover: rgba(255, 255, 255, 0.1);
   --glow-signal: rgba(255, 255, 255, 0.3);
   --glow-signal-soft: rgba(255, 255, 255, 0.16);
-  /* The global "live" tokens are tuned for a white/light page — a pastel
+  /* The global "live" tokens are tuned for a white/light page, a pastel
      rose mist on white ink is exactly the low-contrast combination this
      override system exists to prevent. Re-point them to a translucent,
      always-dark-enough version so hovered text stays legible against the
      violet/navy plate regardless of which theme is active. */
-  --color-live: #ffd6e9;
+  --color-live: #dbeafe;
   --color-live-lit: #ffffff;
-  --color-live-mist: rgba(255, 95, 162, 0.22);
-  --glow-live: rgba(255, 95, 162, 0.45);
+  --color-live-mist: rgba(96, 165, 250, 0.22);
+  --glow-live: rgba(96, 165, 250, 0.45);
+  --color-up: #bbf7d0;
+  --color-down: #fecaca;
   color: var(--color-ink);
 }
 
-/* The primary button inverts inside a colour band — a purple fill on purple
+/* The primary button inverts inside a colour band, a purple fill on purple
    would disappear, so it becomes the white surface. */
-.band--color .btn--primary {
+.band--color .btn--primary,
+.band--color .btn--conversion {
   --btn-bg: #ffffff;
-  --btn-fg: #3d0a8f;
+  --btn-fg: #4a22bc;
   --btn-line: #ffffff;
 }
-.band--color .btn--primary:hover {
-  --btn-bg: #f3ecff;
+.band--color .btn--primary:hover,
+.band--color .btn--conversion:hover {
+  --btn-bg: #ede8ff;
 }
 
 /* --- §06 override: the same colour band, pulled toward navy ---------------
-   Section 06 is the page's one dark/immersive moment — the network needs a
+   Section 06 is the page's one dark/immersive moment, the network needs a
    deeper, quieter floor than the brand-violet plate every other colour band
-   uses, so the coral hub and its signal paths have somewhere to stand out
+   uses, so the amber hub and its signal paths have somewhere to stand out
    against. Same feather/edge behaviour, just a colder, darker gradient. */
 .band__plate--engines {
   background:
     radial-gradient(
       60% 54% at 90% 4%,
-      rgba(255, 90, 54, 0.14),
+      rgba(244, 158, 10, 0.14),
       transparent 60%
     ),
     radial-gradient(
       54% 50% at 6% 96%,
-      rgba(123, 58, 236, 0.22),
+      rgba(121, 71, 234, 0.22),
       transparent 66%
     ),
-    linear-gradient(165deg, #0d0620 0%, #1b0a44 32%, #2c0f6b 62%, #3a1188 100%);
+    linear-gradient(165deg, #070a24 0%, #0c1134 32%, #1c1a5e 62%, #2e1d8c 100%);
 }
 
 /* ============================================================================
-   BAND NETWORK — the intelligence layer, inverted onto the colour plate
+   BAND NETWORK, the intelligence layer, inverted onto the colour plate
    ========================================================================== */
 
 .bandnet {
@@ -357,7 +361,7 @@ html.theme-dark {
   }
 }
 
-/* A short dash travelling a long dashed line — the signal itself, not a
+/* A short dash travelling a long dashed line, the signal itself, not a
    glowing edge. Movement always means something is being carried. */
 .bandnet__pulse {
   stroke: var(--band-net-lit);
@@ -429,7 +433,7 @@ html.theme-dark {
 }
 
 /* ============================================================================
-   EDITORIAL PHOTO — the real-world layer
+   EDITORIAL PHOTO, the real-world layer
    ========================================================================== */
 
 .photo {
@@ -452,7 +456,7 @@ html.theme-dark {
   object-position: center;
 }
 
-/* Keep photography authentic — a veil, not a filter. */
+/* Keep photography authentic, a veil, not a filter. */
 .photo__veil {
   position: absolute;
   inset: 0;
@@ -461,14 +465,14 @@ html.theme-dark {
 .photo--tint-soft .photo__veil {
   background: linear-gradient(
     200deg,
-    rgba(97, 10, 229, 0.14),
+    rgba(107, 52, 232, 0.14),
     rgba(10, 6, 32, 0.24)
   );
 }
 .photo--tint-deep .photo__veil {
   background: linear-gradient(
     200deg,
-    rgba(97, 10, 229, 0.3),
+    rgba(107, 52, 232, 0.3),
     rgba(10, 6, 32, 0.46)
   );
 }
@@ -500,7 +504,7 @@ html.theme-dark {
   padding: clamp(16px, 2vw, 24px);
 }
 
-/* Crop marks — the slot reads as a reserved plate rather than an empty box. */
+/* Crop marks, the slot reads as a reserved plate rather than an empty box. */
 .photo__reserved::before {
   content: "";
   position: absolute;
@@ -556,7 +560,7 @@ html.theme-dark .photo__reserved {
   background:
     radial-gradient(
       60% 50% at 50% 30%,
-      rgba(97, 10, 229, 0.18),
+      rgba(107, 52, 232, 0.18),
       transparent 60%
     ),
     var(--color-base);
@@ -653,7 +657,7 @@ html.theme-dark .photo__reserved-spec {
 }
 
 /* ============================================================================
-   SECTION COMPOSITIONS — where the bands and the photography actually land.
+   SECTION COMPOSITIONS, where the bands and the photography actually land.
    Proportions differ deliberately from section to section; the split is a
    language, not a template.
    ========================================================================== */
@@ -674,7 +678,7 @@ html.theme-dark .photo__reserved-spec {
   margin-right: calc(-1 * var(--shell-bleed));
 }
 
-/* A self-contained floating object, not a panel bleeding off the page edge —
+/* A self-contained floating object, not a panel bleeding off the page edge,
    intentional inside the column, clipped-by-viewport reads as a bug. */
 .invis__photo.browsercard {
   margin-right: 0;
@@ -693,7 +697,7 @@ html[dir="rtl"] .invis__photo.browsercard {
 
 /* A floating browser card: a soft tinted mat behind a white window, with the
    traffic lights and the address pill floating directly over the product
-   screenshot rather than sitting in their own header strip — one light,
+   screenshot rather than sitting in their own header strip, one light,
    editorial object instead of chrome-plus-content. */
 .browsercard {
   position: relative;
@@ -716,7 +720,7 @@ html[dir="rtl"] .invis__photo.browsercard {
 }
 
 /* Chrome gets its own header strip and the screenshot fills what's left
-   below it — the screenshot already carries its own UI right up to its top
+   below it, the screenshot already carries its own UI right up to its top
    edge, so floating the address pill over it read as chrome overlapping
    chrome. A fixed aspect-ratio on the window keeps the card's proportions
    stable; the header's height comes out of that ratio, not on top of it. */
@@ -740,7 +744,7 @@ html[dir="rtl"] .invis__photo.browsercard {
   justify-content: center;
   padding-inline: 16px;
   background: linear-gradient(180deg, #fbfaff, #f3f1fb);
-  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+  border-bottom: 1px solid rgba(12, 17, 52, 0.08);
 }
 
 .browsercard__imagewrap {
@@ -778,7 +782,7 @@ html[dir="rtl"] .invis__photo.browsercard {
   padding: 6px 16px;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 0 1px rgba(27, 35, 64, 0.08);
+  box-shadow: 0 0 0 1px rgba(12, 17, 52, 0.08);
   color: var(--color-ink-faint);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -843,13 +847,13 @@ html[dir="rtl"] .pull {
   background: linear-gradient(
     170deg,
     rgba(69, 8, 159, 0.9),
-    rgba(97, 10, 229, 0.82) 52%,
+    rgba(107, 52, 232, 0.82) 52%,
     rgba(110, 34, 222, 0.9)
   );
 }
 
 /* The reserved plate would otherwise repeat its annotation full-bleed behind
-   the closing statement — the slot reads from the two above it. */
+   the closing statement, the slot reads from the two above it. */
 .final__photo .photo__reserved-note {
   display: none;
 }

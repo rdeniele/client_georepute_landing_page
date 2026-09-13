@@ -12,7 +12,7 @@ import { useEffect, useRef } from "react";
  * into the rose "this reacted to you" state and surfaces its
  * `data-cursor-label`.
  *
- * Only ever mounted for a fine pointer with motion allowed — see the
+ * Only ever mounted for a fine pointer with motion allowed, see the
  * `(pointer: fine)` guard in globals.css and the reduced-motion bail below.
  * Everything here is a transform, so the whole loop costs one style write a
  * frame regardless of page length.
@@ -35,7 +35,7 @@ export function Cursor() {
     let visible = false;
 
     // The native cursor only switches off once the replacement has a real
-    // position to show — otherwise there is a gap between page load and the
+    // position to show, otherwise there is a gap between page load and the
     // first mouse move with no cursor drawn at all.
     const onMove = (e: PointerEvent) => {
       pos.x = e.clientX;

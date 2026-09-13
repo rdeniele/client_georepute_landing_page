@@ -6,6 +6,12 @@ import "./ui.css";
 import "./sections.css";
 import "./bands.css";
 import "./subpages.css";
+import "./warroom.css";
+import "./kit.css";
+import "./pages-engines.css";
+import "./pages-product.css";
+import "./pages-info.css";
+import "./intro.css";
 
 const display = Inter_Tight({
   subsets: ["latin"],
@@ -30,15 +36,15 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GeoRepute — See where your business is recognized, recommended, and chosen",
+  title: "GeoRepute | Strategic Business Intelligence Infrastructure",
   description:
-    "GeoRepute maps the decision environment around your business — across AI, search, reputation, competitors, and the signals that influence what customers choose.",
+    "Every business should have its own intelligence center. GeoRepute builds a living strategic intelligence layer around the business and turns hundreds of signals into one strategic picture, priorities and next moves.",
 };
 
 export const viewport: Viewport = {
   // Dark is the default experience; the theme provider syncs this meta tag
   // when the visitor switches to light.
-  themeColor: "#0A1020",
+  themeColor: "#0C1134",
   colorScheme: "dark light",
 };
 
@@ -52,7 +58,7 @@ export default function RootLayout({
       lang="en"
       className={`theme-dark ${display.variable} ${editorial.variable} ${mono.variable}`}
       // The inline script below mutates class and color-scheme before React
-      // hydrates, which is the point of it — React must not try to revert it.
+      // hydrates, which is the point of it, React must not try to revert it.
       suppressHydrationWarning
     >
       <body>

@@ -10,7 +10,7 @@ import Image from "next/image";
  * product shot on the page reads as one consistent object rather than a
  * dropped-in image.
  *
- * `ratio` should match the source image's natural aspect ratio — the window
+ * `ratio` should match the source image's natural aspect ratio, the window
  * sizes to it directly, so `object-fit: cover` never has to crop.
  */
 export function ProductShot({

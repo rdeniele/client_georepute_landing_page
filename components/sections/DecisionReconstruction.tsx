@@ -5,7 +5,7 @@ import { reconstruction as base } from "@/lib/content";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 04 — Watch a decision form.
+ * Section 04, Watch a decision form.
  *
  * All six stages stay visible in a calm framed grid. Scroll changes emphasis
  * only, so the process remains understandable without a pinned sequence.

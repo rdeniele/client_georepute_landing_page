@@ -7,7 +7,7 @@ import { Band } from "@/components/ui/Band";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 08 — The decision graph.
+ * Section 08, The decision graph.
  *
  * The same illuminate-on-focus grammar as section 06, taken further: focusing
  * a node dims every unrelated path and resolves a panel of the evidence that

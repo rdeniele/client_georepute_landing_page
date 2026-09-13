@@ -13,7 +13,7 @@ import { StaticNetwork } from "./StaticNetwork";
 /**
  * Host for the persistent scene.
  *
- * One fixed canvas sits behind the entire document — the network is never
+ * One fixed canvas sits behind the entire document, the network is never
  * re-created between sections, so the camera traverse stays continuous and
  * there is only ever one WebGL context alive. Rendering stops entirely when
  * the tab is hidden, and DPR steps down if the frame budget slips.

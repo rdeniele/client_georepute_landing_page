@@ -3,7 +3,7 @@
  *
  * The persistent WebGL network reads as violet ink on the page's light bands,
  * which is where it looks strongest. It cannot also read on top of a saturated
- * brand-colour plate — the plate is painted above the fixed canvas — so colour
+ * brand-colour plate, the plate is painted above the fixed canvas, so colour
  * bands carry this SVG counterpart instead: the same node/edge vocabulary,
  * inverted to luminous white-on-purple.
  *
@@ -13,7 +13,7 @@
  * layer it sits inside on the other.
  *
  * Coordinates are fixed, so this renders identically on the server and client
- * and costs nothing per frame — the travelling signals are CSS keyframes on
+ * and costs nothing per frame, the travelling signals are CSS keyframes on
  * `stroke-dashoffset` of short dashes, not a rAF loop.
  */
 
@@ -35,7 +35,7 @@ const NODES: Node[] = [
   { x: 1148, y: 220, r: 2.4 },
 ];
 
-/** Every edge is a causal hop, not decoration — indices into NODES. */
+/** Every edge is a causal hop, not decoration, indices into NODES. */
 const EDGES: [number, number][] = [
   [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5], [5, 6], [5, 7],
   [6, 8], [7, 8], [8, 10], [8, 11], [9, 11], [10, 12], [11, 12], [7, 9],

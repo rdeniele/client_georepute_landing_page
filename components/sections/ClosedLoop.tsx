@@ -4,7 +4,7 @@ import { Band } from "@/components/ui/Band";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 07 — The closed loop.
+ * Section 07, The closed loop.
  *
  * The travelling highlight is a short arc inside a rotating group, so the
  * motion is a single transform rather than an animated stroke offset. The

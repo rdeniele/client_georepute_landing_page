@@ -5,7 +5,7 @@ import { InvisibleBrowserStack } from "@/components/sections/InvisibleBrowserSta
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 02 — The invisible decision.
+ * Section 02, The invisible decision.
  *
  * The argument is the diagram: six steps rendered as unresolved outlines and
  * one rendered as a solid, lit event. The proportion is the point, so the

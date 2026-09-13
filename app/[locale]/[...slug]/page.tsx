@@ -1,8 +1,43 @@
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
-import { DecisionReconstructionPage } from "@/components/pages/DecisionReconstructionPage";
-import { NavSubpage } from "@/components/pages/NavSubpage";
 import { SiteShell } from "@/components/layout/SiteShell";
-import { LOCALES, normalizeLocale } from "@/lib/i18n";
+import { WarRoomPage } from "@/components/pages/WarRoomPage";
+import { EngineDetailPage } from "@/components/pages/EngineDetailPage";
+import { EnginesIndexPage } from "@/components/pages/EnginesIndexPage";
+import { MissionControlPage } from "@/components/pages/MissionControlPage";
+import { ActionCenterPage } from "@/components/pages/ActionCenterPage";
+import { CampaignReadinessPage } from "@/components/pages/CampaignReadinessPage";
+import { NarrativePage } from "@/components/pages/NarrativePage";
+import { DecisionReconstructionPage } from "@/components/pages/DecisionReconstructionPage";
+import { HowItWorksPage } from "@/components/pages/HowItWorksPage";
+import { MethodologyPage } from "@/components/pages/MethodologyPage";
+import { MarketplaceCategoryPage, MarketplacePage } from "@/components/pages/MarketplacePages";
+import { SignInPage } from "@/components/pages/SignInPage";
+import { LOCALES } from "@/lib/i18n";
+
+const ROUTES: Record<string, (locale: string) => ReactNode> = {
+  "election-intelligence": (l) => <WarRoomPage locale={l} />,
+  "how-it-works": (l) => <HowItWorksPage locale={l} />,
+  methodology: (l) => <MethodologyPage locale={l} />,
+  signin: (l) => <SignInPage locale={l} />,
+
+  "app/mission-control": (l) => <MissionControlPage locale={l} />,
+  "app/reconstruct": (l) => <DecisionReconstructionPage locale={l} />,
+  "app/campaign-readiness": (l) => <CampaignReadinessPage locale={l} />,
+  "app/narrative": (l) => <NarrativePage locale={l} />,
+  "app/actions": (l) => <ActionCenterPage locale={l} />,
+
+  engines: (l) => <EnginesIndexPage locale={l} />,
+  "engines/ai-recognition": (l) => <EngineDetailPage slug="ai-recognition" locale={l} />,
+  "engines/google-vs-ai": (l) => <EngineDetailPage slug="google-vs-ai" locale={l} />,
+  "engines/competitor-decision": (l) => <EngineDetailPage slug="competitor-decision" locale={l} />,
+  "engines/action": (l) => <EngineDetailPage slug="action" locale={l} />,
+
+  marketplace: (l) => <MarketplacePage locale={l} />,
+  "marketplace/category/ai-visibility-intelligence": (l) => <MarketplaceCategoryPage slug="ai-visibility-intelligence" locale={l} />,
+  "marketplace/category/competitive-intelligence": (l) => <MarketplaceCategoryPage slug="competitive-intelligence" locale={l} />,
+  "marketplace/category/executive-intelligence": (l) => <MarketplaceCategoryPage slug="executive-intelligence" locale={l} />,
+};
 
 export default async function SubpageRoute({
   params,
@@ -12,15 +47,8 @@ export default async function SubpageRoute({
   const { locale, slug } = await params;
   if (!LOCALES.includes(locale as (typeof LOCALES)[number])) notFound();
 
-  const pathname = `/${locale}/${slug.join("/")}`;
-  const sourcePathname = `/${normalizeLocale("en")}/${slug.join("/")}`;
-  const page = slug.join("/") === "app/reconstruct" ? (
-    <DecisionReconstructionPage />
-  ) : (
-    <NavSubpage pathname={sourcePathname} />
-  );
+  const render = ROUTES[slug.join("/")];
+  if (!render) notFound();
 
-  if (!page) notFound();
-
-  return <SiteShell locale={locale}>{page}</SiteShell>;
+  return <SiteShell locale={locale}>{render(locale)}</SiteShell>;
 }

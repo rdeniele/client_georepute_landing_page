@@ -119,34 +119,26 @@ export const nav = {
 } as const;
 
 export const hero = {
-  eyebrow: "Business & Marketing Intelligence + Execution Platform",
-  headlineWords: ["Understand More.", "Offer More.", "Deliver More."],
-  tagline: "For your business and every client you manage.",
-  typewriterPhrases: [
-    "Understand More.",
-    "Research Better.",
-    "Discover Opportunities.",
-    "Build Stronger Strategies.",
-    "Execute With Intelligence.",
-    "Measure What Matters.",
-    "Improve Continuously.",
-  ],
+  eyebrow: "Strategic Business Intelligence Infrastructure",
+  headlineWords: ["Every business", "should have its own", "intelligence center."],
+  tagline: "GeoRepute builds a living strategic intelligence layer around the business.",
+  typewriterPhrases: ["See the whole board.", "Understand what is changing.", "Identify what others miss.", "Know the next move."],
   supporting:
-    "GeoRepute is an international Business & Marketing Intelligence platform built for agencies, campaign managers, consultants and marketing teams that want to dramatically expand what they can understand, offer and execute. It connects market research, competitor intelligence, demand, audiences and ICP, Google and SEO, AI visibility, digital reputation, business opportunities, market expansion, strategy, proposal building, work plans, execution, measurement and continuous improvement in one working platform.",
-  /** Internal path — localized at render via localizePath(). */
+    "It connects hundreds of signals and analyses across the company, market, competitors, customers, demand, performance, Google, AI engines and historical activity, then turns them into one strategic picture, business implications, priorities and next moves.",
+  /** Internal path, localized at render via localizePath(). */
   primaryCta: { label: "Explore the Platform", href: "/en/app/reconstruct" },
   /** External signup flow, same destination the rest of the page already uses for booking-style CTAs. */
   secondaryCta: { label: "Book a Live Demo", href: "https://www.georepute.ai/signup" },
   scrollHint: "Enter the system",
 } as const;
 
-/** Section — key differentiation statement. Visibility is the starting point, not the destination. */
+/** Section, key differentiation statement. Visibility is the starting point, not the destination. */
 export const differentiation = {
   title: "Not another ranking dashboard.",
   body: "Knowing where a business appears is only the starting point. GeoRepute helps understand why the business is in that position, what is happening around it, what competitors are doing, where demand exists, what opportunities are being missed, what should be done next, and how to execute it.",
 } as const;
 
-/** Section — the platform flow: information becoming action, in one continuous line. */
+/** Section, the platform flow: information becoming action, in one continuous line. */
 export const platformFlow = {
   label: "How the platform works",
   headline: "From research to results, in one working system.",
@@ -163,10 +155,10 @@ export const platformFlow = {
   ],
 } as const;
 
-/** Section — the two connected use cases of the same platform. */
+/** Section, the two connected use cases of the same platform. */
 export const valueAreas = {
   label: "One platform, two connected use cases",
-  headline: "Built to grow your business — and every client you manage.",
+  headline: "Built to grow your business, and every client you manage.",
   business: {
     title: "For Your Business",
     items: [
@@ -561,11 +553,11 @@ export const capabilities = [
 ] as const;
 
 /**
- * Section — interactive "try it" widget, directly after the hero. The
+ * Section, interactive "try it" widget, directly after the hero. The
  * visitor enters a business name; the panel that appears uses the same
  * measure vocabulary as the executive dashboard so it reads as the same
  * product, but the values are fixed illustrative numbers, never a real
- * analysis — marked sample: true per this file's own convention, and kept
+ * analysis, marked sample: true per this file's own convention, and kept
  * blurred behind an unlock CTA rather than ever presented as a real result.
  */
 export const tryTool = {
@@ -580,7 +572,7 @@ export const tryTool = {
 } as const;
 
 /**
- * Section — measured results, published on the live GeoRepute site's own
+ * Section, measured results, published on the live GeoRepute site's own
  * marketing pages (georepute.ai). Not part of the numbered section sequence:
  * a compact trust strip ahead of the close, not a signature surface.
  */

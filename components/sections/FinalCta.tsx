@@ -7,15 +7,15 @@ import { SiteFooter } from "@/components/ui/SiteFooter";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 11 — Analyze my business.
+ * Section 11, Analyze my business.
  *
  * The close resolves the page's two layers into one frame: the real business
  * runs full-bleed behind the statement, the brand environment veils it, and
  * the network converges over the top. Reality and the invisible layer, finally
  * in the same picture.
  *
- * The copy stays deliberately bare — one line, one supporting sentence, two
- * controls — because the composition is doing the argument.
+ * The copy stays deliberately bare, one line, one supporting sentence, two
+ * controls, because the composition is doing the argument.
  */
 export function FinalCta({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).finalCta;

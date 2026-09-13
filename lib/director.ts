@@ -39,7 +39,7 @@ export const director = {
    * scalar the outgoing node's value drops to zero the instant the index
    * changes, so it teleports back into the network instead of easing home.
    * Per-node targets let the previous node walk back while the next one comes
-   * forward — the handover is a crossfade, not a cut.
+   * forward, the handover is a crossfade, not a cut.
    */
   focus: new Float32Array(NODES.length),
   camPos: new THREE.Vector3(0, 1.6, 24),
@@ -77,7 +77,7 @@ const lerp = (x: number, y: number, k: number) => x + (y - x) * k;
 /**
  * Blends two adjacent beats. `sectionBeats` calls this every scroll update with
  * the pair either side of the viewport centre, so the entire page is one
- * continuous interpolation rather than a series of cuts — and scrolling
+ * continuous interpolation rather than a series of cuts, and scrolling
  * backward retraces it exactly.
  */
 export function blendBeats(a: Beat, b: Beat, t: number) {
@@ -108,7 +108,7 @@ export function blendBeats(a: Beat, b: Beat, t: number) {
   director.urgency = lerp(a.urgency ?? 1, b.urgency ?? 1, k);
 
   // Activation cross-fades so edges light progressively. A node present in
-  // BOTH beats stays fully lit across the whole blend — cross-fading it as
+  // BOTH beats stays fully lit across the whole blend, cross-fading it as
   // `max(1-k, k)` would dip it to 0.5 at the midpoint, making every node that
   // survives a transition visibly flicker on the way through.
   director.activation.fill(0);

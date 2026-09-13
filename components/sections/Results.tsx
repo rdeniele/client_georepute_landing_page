@@ -5,13 +5,13 @@ import { results as base } from "@/lib/content";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Results — measured outcomes published on the live GeoRepute platform
+ * Results, measured outcomes published on the live GeoRepute platform
  * (georepute.ai), placed as a compact trust strip ahead of the final CTA.
  * Not one of the numbered signature sections; it exists purely to back the
  * close with evidence a visitor can check against the main site themselves.
  *
  * Counters settle to their target once the strip enters view, same rAF
- * pattern as the executive dashboard — no state, no re-renders.
+ * pattern as the executive dashboard, no state, no re-renders.
  */
 
 const DURATION = 900;

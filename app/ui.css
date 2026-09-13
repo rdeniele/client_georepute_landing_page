@@ -24,17 +24,17 @@
   background:
     radial-gradient(
       120% 80% at 50% -10%,
-      rgba(97, 10, 229, 0.13),
+      rgba(107, 52, 232, 0.13),
       transparent 64%
     ),
     radial-gradient(
       86% 74% at 100% 42%,
-      rgba(123, 58, 236, 0.08),
+      rgba(121, 71, 234, 0.08),
       transparent 62%
     ),
     radial-gradient(
       90% 70% at 8% 108%,
-      rgba(123, 58, 236, 0.08),
+      rgba(121, 71, 234, 0.08),
       transparent 62%
     ),
     linear-gradient(180deg, var(--color-base), var(--color-void));
@@ -79,14 +79,14 @@
   opacity: 0.72;
   /* Fallback artwork is theme-aware through these custom properties */
   --net-stroke: #46527a;
-  --net-node: #5b21c7;
-  --net-node-soft: #7b3aec;
-  --net-core: #610ae5;
+  --net-node: #5928d4;
+  --net-node-soft: #7947ea;
+  --net-core: #6b34e8;
 }
 html.theme-dark .static-network {
   --net-stroke: #46527a;
-  --net-node: #a78bfa;
-  --net-node-soft: #a78bfa;
+  --net-node: #a88bf5;
+  --net-node-soft: #a88bf5;
   --net-core: #c4b5fd;
 }
 
@@ -143,7 +143,7 @@ html.theme-dark .static-network {
   transform: translateX(4px);
 }
 
-/* Tactile press — never an entrance from scale(0) */
+/* Tactile press, never an entrance from scale(0) */
 .btn:active {
   transform: scale(0.97) !important;
   transition-duration: 90ms;
@@ -156,7 +156,7 @@ html.theme-dark .static-network {
   box-shadow: 0 0 0 0 var(--glow-signal);
 }
 .btn--primary:hover {
-  --btn-bg: #6d16f0;
+  --btn-bg: #7947ea;
   box-shadow: 0 8px 34px -8px var(--glow-signal);
 }
 
@@ -170,22 +170,22 @@ html.theme-dark .static-network {
   --btn-bg: var(--surface-hover);
 }
 
-/* Conversion CTA — high-attention orange for primary conversion actions.
+/* Conversion CTA, the brochure's solid brand purple, lifted with a glow.
    Reserved for the one button per viewport that must be clicked. */
 .btn--conversion {
-  --btn-bg: #FF5A36;
+  --btn-bg: var(--color-signal-core);
   --btn-line: transparent;
   --btn-fg: #ffffff;
   font-weight: 600;
-  box-shadow: 0 8px 32px -8px rgba(255, 90, 54, 0.4);
+  box-shadow: 0 8px 32px -8px rgba(107, 52, 232, 0.45);
   transition:
     transform var(--d-micro) var(--ease-out),
     box-shadow var(--d-state) var(--ease-out),
     background-color var(--d-micro) var(--ease-out);
 }
 .btn--conversion:hover {
-  --btn-bg: #FF6B47;
-  box-shadow: 0 12px 40px -8px rgba(255, 90, 54, 0.55);
+  --btn-bg: #7947ea;
+  box-shadow: 0 12px 40px -8px rgba(107, 52, 232, 0.6);
   transform: translateY(-1px);
 }
 .btn--conversion:active {
@@ -427,7 +427,7 @@ html.theme-dark .static-network {
   display: grid;
   gap: 12px;
   box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
-  /* Overrides .glass. The panel opens directly on top of 110px hero type — it
+  /* Overrides .glass. The panel opens directly on top of 110px hero type, it
      needs a real opaque floor in both themes or the headline reads straight
      through the menu items. */
   background: var(--nav-panel-floor);
@@ -508,8 +508,8 @@ html.theme-dark .static-network {
   border: 1px solid var(--line);
   background: linear-gradient(
     160deg,
-    rgba(123, 58, 236, 0.16),
-    rgba(97, 10, 229, 0.04)
+    rgba(121, 71, 234, 0.16),
+    rgba(107, 52, 232, 0.04)
   );
   text-decoration: none;
   transition: border-color var(--d-state) var(--ease-out);
@@ -824,7 +824,7 @@ html.theme-dark .theme-toggle__icon--moon {
 
 /* The rail is fixed chrome outside every band, so it cannot inherit a colour
    band's inverted tokens. ScrollProvider publishes the owning band's tone and
-   the rail re-points itself — white on purple clears AA at 7.1:1. */
+   the rail re-points itself, white on purple clears AA at 7.1:1. */
 html[data-band="color"] .rail__track {
   background: rgba(255, 255, 255, 0.34);
 }
@@ -895,7 +895,7 @@ html[data-band="color"] .rail__fill {
 }
 
 /* ============================================================================
-   HERO PLATFORM CONSTELLATION — the first-stage proof of what GeoRepute scans
+   HERO PLATFORM CONSTELLATION, the first-stage proof of what GeoRepute scans
    ========================================================================== */
 
 .platforms {
@@ -1011,7 +1011,7 @@ html[data-band="color"] .rail__fill {
 /* The split. Paper carries the argument; the brand environment on the right
    holds the real-world photograph and the network leaving its edge. The
    environment starts below the navigation so the header keeps its light floor,
-   and stops at the constellation strip so the two rails below stay on paper —
+   and stops at the constellation strip so the two rails below stay on paper,
    the hero is a split composition, not a page cut in half. */
 .hero__stage {
   position: relative;
@@ -1022,7 +1022,7 @@ html[data-band="color"] .rail__fill {
 
 /* The paper half. The live scene runs behind the whole page, and a lit node
    drifting under the headline is the one thing that can cost the hero its
-   legibility — so the copy side gets the same veil the paper bands use, fading
+   legibility, so the copy side gets the same veil the paper bands use, fading
    out before it reaches the violet field. */
 .hero__stage::before {
   content: "";
@@ -1038,7 +1038,7 @@ html[data-band="color"] .rail__fill {
   );
 }
 
-/* Not a block of colour with an edge — a violet field that blooms out of the
+/* Not a block of colour with an edge, a violet field that blooms out of the
    right side of the page and dissolves into the paper. There is no line where
    white stops and colour starts; the two are the same surface at different
    densities, which is what keeps the composition editorial rather than
@@ -1053,9 +1053,9 @@ html[data-band="color"] .rail__fill {
   background:
     radial-gradient(
       74% 78% at 100% 22%,
-      rgba(97, 10, 229, 0.96) 0%,
+      rgba(107, 52, 232, 0.96) 0%,
       rgba(105, 22, 232, 0.9) 22%,
-      rgba(123, 58, 236, 0.66) 42%,
+      rgba(121, 71, 234, 0.66) 42%,
       rgba(151, 105, 245, 0.34) 58%,
       rgba(196, 181, 253, 0.13) 72%,
       transparent 84%
@@ -1063,7 +1063,7 @@ html[data-band="color"] .rail__fill {
     radial-gradient(
       54% 62% at 84% 100%,
       rgba(58, 8, 133, 0.62) 0%,
-      rgba(97, 10, 229, 0.24) 44%,
+      rgba(107, 52, 232, 0.24) 44%,
       transparent 70%
     ),
     radial-gradient(
@@ -1112,21 +1112,21 @@ html[data-band="color"] .rail__fill {
   animation: hero-in 620ms var(--ease-out) forwards;
   animation-delay: calc(var(--i) * 95ms + 120ms);
   will-change: opacity, transform;
-  background-color: #7b3aec;
+  background-color: #6b34e8;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
-/* Violet image field with an orange readout overlay. */
+/* Violet image field with a navy readout overlay. */
 .hero__plate .photo__frame {
-  background: #7b3aec;
+  background: #6b34e8;
 }
 .hero__plate .photo__veil {
   display: none;
 }
 
 .hero__plate .photo__panel {
-  background: rgba(255, 90, 54, 0.78);
+  background: rgba(12, 17, 52, 0.82);
   border-color: rgba(255, 255, 255, 0.55);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1139,7 +1139,7 @@ html[data-band="color"] .rail__fill {
   color: #ffffff;
 }
 
-/* RTL (Arabic/Hebrew): mirror the photograph only — readout text stays readable. */
+/* RTL (Arabic/Hebrew): mirror the photograph only, readout text stays readable. */
 html[dir="rtl"] .hero__plate .photo__img {
   transform: scaleX(-1);
 }
@@ -1148,7 +1148,7 @@ html[dir="rtl"] .hero__plate .photo__img {
   position: relative;
 }
 
-/* One orchestrated entrance — every child staggers off --i.
+/* One orchestrated entrance, every child staggers off --i.
    Driven by a CSS animation rather than a JS-toggled class: the hero is the
    most important copy on the page and must not wait on hydration of a
    Three.js bundle to become readable. `forwards` holds the end state. */
@@ -1198,19 +1198,19 @@ html[dir="rtl"] .hero__plate .photo__img {
   margin-bottom: clamp(8px, 1.2vw, 16px);
 }
 
-/* Scaled to the split column's measure, not the viewport's — at the previous
+/* Scaled to the split column's measure, not the viewport's, at the previous
    110px cap "Recommended." overruns a 620px column. Below 1100px the hero
    stacks to full width and the original scale is restored. */
 .hero__word {
   display: block;
-  font-size: clamp(2.75rem, 1rem + 4.8vw, 5.3125rem);
+  font-size: clamp(2.35rem, 0.9rem + 3.9vw, 4.35rem);
   font-weight: 600;
   line-height: 0.92;
   letter-spacing: -0.045em;
   color: var(--color-ink);
 }
 
-/* Grid-breaking indent — each payoff word steps further from the left edge.
+/* Grid-breaking indent, each payoff word steps further from the left edge.
    Driven by an explicit --indent rather than :nth-of-type, which would also
    count the preceding .hero__lead span and shift the whole sequence. */
 .hero__word {
@@ -1231,7 +1231,7 @@ html[dir="rtl"] .hero__word {
   letter-spacing: -0.02em;
 }
 
-/* Short, declarative — the "who this is for" line that grounds the three
+/* Short, declarative, the "who this is for" line that grounds the three
    headline payoffs before the rotating line adds motion. */
 .hero__tagline {
   margin: clamp(16px, 2.4vw, 24px) 0 0;
@@ -1243,7 +1243,7 @@ html[dir="rtl"] .hero__word {
 }
 
 /* The rotating line. Fixed min-height (one line at this font-size) so typing
-   and deleting only ever changes the text's own width — never the page's
+   and deleting only ever changes the text's own width, never the page's
    vertical rhythm around it. */
 .hero__typewriter-line {
   margin: clamp(14px, 2vw, 20px) 0 0;
@@ -1264,7 +1264,7 @@ html[dir="rtl"] .hero__word {
   white-space: pre;
 }
 
-/* One steady caret — a slow, gentle pulse, never a hard blink. */
+/* One steady caret, a slow, gentle pulse, never a hard blink. */
 .typewriter__caret {
   display: inline-block;
   width: 2px;
@@ -1392,6 +1392,7 @@ html[dir="rtl"] .hero__word {
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 14px;
   margin-top: clamp(32px, 4vw, 44px);
 }
@@ -1505,7 +1506,7 @@ html[dir="rtl"] .hero__word {
     gap: clamp(36px, 6vw, 56px);
   }
   .hero__word {
-    font-size: var(--text-hero);
+    font-size: clamp(2.35rem, 0.9rem + 6vw, 4.6rem);
   }
   /* Stacked, both layers rotate: paper holds the top where the copy is, the
      violet field blooms up from the bottom. */
@@ -1526,8 +1527,8 @@ html[dir="rtl"] .hero__word {
     background:
       radial-gradient(
         120% 92% at 62% 100%,
-        rgba(97, 10, 229, 0.94) 0%,
-        rgba(123, 58, 236, 0.7) 30%,
+        rgba(107, 52, 232, 0.94) 0%,
+        rgba(121, 71, 234, 0.7) 30%,
         rgba(151, 105, 245, 0.36) 52%,
         rgba(196, 181, 253, 0.14) 70%,
         transparent 84%
@@ -1584,9 +1585,9 @@ html[dir="rtl"] .hero__word {
     background:
       radial-gradient(
         74% 78% at 0% 22%,
-        rgba(97, 10, 229, 0.96) 0%,
+        rgba(107, 52, 232, 0.96) 0%,
         rgba(105, 22, 232, 0.9) 22%,
-        rgba(123, 58, 236, 0.66) 42%,
+        rgba(121, 71, 234, 0.66) 42%,
         rgba(151, 105, 245, 0.34) 58%,
         rgba(196, 181, 253, 0.13) 72%,
         transparent 84%
@@ -1594,7 +1595,7 @@ html[dir="rtl"] .hero__word {
       radial-gradient(
         54% 62% at 16% 100%,
         rgba(58, 8, 133, 0.62) 0%,
-        rgba(97, 10, 229, 0.24) 44%,
+        rgba(107, 52, 232, 0.24) 44%,
         transparent 70%
       );
   }
@@ -1616,7 +1617,7 @@ html[dir="rtl"] .hero__word {
 }
 
 /* ============================================================================
-   PRODUCT SHOT — reusable browser-chrome screenshot card
+   PRODUCT SHOT, reusable browser-chrome screenshot card
    Used across the mid-page sections (signals, reconstruction, engines,
    executive, action plan) to ground each section's claim in the real
    product. Same visual language as the hero's .browsercard so every shot on
@@ -1669,7 +1670,7 @@ html[dir="rtl"] .hero__word {
   justify-content: center;
   padding-inline: 14px;
   background: linear-gradient(180deg, #fbfaff, #f3f1fb);
-  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+  border-bottom: 1px solid rgba(12, 17, 52, 0.08);
 }
 
 .shotcard__imagewrap {
@@ -1707,7 +1708,7 @@ html[dir="rtl"] .hero__word {
   padding: 5px 14px;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 0 1px rgba(27, 35, 64, 0.08);
+  box-shadow: 0 0 0 1px rgba(12, 17, 52, 0.08);
   color: var(--color-ink-faint);
   font-family: var(--font-mono);
   font-size: 10px;

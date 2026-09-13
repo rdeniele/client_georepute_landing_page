@@ -4,7 +4,7 @@ import { Band } from "@/components/ui/Band";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 05 — The blind spot.
+ * Section 05, The blind spot.
  *
  * Both maps are plotted on one shared time axis, which is the entire point:
  * conventional analytics do not measure less detail, they start later. The

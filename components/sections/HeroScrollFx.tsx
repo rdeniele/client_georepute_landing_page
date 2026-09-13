@@ -12,12 +12,12 @@ gsap.registerPlugin(ScrollTrigger);
  * The load-in stagger (`hero-in` in ui.css) owns the hero's entrance and is
  * untouched by this. This owns what happens on the way *out*: as the visitor
  * scrolls past the hero, the whole argument compresses and lifts rather than
- * simply scrolling off — the same kind of cinematic exit the 3D camera is
+ * simply scrolling off, the same kind of cinematic exit the 3D camera is
  * already doing underneath it (see sectionBeats.ts), so headline and scene
  * read as one continuous push rather than two unrelated systems.
  *
  * Scrubbed to scroll position (not time-based), and it only ever touches
- * `.hero__shell` as a whole — never the individually staggered children —
+ * `.hero__shell` as a whole, never the individually staggered children,
  * so it can never race the entrance animation for control of the same
  * inline style.
  */

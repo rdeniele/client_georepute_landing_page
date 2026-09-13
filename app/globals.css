@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================================
-   GEOREPUTE — "SIGNAL ROOM" DESIGN SYSTEM
+   GEOREPUTE, "SIGNAL ROOM" DESIGN SYSTEM
    Dark cinematic instrument panel. Purple appears only where meaning lives:
    an active signal, a live connection, a decision outcome. Everything else
    is void, hairline, and telemetry.
@@ -44,58 +44,62 @@
 /* ============================================================================
    THEME TOKENS
 
-   LIGHT is the default experience — the site opens bright and analytical.
+   LIGHT is the default experience, the site opens bright and analytical.
    DARK is an explicit override (`.theme-dark` on <html>), chosen by the
    visitor and persisted. Only the environmental treatment changes; layout,
    type, hierarchy and motion are shared by both themes (§5 of the brief).
 
    Contrast notes (light): ink #1B2340 ≈ 14.9:1 on base #FFFFFF; ink-dim
    #4C5678 ≈ 6.2:1 on #FFFFFF; ink-faint #64708F ≈ 4.6:1 on #FFFFFF (labels
-   only, large-adjacent mono caps); signal-lit #5B21C7 ≈ 7.6:1 on #FFFFFF —
+   only, large-adjacent mono caps); signal-lit #5B21C7 ≈ 7.6:1 on #FFFFFF,
    safe for small accent text. Amber #B45309 ≈ 7.0:1 on white.
    ========================================================================== */
 
 :root {
   /* --- Backgrounds: white / lavender analytical environment --------------- */
   --color-void: #ffffff; /* deepest layer, the space between nodes */
-  --color-base: #f6f5fc; /* primary page background — very light lavender */
-  --color-raised: #edeaff; /* raised surface behind panels (client light purple) */
+  --color-base: #f6f4ff; /* primary page background, brochure lavender */
+  --color-raised: #ede8ff; /* raised surface behind panels (brochure light purple) */
   --color-elevated: #ffffff; /* solid card / dashboard surface */
 
   /* --- Text: deep navy ink on paper -------------------------------------- */
-  --color-ink: #1b2340; /* primary text */
-  --color-ink-dim: #4c5678; /* secondary text, body copy */
-  --color-ink-faint: #64708f; /* tertiary, labels, inactive nodes */
+  --color-ink: #0c1134; /* primary text, brochure navy */
+  --color-ink-dim: #4a4f75; /* secondary text, body copy */
+  --color-ink-faint: #5d6288; /* tertiary, labels, inactive nodes */
 
   /* --- Accent: purple = signal / active / GeoRepute ----------------------- */
-  --color-signal-core: #610ae5; /* fills, CTA background, glow source */
-  --color-signal: #7b3aec; /* 3.30:1 — large text, borders, UI only */
-  --color-signal-lit: #5b21c7; /* 7.6:1 on white — safe for small accent text */
-  --color-signal-mist: #edeaff; /* soft lavender fill */
-  --color-signal-veil: #f5f3ff; /* very light lavender tint */
+  --color-signal-core: #6b34e8; /* brochure brand purple, fills, CTAs */
+  --color-signal: #7947ea; /* borders, strokes, large UI */
+  --color-signal-lit: #5928d4; /* 7.8:1 on white, safe for small accent text */
+  --color-signal-mist: #ede8ff; /* soft lavender fill */
+  --color-signal-veil: #f6f4ff; /* very light lavender tint */
 
   /* --- Accent: amber = blind spot / gap / unseen -------------------------- */
-  --color-gap: #b45309; /* 7.0:1 on white — risk, missing signal */
+  --color-gap: #b45309; /* 7.0:1 on white, risk, missing signal */
   --color-gap-core: #92400e;
 
   /* --- Accent: rose = live / responding-to-you ---------------------------
      Reserved for states the *visitor* causes, never decoration: the custom
      cursor, a hovered/focused interactive node, an in-progress scroll
-     transform. Purple stays "this is GeoRepute," coral stays "act now" —
+     transform. Purple stays "this is GeoRepute," coral stays "act now",
      this is the third meaning, "this just reacted to you." #b3185f on white
-     ≈ 6.3:1 — safe for small UI text. */
-  --color-live: #b3185f;
-  --color-live-lit: #e8347f;
-  --color-live-mist: #ffe6f1;
-  --glow-live: rgba(255, 95, 162, 0.35);
+     ≈ 6.3:1, safe for small UI text. */
+  --color-live: #1d4ed8;
+  --color-live-lit: #2462eb;
+  --color-live-mist: #eff6ff;
+  --glow-live: rgba(36, 98, 235, 0.3);
+
+  /* --- Status: brochure green / red = strengthening / weakening --------- */
+  --color-up: #15803d; /* 5.0:1 on white */
+  --color-down: #b91c1c; /* 6.5:1 on white */
 
   /* --- Surfaces & lines -------------------------------------------------- */
-  --line: rgba(27, 35, 64, 0.1);
-  --line-strong: rgba(27, 35, 64, 0.18);
+  --line: rgba(12, 17, 52, 0.1);
+  --line-strong: rgba(12, 17, 52, 0.18);
   --glass: rgba(255, 255, 255, 0.55);
   --glass-lit: rgba(255, 255, 255, 0.75);
   --surface-glass: rgba(255, 255, 255, 0.72); /* floating panels / graph nodes */
-  --surface-hover: rgba(123, 58, 236, 0.07);
+  --surface-hover: rgba(107, 52, 232, 0.07);
   --canvas-blend: multiply;
   --canvas-opacity: 0.85;
   /* Light mode keeps the bright background; the scrim only veils the frame */
@@ -113,8 +117,8 @@
     rgba(255, 255, 255, 0.6)
   );
 
-  --glow-signal: rgba(97, 10, 229, 0.28);
-  --glow-signal-soft: rgba(123, 58, 236, 0.14);
+  --glow-signal: rgba(107, 52, 232, 0.28);
+  --glow-signal-soft: rgba(121, 71, 234, 0.14);
   --glow-gap: rgba(180, 83, 9, 0.2);
 
   --nav-floor: rgba(255, 255, 255, 0.88);
@@ -128,61 +132,64 @@
   --nav-h: 78px;
 }
 
-/* DARK MODE — the original Signal Room treatment, now the explicit choice. */
+/* DARK MODE, the original Signal Room treatment, now the explicit choice. */
 html.theme-dark {
-  --color-void: #060a14; /* deepest background, the space between nodes */
-  --color-base: #0a1020; /* primary page background */
-  --color-raised: #0e1526; /* raised surface behind panels */
-  --color-elevated: #131c33; /* solid card / dashboard surface */
+  --color-void: #070a24; /* deepest background */
+  --color-base: #0c1134; /* brochure navy, primary page background */
+  --color-raised: #121842; /* raised surface behind panels */
+  --color-elevated: #182052; /* solid card / dashboard surface */
 
-  --color-ink: #f5f3ff; /* 18.9:1 — primary text */
-  --color-ink-dim: #9aa6c4; /* 7.78:1 — secondary text */
-  --color-ink-faint: #7c89a8; /* 5.42:1 — tertiary, labels */
+  --color-ink: #f6f4ff; /* 16.9:1 on navy, primary text */
+  --color-ink-dim: #a9aed0; /* 8.4:1, secondary text */
+  --color-ink-faint: #858bb5; /* 5.5:1, tertiary, labels */
 
-  --color-signal-core: #610ae5;
-  --color-signal: #7b3aec; /* 3.30:1 — large text, borders, UI only */
-  --color-signal-lit: #a78bfa; /* 6.96:1 — safe for small accent text */
-  --color-signal-mist: #edeaff;
-  --color-signal-veil: #f5f3ff;
+  --color-signal-core: #6b34e8;
+  --color-signal: #7947ea; /* borders, strokes, large UI only */
+  --color-signal-lit: #a88bf5; /* 6.7:1 on navy, safe for small accent text */
+  --color-signal-mist: #ede8ff;
+  --color-signal-veil: #f6f4ff;
 
-  --color-gap: #ffb547; /* 10.4:1 */
-  --color-gap-core: #c77d16;
+  --color-gap: #f49e0a; /* brochure amber, 8.5:1 on navy */
+  --color-gap-core: #c27c08;
 
   --line: rgba(255, 255, 255, 0.09);
   --line-strong: rgba(255, 255, 255, 0.16);
   --glass: rgba(255, 255, 255, 0.04);
   --glass-lit: rgba(255, 255, 255, 0.07);
-  --surface-glass: rgba(10, 16, 32, 0.72);
+  --surface-glass: rgba(12, 17, 52, 0.72);
   --surface-hover: rgba(255, 255, 255, 0.045);
   --canvas-blend: normal;
   --canvas-opacity: 1;
   /* Dark mode holds the original heavy vignette so copy never fights the glow */
   --scrim-radial: radial-gradient(
     100% 80% at 16% 48%,
-    rgba(6, 10, 20, 0.68),
-    rgba(6, 10, 20, 0.2) 52%,
+    rgba(7, 10, 36, 0.68),
+    rgba(7, 10, 36, 0.2) 52%,
     transparent 74%
   );
   --scrim-linear: linear-gradient(
     180deg,
-    rgba(6, 10, 20, 0.6),
-    rgba(6, 10, 20, 0.03) 26%,
-    rgba(6, 10, 20, 0.03) 72%,
-    rgba(6, 10, 20, 0.7)
+    rgba(7, 10, 36, 0.6),
+    rgba(7, 10, 36, 0.03) 26%,
+    rgba(7, 10, 36, 0.03) 72%,
+    rgba(7, 10, 36, 0.7)
   );
 
-  --glow-signal: rgba(97, 10, 229, 0.35);
-  --glow-signal-soft: rgba(123, 58, 236, 0.18);
-  --glow-gap: rgba(255, 181, 71, 0.22);
+  --glow-signal: rgba(107, 52, 232, 0.38);
+  --glow-signal-soft: rgba(121, 71, 234, 0.2);
+  --glow-gap: rgba(244, 158, 10, 0.22);
 
-  --color-live: #ff5fa2;
-  --color-live-lit: #ff9cc7;
-  --color-live-mist: rgba(255, 95, 162, 0.14);
-  --glow-live: rgba(255, 95, 162, 0.4);
+  --color-live: #60a5fa;
+  --color-live-lit: #93c5fd;
+  --color-live-mist: rgba(96, 165, 250, 0.14);
+  --glow-live: rgba(96, 165, 250, 0.4);
 
-  --nav-floor: rgba(9, 14, 28, 0.95);
-  --nav-panel-floor: rgba(9, 14, 28, 0.985);
-  --drawer-floor: rgba(10, 16, 32, 0.96);
+  --color-up: #4ade80;
+  --color-down: #f87171;
+
+  --nav-floor: rgba(10, 14, 44, 0.95);
+  --nav-panel-floor: rgba(10, 14, 44, 0.985);
+  --drawer-floor: rgba(12, 17, 52, 0.96);
 }
 
 /* Smooth theme handoff without animating the first paint */
@@ -243,7 +250,7 @@ html.lenis body {
 }
 
 /* ============================================================================
-   ACCESSIBILITY FLOOR — visible focus on a dark, glassy surface.
+   ACCESSIBILITY FLOOR, visible focus on a dark, glassy surface.
    A design that hides its focus ring is broken, not premium.
    ========================================================================== */
 
@@ -330,7 +337,7 @@ html.lenis body {
   margin: 0;
 }
 
-/* The editorial voice — carries the human decision language, never body copy */
+/* The editorial voice, carries the human decision language, never body copy */
 .t-editorial {
   font-family: var(--font-editorial);
   font-weight: 400;
@@ -364,7 +371,7 @@ html.lenis body {
 }
 
 /* ============================================================================
-   GLASS — instrument readouts floating inside the network.
+   GLASS, instrument readouts floating inside the network.
    Restrained: thin border, real blur, one internal highlight. No stacked
    drop-shadows pretending to be depth.
    ========================================================================== */
@@ -378,7 +385,7 @@ html.lenis body {
   position: relative;
 }
 
-/* Internal top highlight — reads as a lit edge, not a drop shadow */
+/* Internal top highlight, reads as a lit edge, not a drop shadow */
 .glass::before {
   content: "";
   position: absolute;
@@ -415,7 +422,7 @@ html.lenis body {
 }
 
 /* ============================================================================
-   ATMOSPHERE — grain over the whole document so flat areas never read flat
+   ATMOSPHERE, grain over the whole document so flat areas never read flat
    ========================================================================== */
 
 .grain {
@@ -429,7 +436,7 @@ html.lenis body {
 }
 
 /* ============================================================================
-   CUSTOM CURSOR — only ever mounted on a fine pointer, motion allowed.
+   CUSTOM CURSOR, only ever mounted on a fine pointer, motion allowed.
    The native cursor is switched off exactly when the replacement is live, so
    there is never a moment with neither. See components/ui/Cursor.tsx.
    ========================================================================== */
@@ -509,7 +516,7 @@ html.lenis body {
   background: transparent;
 }
 
-/* Hovering something that reacts to focus (the graphs) — cursor turns live */
+/* Hovering something that reacts to focus (the graphs), cursor turns live */
 .cursor--live .cursor__ring {
   width: 52px;
   height: 52px;
@@ -527,7 +534,7 @@ html.lenis body {
   transform: translateX(-50%) translateY(2px);
 }
 
-/* Reduced motion, touch, or a coarse pointer never get the replacement —
+/* Reduced motion, touch, or a coarse pointer never get the replacement,
    the media query above already keeps the native cursor in that case. */
 @media (prefers-reduced-motion: reduce), (pointer: coarse) {
   .cursor {
@@ -535,8 +542,8 @@ html.lenis body {
   }
 }
 
-/* The cursor is fixed chrome outside every band, so — like the scroll rail
-   (see ui.css) — it cannot inherit a colour band's re-pointed tokens.
+/* The cursor is fixed chrome outside every band, so, like the scroll rail
+   (see ui.css), it cannot inherit a colour band's re-pointed tokens.
    ScrollProvider publishes the section currently under the viewport centre
    as `data-band` on <html>; over a violet/navy band the default purple ring
    and dot would nearly disappear, so both switch to white here instead. */
@@ -555,7 +562,7 @@ html[data-band="color"] .cursor--interactive .cursor__dot {
 }
 html[data-band="color"] .cursor--live .cursor__ring {
   border-color: #ffffff;
-  background: rgba(255, 95, 162, 0.28);
+  background: rgba(96, 165, 250, 0.28);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 html[data-band="color"] .cursor--live .cursor__dot {
@@ -578,7 +585,7 @@ html[data-band="color"] .cursor__label {
 
 /* Distance from the shell's content edge to the viewport edge. An editorial
    plate inside the shell escapes to the page edge with
-   `margin-right: calc(-1 * var(--shell-bleed))` — the technique the split
+   `margin-right: calc(-1 * var(--shell-bleed))`, the technique the split
    layouts use so a photograph runs off the page instead of stopping at a
    gutter. Slightly over-bleeds by the scrollbar width, which body's
    overflow-x: hidden clips. */
@@ -596,7 +603,7 @@ html[data-band="color"] .cursor__label {
 }
 
 /* ============================================================================
-   REVEAL — the page's one shared entrance vocabulary.
+   REVEAL, the page's one shared entrance vocabulary.
    GSAP drives these by toggling [data-revealed]. transform+opacity only.
    ========================================================================== */
 
@@ -616,7 +623,7 @@ html[data-band="color"] .cursor__label {
   transform: translate3d(0, 0, 0);
 }
 
-/* Lines draw rather than fade — the network's own vocabulary */
+/* Lines draw rather than fade, the network's own vocabulary */
 [data-draw] {
   transform: scaleX(0);
   transform-origin: left center;
@@ -628,7 +635,7 @@ html[data-band="color"] .cursor__label {
 }
 
 /* ============================================================================
-   REDUCED MOTION — near-instant variant, nothing removed, nothing animated
+   REDUCED MOTION, near-instant variant, nothing removed, nothing animated
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {

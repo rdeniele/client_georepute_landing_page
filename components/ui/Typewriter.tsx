@@ -9,7 +9,7 @@ const GAP_MS = 400;
 
 /**
  * Premium, restrained typewriter: types a phrase, holds it, deletes it,
- * moves to the next. No blinking-cursor gimmick — a single steady caret that
+ * moves to the next. No blinking-cursor gimmick, a single steady caret that
  * only animates opacity subtly while idle, never distracting from the copy.
  *
  * `prefers-reduced-motion` skips the animation entirely and renders the
@@ -17,7 +17,7 @@ const GAP_MS = 400;
  * rather than an empty box.
  *
  * The wrapping element gets a fixed min-height (one line at the component's
- * own font-size) so typing/deleting never shifts surrounding layout — only
+ * own font-size) so typing/deleting never shifts surrounding layout, only
  * the text's own width changes, never the document's flow.
  */
 export function Typewriter({

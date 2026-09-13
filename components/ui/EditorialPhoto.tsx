@@ -7,12 +7,12 @@ import { normalizeLocale } from "@/lib/i18n";
  * A photographic plate.
  *
  * Photography is the real-world layer; the network is the invisible layer that
- * forms decisions about it. So a plate is never a bare image — it is a frame
+ * forms decisions about it. So a plate is never a bare image, it is a frame
  * the network can be seen leaving, optionally under a glass readout, so the
  * two read as one argument rather than as an image next to a graphic.
  *
  * Treatment stays honest: a clip, a soft violet veil at low opacity, one
- * shadow. No heavy filters — the photographs have to stay authentic.
+ * shadow. No heavy filters, the photographs have to stay authentic.
  *
  * Until the client supplies the file, the slot renders its reserved plate:
  * the same frame, the same network, and a discreet mono annotation naming the
@@ -43,8 +43,8 @@ export function EditorialPhoto({
   const placeholderTag = isHebrew ? "תמונה בהמתנה" : "IMAGE PLACEHOLDER";
   const placeholderSpec = isHebrew
     ? slot === "decision"
-      ? "הקשר לקוח אמיתי — אדם משווה אפשרויות, מחפש, שואל ומחליט. אנושי ולא מבוים."
-      : "סביבת עסק או לקוח אמיתית — אנשים בעבודה, פגישה, מקום פיזי או החלטה שמתקבלת."
+      ? "הקשר לקוח אמיתי, אדם משווה אפשרויות, מחפש, שואל ומחליט. אנושי ולא מבוים."
+      : "סביבת עסק או לקוח אמיתית, אנשים בעבודה, פגישה, מקום פיזי או החלטה שמתקבלת."
     : p.spec.subject;
 
   return (

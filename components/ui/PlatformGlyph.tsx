@@ -1,7 +1,9 @@
 "use client";
 
+import { useId } from "react";
+
 /**
- * Recognizable marks for the surfaces GeoRepute scans — Google plus the six
+ * Recognizable marks for the surfaces GeoRepute scans, Google plus the six
  * AI engines verified from the live site ("Google + 6 AI engines"; the GEON
  * protocol names ChatGPT, Gemini, Claude, Perplexity, Copilot and Grok).
  *
@@ -43,7 +45,7 @@ function FourPointStar({
   return <path d={d} fill={fill} />;
 }
 
-/** ChatGPT's sparkle — four points meeting at a waist. */
+/** ChatGPT's sparkle, four points meeting at a waist. */
 function Sparkle({ fill }: { fill: string }) {
   return (
     <path
@@ -55,6 +57,8 @@ function Sparkle({ fill }: { fill: string }) {
 }
 
 export function PlatformGlyph({ id }: { id: PlatformId }) {
+  // Unique per instance: a shared gradient id breaks when the first copy is display:none
+  const gradientId = `gemini-${useId().replace(/:/g, "")}`;
   switch (id) {
     case "google":
       return (
@@ -87,18 +91,22 @@ export function PlatformGlyph({ id }: { id: PlatformId }) {
       return (
         <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
           <defs>
-            <linearGradient id="gemini-g" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#4285F4" />
               <stop offset="100%" stopColor="#9B72CB" />
             </linearGradient>
           </defs>
-          <FourPointStar r={10} flare={0.62} fill="url(#gemini-g)" />
+          <g transform="translate(10 10)">
+            <FourPointStar r={10} flare={0.62} fill={`url(#${gradientId})`} />
+          </g>
         </svg>
       );
     case "claude":
       return (
         <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
-          <FourPointStar r={9.4} flare={0.72} fill="#D97757" />
+          <g transform="translate(10 10)">
+            <FourPointStar r={9.4} flare={0.72} fill="#D97757" />
+          </g>
         </svg>
       );
     case "perplexity":
@@ -128,7 +136,7 @@ export function PlatformGlyph({ id }: { id: PlatformId }) {
         </svg>
       );
     case "grok":
-      // Monochrome X — follows the chip's ink colour so it reads in both themes
+      // Monochrome X, follows the chip's ink colour so it reads in both themes
       return (
         <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
           <path

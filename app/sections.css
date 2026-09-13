@@ -1,5 +1,5 @@
 /* ============================================================================
-   02 — THE INVISIBLE DECISION
+   02, THE INVISIBLE DECISION
    ========================================================================== */
 
 .invis {
@@ -35,11 +35,11 @@
 
 .invis__bracket--dark {
   flex: var(--span, 6);
-  border-top-color: rgba(255, 181, 71, 0.42);
+  border-top-color: rgba(244, 158, 10, 0.42);
 }
 .invis__bracket--dark::before,
 .invis__bracket--dark::after {
-  background: rgba(255, 181, 71, 0.42);
+  background: rgba(244, 158, 10, 0.42);
 }
 .invis__bracket--dark .invis__bracket-label {
   color: var(--color-gap);
@@ -155,7 +155,7 @@
 }
 
 /* ============================================================================
-   03 — SEE THE SIGNALS
+   03, SEE THE SIGNALS
    ========================================================================== */
 
 .signals {
@@ -226,7 +226,7 @@
   transition: color var(--d-state) var(--ease-out);
 }
 
-/* The connector draws on focus — the same illuminate grammar as the graphs */
+/* The connector draws on focus, the same illuminate grammar as the graphs */
 .signal__link {
   align-self: center;
   height: 1px;
@@ -258,7 +258,7 @@
 }
 
 /* ============================================================================
-   04 — WATCH A DECISION FORM
+   04, WATCH A DECISION FORM
 
    A pinned cinematic stage. Every region is absolutely positioned inside a
    viewport-height box with overflow hidden, so no element can scroll out of
@@ -402,7 +402,7 @@
   transform: scaleX(0);
 }
 
-/* Captions stack in one place and cross-fade — the block never changes height,
+/* Captions stack in one place and cross-fade, the block never changes height,
    so the lower third stays pinned to the same baseline throughout. */
 .recon__captions {
   position: relative;
@@ -469,7 +469,7 @@
 }
 
 /* ============================================================================
-   04 — WATCH A DECISION FORM / FRAMED PROCESS
+   04, WATCH A DECISION FORM / FRAMED PROCESS
 
    The six stages stay in one visible composition. Scroll only changes which
    card carries emphasis; card height follows its translated copy naturally.
@@ -607,7 +607,7 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-md);
   background: var(--surface-glass);
-  box-shadow: 0 18px 45px -40px rgba(27, 35, 64, 0.6);
+  box-shadow: 0 18px 45px -40px rgba(12, 17, 52, 0.6);
   scroll-snap-align: start;
   opacity: 1;
   transition: border-color var(--d-micro) var(--ease-out),
@@ -678,7 +678,7 @@
 }
 
 /* ============================================================================
-   05 — THE BLIND SPOT
+   05, THE BLIND SPOT
    ========================================================================== */
 
 .blind {
@@ -692,11 +692,11 @@
   width: 60%;
   top: 0;
   bottom: 12px;
-  border-right: 1px dashed rgba(255, 181, 71, 0.5);
+  border-right: 1px dashed rgba(244, 158, 10, 0.5);
   background: linear-gradient(
     90deg,
-    rgba(255, 181, 71, 0.03),
-    rgba(255, 181, 71, 0.08)
+    rgba(244, 158, 10, 0.03),
+    rgba(244, 158, 10, 0.08)
   );
   border-radius: var(--radius-md) 0 0 var(--radius-md);
   pointer-events: none;
@@ -853,7 +853,7 @@
     height: 34px;
     bottom: auto;
     border-right: 0;
-    border-bottom: 1px dashed rgba(255, 181, 71, 0.5);
+    border-bottom: 1px dashed rgba(244, 158, 10, 0.5);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
   }
   .blind__region-label {
@@ -899,7 +899,7 @@
 }
 
 /* ============================================================================
-   SHARED GRAPH CANVAS — sections 06 and 08
+   SHARED GRAPH CANVAS, sections 06 and 08
    ========================================================================== */
 
 .engines,
@@ -993,7 +993,7 @@
     transform var(--d-state) var(--ease-out);
 }
 
-/* Focus/hover uses the "live" rose, not brand purple — this is the state the
+/* Focus/hover uses the "live" rose, not brand purple, this is the state the
    *visitor* just caused, and the cursor opens into the same colour over these
    nodes (see .cursor--live in globals.css), so the two read as one system. */
 .engines__node:hover,
@@ -1024,7 +1024,7 @@
 }
 
 /* ============================================================================
-   06 — THE INTELLIGENCE ENGINES
+   06, THE INTELLIGENCE ENGINES
    ========================================================================== */
 
 .engines__readout {
@@ -1053,7 +1053,7 @@
    `.engines` starts with edges undrawn and nodes collapsed; an
    IntersectionObserver (see IntelligenceEngines.tsx) adds
    `data-assembled="true"` once, staggered per element via `--d`, then
-   `data-active="true"` once the draw-in has finished — that second flag is
+   `data-active="true"` once the draw-in has finished, that second flag is
    what switches on the looping signal-flow dashes, so the network never
    pulses while it is still assembling. `prefers-reduced-motion` short-
    circuits straight to the finished state. */
@@ -1084,11 +1084,11 @@
   stroke-dashoffset: 0;
 }
 
-/* Recognition's outgoing edges are the network's spine — lightly lit even at
+/* Recognition's outgoing edges are the network's spine, lightly lit even at
    rest, in coral rather than the neutral idle grey, so the hub reads as
    "always on" before anyone touches it. */
 .engines__edge.is-primary {
-  stroke: rgba(255, 90, 54, 0.4);
+  stroke: rgba(244, 158, 10, 0.4);
   stroke-opacity: 0.7;
 }
 .engines[data-focused="true"] .engines__edge.is-primary:not(.is-lit) {
@@ -1109,10 +1109,10 @@
 }
 
 /* A short dash travelling the primary paths once the network is fully
-   assembled — the same "signal, not glow" grammar as .bandnet__pulse. */
+   assembled, the same "signal, not glow" grammar as .bandnet__pulse. */
 .engines__signal {
   fill: none;
-  stroke: #ff8a5c;
+  stroke: #f49e0a;
   stroke-width: 1.6;
   stroke-linecap: round;
   opacity: 0;
@@ -1140,18 +1140,18 @@
   }
 }
 
-/* The AI Recognition hub: larger, coral-lit, breathing gently even at rest —
+/* The AI Recognition hub: larger, coral-lit, breathing gently even at rest,
    the one node the rest of the system visibly depends on. */
 .engines__node.is-hub {
   padding: 10px 20px 10px 14px;
-  border-color: rgba(255, 90, 54, 0.55);
-  background: rgba(255, 90, 54, 0.1);
-  box-shadow: 0 0 0 0 rgba(255, 90, 54, 0.28);
+  border-color: rgba(244, 158, 10, 0.55);
+  background: rgba(244, 158, 10, 0.1);
+  box-shadow: 0 0 0 0 rgba(244, 158, 10, 0.28);
   animation: engines-hub-breathe 3.6s var(--ease-inout) infinite;
 }
 .engines__node.is-hub .engines__node-dot {
-  background: #ff5a36;
-  box-shadow: 0 0 14px 3px rgba(255, 90, 54, 0.55);
+  background: #f49e0a;
+  box-shadow: 0 0 14px 3px rgba(244, 158, 10, 0.55);
   width: 9px;
   height: 9px;
 }
@@ -1167,14 +1167,14 @@
 @keyframes engines-hub-breathe {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 90, 54, 0.28);
+    box-shadow: 0 0 0 0 rgba(244, 158, 10, 0.28);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(255, 90, 54, 0);
+    box-shadow: 0 0 0 10px rgba(244, 158, 10, 0);
   }
 }
 
-/* Faint drifting atmosphere behind the graph — decoration only, capped well
+/* Faint drifting atmosphere behind the graph, decoration only, capped well
    below anything text needs to compete with. */
 .engines__atmosphere {
   position: absolute;
@@ -1195,7 +1195,7 @@
   left: 12%;
   width: 160px;
   height: 160px;
-  background: rgba(255, 90, 54, 0.22);
+  background: rgba(244, 158, 10, 0.22);
   animation-duration: 26s;
 }
 .engines__atmosphere span:nth-child(2) {
@@ -1203,7 +1203,7 @@
   right: 16%;
   width: 200px;
   height: 200px;
-  background: rgba(255, 200, 87, 0.14);
+  background: rgba(121, 71, 234, 0.14);
   animation-duration: 30s;
   animation-delay: -8s;
 }
@@ -1212,7 +1212,7 @@
   right: 40%;
   width: 130px;
   height: 130px;
-  background: rgba(255, 95, 162, 0.12);
+  background: rgba(96, 165, 250, 0.12);
   animation-duration: 24s;
   animation-delay: -14s;
 }
@@ -1282,7 +1282,7 @@
 }
 
 /* ============================================================================
-   07 — THE CLOSED LOOP
+   07, THE CLOSED LOOP
    ========================================================================== */
 
 .loop {
@@ -1418,7 +1418,7 @@
 }
 
 /* ============================================================================
-   08 — THE DECISION GRAPH
+   08, THE DECISION GRAPH
    ========================================================================== */
 
 .dgraph {
@@ -1610,7 +1610,7 @@
 }
 
 /* ============================================================================
-   09 — EXECUTIVE INTELLIGENCE
+   09, EXECUTIVE INTELLIGENCE
    ========================================================================== */
 
 .exec {
@@ -1674,7 +1674,7 @@
   stroke: var(--color-signal);
   stroke-width: 6;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 8px rgba(123, 58, 236, 0.55));
+  filter: drop-shadow(0 0 8px rgba(121, 71, 234, 0.55));
   transition: stroke-dashoffset var(--d-section) var(--ease-out);
 }
 
@@ -1698,7 +1698,7 @@
   text-transform: uppercase;
   color: var(--color-gap);
   padding: 4px 10px;
-  border: 1px solid rgba(255, 181, 71, 0.4);
+  border: 1px solid rgba(244, 158, 10, 0.4);
   border-radius: var(--radius-sm);
 }
 
@@ -1773,7 +1773,7 @@
 }
 
 /* ============================================================================
-   10 — FROM INSIGHT TO ACTION
+   10, FROM INSIGHT TO ACTION
    ========================================================================== */
 
 .plan {
@@ -1899,7 +1899,7 @@
 }
 
 /* ============================================================================
-   11 — FINAL CTA + FOOTER
+   11, FINAL CTA + FOOTER
    ========================================================================== */
 
 .final {
@@ -1923,7 +1923,7 @@
   margin: 0;
   max-width: 18ch;
   /* `.t-h1` is not one of the defined type roles, so this has to carry its own
-     size — without it the page's payoff line rendered at body size. */
+     size, without it the page's payoff line rendered at body size. */
   font-size: var(--text-h1);
   font-weight: 600;
   line-height: 1.02;
@@ -1986,10 +1986,10 @@
 }
 
 /* ============================================================================
-   DIFFERENTIATION — "Not another ranking dashboard."
+   DIFFERENTIATION, "Not another ranking dashboard."
    Directly after the hero. Deliberately spare: a label, a short prominent
    claim, one paragraph. It exists to reframe before the visitor scrolls any
-   further, not to teach — so it never grows past this.
+   further, not to teach, so it never grows past this.
    ========================================================================== */
 
 .diff {
@@ -2026,9 +2026,29 @@
   margin: 0 0 16px;
 }
 
+.diff__nots {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 clamp(20px, 3vw, 28px);
+  padding: 0;
+  list-style: none;
+}
+
+.diff__nots li {
+  width: fit-content;
+  color: var(--color-ink-faint);
+  font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--color-signal) 70%, transparent);
+  text-decoration-thickness: 2px;
+}
+
 .diff__title {
   margin: 0 0 20px;
-  font-size: var(--text-h2);
+  text-wrap: balance;
+  font-size: var(--text-h3);
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.03em;
@@ -2058,10 +2078,10 @@
 }
 
 /* ============================================================================
-   PLATFORM FLOW — Research → Intelligence → Opportunity → Decision →
+   PLATFORM FLOW, Research → Intelligence → Opportunity → Decision →
    Strategy → Work Plan → Execution → Measurement → Improvement.
    A single scrubbed ScrollTrigger lights up steps in sequence as the section
-   passes through view — no pinning, the visitor's own scroll stays in
+   passes through view, no pinning, the visitor's own scroll stays in
    control throughout.
    ========================================================================== */
 
@@ -2191,7 +2211,7 @@
 }
 
 /* ============================================================================
-   TRY IT — interactive demo directly after the hero. The visitor types a
+   TRY IT, interactive demo directly after the hero. The visitor types a
    business name, a results panel resolves, then blurs behind an unlock CTA.
    ========================================================================== */
 
@@ -2306,7 +2326,7 @@
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(123, 58, 236, 0.28),
+    rgba(121, 71, 234, 0.28),
     transparent
   );
   height: 40%;
@@ -2335,7 +2355,7 @@
   animation: trytool-unlock-in 420ms var(--ease-out) both;
 }
 
-/* This box mounts dynamically after the visitor submits the form — long
+/* This box mounts dynamically after the visitor submits the form, long
    after the page's shared [data-reveal] IntersectionObserver has already
    run its one-time scan, so it needs its own self-contained entrance
    instead of relying on that system. */
@@ -2381,7 +2401,7 @@
 }
 
 /* ============================================================================
-   VALUE AREAS — two connected use cases of one platform.
+   VALUE AREAS, two connected use cases of one platform.
    ========================================================================== */
 
 .values {
@@ -2464,7 +2484,7 @@ html[dir="rtl"] .values__item::before {
 }
 
 /* ============================================================================
-   RESULTS — measured outcomes published on the live platform's own site.
+   RESULTS, measured outcomes published on the live platform's own site.
    A compact trust strip ahead of the close, not a numbered signature section.
    ========================================================================== */
 

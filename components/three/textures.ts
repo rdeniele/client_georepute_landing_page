@@ -4,7 +4,7 @@ import * as THREE from "three";
  * Procedural sprite textures.
  *
  * The scene's glow comes from additive sprites rather than a postprocessing
- * bloom pass — same look at a fraction of the GPU cost, and it keeps the
+ * bloom pass, same look at a fraction of the GPU cost, and it keeps the
  * frame budget available for the network itself on mid-tier hardware.
  */
 
@@ -17,7 +17,7 @@ function makeCanvas(size: number) {
   return c;
 }
 
-/** Soft radial falloff — used for particles and node glow. */
+/** Soft radial falloff, used for particles and node glow. */
 export function getSoftDot(): THREE.Texture {
   if (softDot) return softDot;
   const size = 128;
@@ -43,7 +43,7 @@ export function getSoftDot(): THREE.Texture {
   return softDot;
 }
 
-/** Hard-cored dot with a thin ring — reads as an instrument marker, not a ball. */
+/** Hard-cored dot with a thin ring, reads as an instrument marker, not a ball. */
 export function getRingDot(): THREE.Texture {
   if (ringDot) return ringDot;
   const size = 128;

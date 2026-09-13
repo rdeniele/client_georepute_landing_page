@@ -12,7 +12,7 @@ import {
 /**
  * Theme system.
  *
- * DARK is the default experience — the site opens in its original "Signal
+ * DARK is the default experience, the site opens in its original "Signal
  * Room" treatment. LIGHT is an explicit visitor choice, applied as the
  * absence of `theme-dark` on <html> and persisted. The stored choice is
  * adopted after hydration to keep the server and client renders identical;
@@ -39,7 +39,7 @@ function applyThemeClass(theme: Theme) {
   document.documentElement.style.colorScheme = theme;
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute("content", theme === "dark" ? "#0A1020" : "#F6F5FC");
+    ?.setAttribute("content", theme === "dark" ? "#0C1134" : "#F6F4FF");
 }
 
 type ThemeContextValue = {
@@ -51,7 +51,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   // The first client render has to match the server's, so it always starts
-  // dark (the SSR default — see the inline script in layout.tsx) and adopts
+  // dark (the SSR default, see the inline script in layout.tsx) and adopts
   // the stored choice in an effect. Reading localStorage in the initialiser
   // instead produced a hydration mismatch on every control whose label
   // depends on the theme.

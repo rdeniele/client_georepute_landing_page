@@ -7,11 +7,11 @@ import { Band } from "@/components/ui/Band";
 import { getLocaleCopy } from "@/lib/i18n";
 
 /**
- * Section 09 — Executive intelligence.
+ * Section 09, Executive intelligence.
  *
  * Ten measures resolving into one position, presented as product UI rather
  * than as decorative charts. Counters and meters are driven by rAF writing
- * directly to the DOM once the panel enters view — no state updates, no
+ * directly to the DOM once the panel enters view, no state updates, no
  * re-renders, and the whole thing settles to its final value and stops.
  */
 

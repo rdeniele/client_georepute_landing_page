@@ -36,7 +36,7 @@ const vert = /* glsl */ `
 
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     float depth = -mv.z;
-    // Dust must stay near the noise floor — it is atmosphere, not content.
+    // Dust must stay near the noise floor, it is atmosphere, not content.
     vAlpha = smoothstep(42.0, 6.0, depth) * (0.14 + 0.32 * aSeed);
     gl_PointSize = aSize * uPixelRatio * (25.0 / max(0.001, depth));
     gl_Position = projectionMatrix * mv;
@@ -114,7 +114,7 @@ export function ParticleField({
   useFrame((_, delta) => {
     const dt = Math.min(delta, 1 / 30);
     // A fast scroll briefly speeds up the drift and the field's own slow
-    // rotation — dust reacting to the visitor's own motion, never louder
+    // rotation, dust reacting to the visitor's own motion, never louder
     // than that. sceneState.velocity is 0→1 and decays on its own in
     // CameraRig, so this needs no state of its own here.
     const kick = 1 + sceneState.velocity * 2.2;

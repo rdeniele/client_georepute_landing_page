@@ -7,16 +7,16 @@ import Image from "next/image";
  * Section 02's product visual: a floating browser card, not a monitor or a
  * flat screenshot. A soft tinted mat sits behind a white window; the chrome
  * (traffic lights + address pill) owns its own header strip above the
- * screenshot rather than floating over it — the product screenshot already
+ * screenshot rather than floating over it, the product screenshot already
  * has its own UI at the top edge, and chrome overlapping chrome read as a
  * mistake, not as an editorial layering.
  *
- * Shows the "Missed Prompts" / customer decision journey screen — the
+ * Shows the "Missed Prompts" / customer decision journey screen, the
  * clearest real-product proof of this section's claim: the four-stage
  * journey (Awareness, Research, Supplier Selection, Purchase) a business
  * never sees in conventional analytics.
  *
- * The card tilts a few degrees toward the cursor — capped small, skipped
+ * The card tilts a few degrees toward the cursor, capped small, skipped
  * under reduced motion or a coarse pointer.
  */
 export function InvisibleBrowserStack({ locale = "en" }: { locale?: string }) {
@@ -24,7 +24,7 @@ export function InvisibleBrowserStack({ locale = "en" }: { locale?: string }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const shot = {
     src: "/screenshots/UI4.png",
-    alt: "GeoRepute's Missed Prompts view: the four-stage customer decision journey — Awareness, Research, Supplier Selection, Purchase — and the questions your brand isn't showing up for.",
+    alt: "GeoRepute's Missed Prompts view: the four-stage customer decision journey (Awareness, Research, Supplier Selection, Purchase) and the questions your brand isn't showing up for.",
   };
 
   useEffect(() => {

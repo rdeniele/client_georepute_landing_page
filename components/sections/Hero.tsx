@@ -6,6 +6,7 @@ import { BandNetwork } from "@/components/ui/BandNetwork";
 import { Typewriter } from "@/components/ui/Typewriter";
 import { getLocaleCopy, localizePath, normalizeLocale } from "@/lib/i18n";
 import { HeroScrollFx } from "@/components/sections/HeroScrollFx";
+import { IntroTrigger } from "@/components/intro/IntroModal";
 import {
   MagnifyingGlass,
   Brain,
@@ -14,7 +15,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import type { IconProps } from "@phosphor-icons/react/lib";
 
-// Real, meaning-matched marks for the capability strip — never a generic
+// Real, meaning-matched marks for the capability strip, never a generic
 // placeholder glyph. Keyed from lib/content.ts so copy and icon stay paired
 // in one place.
 const CAP_ICON: Record<string, React.ComponentType<IconProps>> = {
@@ -25,7 +26,7 @@ const CAP_ICON: Record<string, React.ComponentType<IconProps>> = {
 };
 
 /**
- * Section 01 — Enter the system.
+ * Section 01, Enter the system.
  *
  * The page's single orchestrated entrance: eyebrow, then the three payoff
  * words in sequence, then the supporting line and controls. Everything after
@@ -33,13 +34,13 @@ const CAP_ICON: Record<string, React.ComponentType<IconProps>> = {
  * choreographed event rather than one of many.
  *
  * The stagger is CSS-only so the copy renders and animates without waiting
- * for hydration — this stays a server component on purpose.
+ * for hydration, this stays a server component on purpose.
  *
  * The composition is the half-white / half-colour language stated once, at
  * full strength: light paper carries the argument on the left; the brand
  * environment on the right holds the real-world photograph with the
  * intelligence layer visibly leaving its edge. The reader meets both halves
- * of the story — reality and the invisible layer around it — in one viewport.
+ * of the story, reality and the invisible layer around it, in one viewport.
  */
 export function Hero({ locale = "en" }: { locale?: string }) {
   const localeCopy = getLocaleCopy(locale);
@@ -115,6 +116,7 @@ export function Hero({ locale = "en" }: { locale?: string }) {
               <Button href={copy.secondaryCta.href} variant="ghost">
                 {copy.secondaryCta.label}
               </Button>
+              <IntroTrigger locale={locale} className="hero__intro" />
             </div>
           </div>
 

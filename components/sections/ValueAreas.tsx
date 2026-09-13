@@ -3,7 +3,7 @@ import { getLocaleCopy } from "@/lib/i18n";
 /**
  * The two connected use cases of one platform: growing the agency's own
  * business, and going deeper on every client it manages. Same visual
- * weight, same card treatment — neither reads as the "real" product with
+ * weight, same card treatment, neither reads as the "real" product with
  * the other bolted on.
  */
 export function ValueAreas({ locale = "en" }: { locale?: string }) {
