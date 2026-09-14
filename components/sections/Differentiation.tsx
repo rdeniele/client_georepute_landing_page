@@ -1,5 +1,6 @@
 import { getLocaleCopy } from "@/lib/i18n";
 import { ProductShot } from "@/components/ui/ProductShot";
+import { TypewriterNegations } from "@/components/ui/TypewriterNegations";
 
 /**
  * Key differentiation statement, directly after the hero.
@@ -18,13 +19,7 @@ export function Differentiation({ locale = "en" }: { locale?: string }) {
           <p className="t-eyebrow diff__eyebrow">
             {c.eyebrow}
           </p>
-          <ul className="diff__nots">
-            {c.negations.map((n, i) => (
-              <li key={n} data-reveal data-reveal-delay={String(i * 90)}>
-                {n}
-              </li>
-            ))}
-          </ul>
+          <TypewriterNegations items={c.negations} />
           <h2 className="diff__title" data-reveal data-reveal-delay="300">
             {c.title}
           </h2>

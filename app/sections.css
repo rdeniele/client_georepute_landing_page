@@ -2026,23 +2026,57 @@
   margin: 0 0 16px;
 }
 
-.diff__nots {
-  display: grid;
-  gap: 6px;
+.diff__not {
+  display: flex;
+  align-items: baseline;
   margin: 0 0 clamp(20px, 3vw, 28px);
-  padding: 0;
-  list-style: none;
+  min-height: 1.35em;
 }
 
-.diff__nots li {
+.diff__not-text {
+  position: relative;
   width: fit-content;
   color: var(--color-ink-faint);
   font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.3rem);
   font-weight: 500;
   line-height: 1.35;
-  text-decoration: line-through;
-  text-decoration-color: color-mix(in srgb, var(--color-signal) 70%, transparent);
-  text-decoration-thickness: 2px;
+  white-space: pre;
+}
+
+.diff__not-text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-signal) 70%, transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--d-state) var(--ease-out);
+}
+
+.diff__not-text.is-struck::after {
+  transform: scaleX(1);
+}
+
+.diff__not-cursor {
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  background: var(--color-signal);
+  animation: diff-cursor-blink 1s step-end infinite;
+}
+
+@keyframes diff-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diff__not-text::after {
+    transition: none;
+  }
 }
 
 .diff__title {
