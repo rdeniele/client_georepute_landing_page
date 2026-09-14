@@ -205,7 +205,7 @@ const en: Copy = {
   platformsLabel: "Market, Business, Search & AI Intelligence, connected in one platform",
   differentiation: {
     eyebrow: "Not another tool. Intelligence that stays.",
-    negations: ["Not another dashboard.", "Not another isolated report.", "Not another decision based on whoever happens to be in the room."],
+    negations: ["Not another dashboard.", "Not another isolated report.", "Not another guess dressed as a decision."],
     title: "People can change. The business intelligence remains.",
     body: "Every analysis, decision, action and outcome strengthens the intelligence over time.",
   },
