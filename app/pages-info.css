@@ -1023,6 +1023,91 @@
   background: var(--color-up);
 }
 
+.meth-hex {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  max-width: 320px;
+  margin: clamp(28px, 4vw, 44px) 0 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--kit-card);
+  animation: kit-enter 600ms var(--ease-out) both;
+  animation-delay: 340ms;
+}
+
+.meth-hex__ring {
+  position: relative;
+  width: min(100%, 168px);
+}
+
+.meth-hex__ring svg {
+  display: block;
+  width: 100%;
+}
+
+.meth-hex__grid {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.meth-hex__series {
+  fill: color-mix(in srgb, var(--color-signal) 18%, transparent);
+  stroke: var(--color-signal);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.meth-hex__core {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.meth-hex__core b {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.meth-hex__core span {
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.meth-hex__legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 20px;
+  width: 100%;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft, var(--line));
+  list-style: none;
+}
+
+.meth-hex__legend li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: var(--color-ink-dim);
+}
+
+.meth-hex__legend b {
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+}
+
 .meth-trace {
   display: inline-flex;
   flex-wrap: wrap;
@@ -1630,6 +1715,93 @@
 /* ==========================================================================
    MARKETPLACE, a catalogue
    ======================================================================= */
+
+.mkt-ring {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  max-width: 320px;
+  margin: clamp(28px, 4vw, 44px) auto 0;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--kit-card);
+  animation: kit-enter 600ms var(--ease-out) both;
+  animation-delay: 340ms;
+}
+
+.mkt-ring__wrap {
+  position: relative;
+  width: min(100%, 180px);
+}
+
+.mkt-ring__wrap svg {
+  display: block;
+  width: 100%;
+}
+
+.mkt-ring__seg {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 16;
+  animation: kit-enter 500ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 60ms + 380ms);
+}
+
+.mkt-ring__seg.is-live {
+  stroke: var(--color-signal);
+}
+
+.mkt-ring__core {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.mkt-ring__core b {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mkt-ring__core span {
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.mkt-ring__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-ink-dim);
+  font-size: 0.78rem;
+}
+
+.mkt-ring__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mkt-ring__legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--line-strong);
+}
+
+.mkt-ring__legend .is-live i {
+  background: var(--color-signal);
+}
 
 .mkt-hero .kit-hero__title {
   max-width: 20ch;

@@ -14,6 +14,45 @@ const TOC = [
   { id: "limits", label: "Limitations" },
 ];
 
+function hexPoint(i: number, count: number, d: number, c: number) {
+  const a = ((-90 + i * (360 / count)) * Math.PI) / 180;
+  return `${(c + Math.cos(a) * d).toFixed(1)},${(c + Math.sin(a) * d).toFixed(1)}`;
+}
+
+/** The six published GEON vectors, plotted at their observed scores, resolving to the same DHI the calculator below computes. */
+function VectorHex() {
+  const size = 168;
+  const c = size / 2;
+  const r = 66;
+  const vectors = m.vectors;
+  const dhi = Math.round(vectors.reduce((s, v) => s + v.weight * v.score, 0));
+  const grid = (k: number) => vectors.map((_, i) => hexPoint(i, vectors.length, r * k, c)).join(" ");
+  return (
+    <figure className="meth-hex" aria-label={`Decision Health Index ${dhi} of 100, across six GEON vectors`}>
+      <div className="meth-hex__ring">
+        <svg viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+          {[1, 0.66, 0.33].map((k) => (
+            <polygon key={k} points={grid(k)} className="meth-hex__grid" />
+          ))}
+          <polygon points={vectors.map((v, i) => hexPoint(i, vectors.length, r * (v.score / 100), c)).join(" ")} className="meth-hex__series" />
+        </svg>
+        <div className="meth-hex__core">
+          <b className="kit-num">{dhi}</b>
+          <span>/100 DHI</span>
+        </div>
+      </div>
+      <ul className="meth-hex__legend">
+        {vectors.map((v) => (
+          <li key={v.name}>
+            <span>{v.name}</span>
+            <b className="kit-num">{v.score}</b>
+          </li>
+        ))}
+      </ul>
+    </figure>
+  );
+}
+
 function DocSection({ id, n, label, title, children }: { id: string; n: string; label: string; title: string; children: React.ReactNode }) {
   return (
     <section id={id} className="meth-sec" aria-labelledby={`${id}-t`}>
@@ -59,6 +98,7 @@ export function MethodologyPage({ locale }: { locale: string }) {
             </span>
           </>
         }
+        aside={<VectorHex />}
       />
 
       <div className="shell meth-layout">

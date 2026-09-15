@@ -34,6 +34,142 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-up) 25%, transparent);
 }
 
+.mc-ticker {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-top: clamp(24px, 3vw, 36px);
+  padding: 18px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--kit-card);
+  animation: kit-enter 600ms var(--ease-out) both;
+  animation-delay: 320ms;
+}
+
+.mc-ticker__dhi {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 24px;
+  border-right: 1px solid var(--line);
+}
+
+.mc-ticker__dhi > span:last-child {
+  display: grid;
+  gap: 3px;
+}
+
+.mc-ticker__dhi small {
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mc-ticker__dhi em {
+  font-style: normal;
+  color: var(--color-down);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.mc-ticker__ring {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+}
+
+.mc-ticker__ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.mc-ticker__track,
+.mc-ticker__fill {
+  fill: none;
+  stroke-width: 3.5;
+}
+
+.mc-ticker__track {
+  stroke: var(--line-strong);
+}
+
+.mc-ticker__fill {
+  stroke: var(--color-down);
+  stroke-linecap: round;
+}
+
+.mc-ticker__ring b {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.mc-ticker__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-ticker__item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.mc-ticker__item > span {
+  color: var(--color-ink-dim);
+}
+
+.mc-ticker__item b {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.mc-ticker__item small {
+  color: var(--color-ink-faint);
+  font-size: 0.66rem;
+}
+
+.mc-ticker__glyph {
+  font-size: 0.56rem;
+  font-style: normal;
+}
+
+.mc-ticker__item--up .mc-ticker__glyph { color: var(--color-up); }
+.mc-ticker__item--down .mc-ticker__glyph { color: var(--color-down); }
+.mc-ticker__item--stable .mc-ticker__glyph { color: var(--color-ink-faint); }
+
+@media (max-width: 720px) {
+  .mc-ticker {
+    grid-template-columns: 1fr;
+  }
+  .mc-ticker__dhi {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+}
+
 .mc-board {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -2309,6 +2445,71 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
 
 .rc-hero .kit-hero__actions {
   justify-content: center;
+}
+
+.rc-pulse {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  max-width: 640px;
+  margin: clamp(28px, 4vw, 44px) auto 0;
+}
+
+.rc-pulse__track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+
+.rc-pulse__dot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--color-signal);
+  box-shadow: 0 0 0 5px var(--glow-signal-soft);
+  animation: rc-pulse-run 3.6s var(--ease-out) infinite;
+}
+
+@keyframes rc-pulse-run {
+  0% { left: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-pulse__dot {
+    animation: none;
+    left: 50%;
+    opacity: 1;
+  }
+}
+
+.rc-pulse__nodes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.rc-pulse__nodes li {
+  animation: kit-enter 500ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 60ms + 380ms);
 }
 
 .rc-layout {

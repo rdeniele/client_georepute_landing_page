@@ -13,7 +13,44 @@ import {
 } from "@/components/subpages/kit";
 import { SubNav, SubpageFx } from "@/components/subpages/fx";
 import { IntelligenceFeed, MeasureBoard } from "@/components/subpages/MissionWidgets";
-import { causalChain, interventions } from "@/lib/subpages/demo";
+import { causalChain, interventions, measures } from "@/lib/subpages/demo";
+
+const TREND_GLYPH = { up: "▲", down: "▼", stable: "■" } as const;
+
+/** A compact live-strip preview of the ten-measure board below, DHI ring first. */
+function PositionTicker() {
+  const dhi = measures[0];
+  const rest = measures.slice(1);
+  return (
+    <div className="mc-ticker" aria-label={`Decision Health Index ${dhi.value} of 100, ten measures tracked`}>
+      <div className="mc-ticker__dhi">
+        <span className="mc-ticker__ring">
+          <svg viewBox="0 0 40 40" aria-hidden="true">
+            <circle cx="20" cy="20" r="16" pathLength={100} className="mc-ticker__track" />
+            <circle cx="20" cy="20" r="16" pathLength={100} className="mc-ticker__fill" style={{ strokeDasharray: `${dhi.value} 100` }} />
+          </svg>
+          <b>{dhi.value}</b>
+        </span>
+        <span>
+          <small>Decision Health Index</small>
+          <em>{TREND_GLYPH[dhi.trend]} {dhi.trend === "down" ? "Deteriorating" : dhi.trend === "up" ? "Improving" : "Stable"}</em>
+        </span>
+      </div>
+      <ul className="mc-ticker__list">
+        {rest.map((m) => (
+          <li key={m.key} className={`mc-ticker__item mc-ticker__item--${m.trend}`}>
+            <span>{m.name}</span>
+            <b>
+              {m.value}
+              {m.unit ? <small>{m.unit}</small> : null}
+              <i className="mc-ticker__glyph" aria-hidden="true">{TREND_GLYPH[m.trend]}</i>
+            </b>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function MissionControlPage({ locale }: { locale: string }) {
   const top = ["authority", "entity"].map((id) => interventions.find((iv) => iv.id === id)!);
@@ -52,6 +89,7 @@ export function MissionControlPage({ locale }: { locale: string }) {
             </Button>
           </>
         }
+        aside={<PositionTicker />}
       />
 
       <SubNav

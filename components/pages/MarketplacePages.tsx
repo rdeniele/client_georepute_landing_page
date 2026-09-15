@@ -8,6 +8,56 @@ import { categories, CATEGORY_ROUTES, marketplace as mk, type Category } from "@
 
 const catHref = (slug: string) => `/en/marketplace/category/${slug}`;
 
+/** The seven categories as one ring, segment size by module count, lit where a category is live in this demo. */
+function CategoryRing() {
+  const total = categories.reduce((s, c) => s + c.modules, 0);
+  const totalLive = categories.reduce((s, c) => s + c.live, 0);
+  const size = 168;
+  const c = size / 2;
+  const r = 68;
+  let acc = 0;
+  return (
+    <div className="mkt-ring" aria-label={`${categories.length} intelligence categories, ${total} modules, ${totalLive} live in this demo`}>
+      <div className="mkt-ring__wrap">
+        <svg viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+          {categories.map((cat, i) => {
+            const gap = 2.4;
+            const seg = (cat.modules / total) * 360;
+            const a0 = ((-90 + acc + gap / 2) * Math.PI) / 180;
+            const a1 = ((-90 + acc + seg - gap / 2) * Math.PI) / 180;
+            acc += seg;
+            const large = seg - gap > 180 ? 1 : 0;
+            const x0 = c + r * Math.cos(a0);
+            const y0 = c + r * Math.sin(a0);
+            const x1 = c + r * Math.cos(a1);
+            const y1 = c + r * Math.sin(a1);
+            return (
+              <path
+                key={cat.slug}
+                d={`M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`}
+                className={`mkt-ring__seg${cat.live ? " is-live" : ""}`}
+                style={{ "--i": i } as CSSProperties}
+              />
+            );
+          })}
+        </svg>
+        <div className="mkt-ring__core">
+          <b className="kit-num">{total}</b>
+          <span>modules</span>
+        </div>
+      </div>
+      <ul className="mkt-ring__legend">
+        <li className="is-live">
+          <i aria-hidden="true" /> {totalLive} live in this demo
+        </li>
+        <li>
+          <i aria-hidden="true" /> {total - totalLive} in platform
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 /* ==========================================================================
    /marketplace, the intelligence ecosystem
    ======================================================================= */
@@ -50,6 +100,7 @@ export function MarketplacePage({ locale }: { locale: string }) {
             </Button>
           </>
         }
+        aside={<CategoryRing />}
       />
 
       <section id="categories" className="kit-section mkt-cats" data-section>

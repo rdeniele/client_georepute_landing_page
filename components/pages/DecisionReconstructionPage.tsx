@@ -31,6 +31,26 @@ const STEPS = [
   { id: "step-signals", label: "Connected signals" },
 ];
 
+const PULSE_NODES = ["Input", "Interpretation", "Market", "Channel", "Outcome", "Action"];
+
+/** A live preview of the chain every reconstruction resolves into, expanded step by step below. */
+function ReconstructPulse() {
+  return (
+    <div className="rc-pulse" aria-hidden="true">
+      <span className="rc-pulse__track">
+        <i className="rc-pulse__dot" />
+      </span>
+      <ol className="rc-pulse__nodes">
+        {PULSE_NODES.map((n, i) => (
+          <li key={n} style={{ "--i": i } as CSSProperties}>
+            {n}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function Step({ i, title, children, wide = false }: { i: number; title: string; children: ReactNode; wide?: boolean }) {
   return (
     <section id={STEPS[i].id} className={`rc-step${wide ? " rc-step--wide" : ""}`} aria-labelledby={`${STEPS[i].id}-t`}>
@@ -80,6 +100,7 @@ export function DecisionReconstructionPage({ locale = "en" }: { locale?: string 
           </div>
         }
         actions={<DemoNote>Seeded environment, this demonstration always reconstructs Ironvale Supply across 24 tracked decision questions.</DemoNote>}
+        aside={<ReconstructPulse />}
       />
 
       <div className="shell rc-layout">
