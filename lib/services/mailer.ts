@@ -1,5 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
+import { buildMeetingRequestEmailHtml } from "@/lib/emails/meetingRequest";
 
 const MEETING_REQUEST_RECIPIENT = "georepute@gmail.com";
 
@@ -52,6 +53,7 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<void>
     replyTo: request.email,
     subject: `Meeting request from ${request.name}`,
     text: lines.join("\n"),
+    html: buildMeetingRequestEmailHtml(request),
   });
 
   if (error) throw new Error(`Failed to send your request: ${error.message}`);
