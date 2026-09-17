@@ -1,23 +1,30 @@
 import "server-only";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const MEETING_REQUEST_RECIPIENT = "georepute@gmail.com";
 
 /**
- * Sends mail through the georepute@gmail.com mailbox's own Gmail SMTP (an
- * App Password, not the account password — see .env.example). No
- * third-party email service; this is the mailbox itself sending on its own
- * behalf, which is why the recipient and the sender are the same address.
+ * Sends mail through Resend (a transactional email API) rather than a
+ * personal Gmail account's own SMTP — no mailbox password involved, and
+ * Resend's own dashboard gives delivery/bounce visibility.
+ *
+ * RESEND_FROM_EMAIL defaults to Resend's shared `onboarding@resend.dev`
+ * sender, which works immediately with zero setup but is meant for testing.
+ * For production, verify a real sending domain (e.g. georepute.ai) in the
+ * Resend dashboard and set RESEND_FROM_EMAIL to an address on it (e.g.
+ * "GeoRepute <noreply@georepute.ai>") — see .env.example.
  */
-function getTransport() {
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+function getClient() {
+  const apiKey = process.env.RESEND_API_KEY;
 
-  if (!user || !pass) {
+  if (!apiKey) {
     throw new Error(
-      "Email is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD (see .env.example) and restart the server.",
+      "Email is not configured. Set RESEND_API_KEY (see .env.example) and restart the server.",
     );
   }
 
-  return { transport: nodemailer.createTransport({ service: "gmail", auth: { user, pass } }), user };
+  const from = process.env.RESEND_FROM_EMAIL || "GeoRepute <onboarding@resend.dev>";
+  return { resend: new Resend(apiKey), from };
 }
 
 export type MeetingRequest = {
@@ -27,9 +34,9 @@ export type MeetingRequest = {
   message: string;
 };
 
-/** Sends a meeting request to the mailbox itself, with the visitor's address set as reply-to so replying goes straight to them. */
+/** Sends a meeting request to the GeoRepute mailbox, with the visitor's address set as reply-to so replying goes straight to them. */
 export async function sendMeetingRequest(request: MeetingRequest): Promise<void> {
-  const { transport, user } = getTransport();
+  const { resend, from } = getClient();
 
   const lines = [
     `Name: ${request.name}`,
@@ -39,11 +46,13 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<void>
     request.message,
   ].filter((line) => line !== null);
 
-  await transport.sendMail({
-    from: `"GeoRepute website" <${user}>`,
-    to: user,
+  const { error } = await resend.emails.send({
+    from,
+    to: MEETING_REQUEST_RECIPIENT,
     replyTo: request.email,
     subject: `Meeting request from ${request.name}`,
     text: lines.join("\n"),
   });
+
+  if (error) throw new Error(`Failed to send your request: ${error.message}`);
 }
