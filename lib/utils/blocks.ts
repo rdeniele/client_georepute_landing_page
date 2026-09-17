@@ -45,3 +45,21 @@ export function textToBlocks(content: string): ContentBlock[] {
     .filter(Boolean)
     .map((text) => ({ type: "paragraph", content: text }));
 }
+
+/**
+ * Finds the first image block's URL in a post's content — used as the blog
+ * card thumbnail when the author uploaded an image into the body but never
+ * set a separate featured image. Both images live in the same `blog-images`
+ * bucket either way (see lib/services/storage.ts), this just picks whichever
+ * one the author already has.
+ */
+export function getFirstContentImage(blocks: ContentBlock[] | null | undefined): string | null {
+  if (!blocks) return null;
+  for (const block of blocks) {
+    if (block.type === "image") {
+      const url = (block.props as { url?: string } | undefined)?.url;
+      if (url) return url;
+    }
+  }
+  return null;
+}

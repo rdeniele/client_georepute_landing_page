@@ -2,14 +2,20 @@ import Image from "next/image";
 import logo from "@/public/brand/logo-g-mark.png";
 import type { PostWithAuthor } from "@/types/posts";
 import { formatDate } from "@/lib/utils/format";
+import { getFirstContentImage } from "@/lib/utils/blocks";
 
 export function PostCard({ post }: { post: PostWithAuthor }) {
+  // Falls back to the first image already uploaded into the post body when
+  // there's no separate featured image set, before giving up to the
+  // branded placeholder.
+  const cardImage = post.featured_image || getFirstContentImage(post.content_blocks);
+
   return (
     <a className="kit-card blog-card" href={`/blog/${post.slug}`}>
       <div className="blog-card__media">
-        {post.featured_image ? (
+        {cardImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={post.featured_image} alt="" loading="lazy" />
+          <img src={cardImage} alt="" loading="lazy" />
         ) : (
           <div className="blog-card__media-fallback" aria-hidden="true">
             <Image src={logo} alt="" width={40} height={40} />
