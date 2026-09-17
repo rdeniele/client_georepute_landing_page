@@ -43,8 +43,10 @@ export function Button({
     if (inner.current) inner.current.style.transform = "";
   };
 
-  // mailto/external destinations open in a new tab so the visitor never loses their place on the page.
-  const isNewTab = href.startsWith("mailto:") || href.startsWith("http");
+  // External destinations open in a new tab so the visitor never loses their place on the page.
+  // mailto: is excluded: it never navigates the page at all (it hands off to the OS mail app),
+  // so target="_blank" only leaves a blank tab behind when no mail app is configured.
+  const isNewTab = href.startsWith("http");
 
   return (
     <a
