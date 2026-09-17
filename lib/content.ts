@@ -130,7 +130,7 @@ export const hero = {
   /** Internal path, localized at render via localizePath(). */
   primaryCta: { label: "Explore the Platform", href: "/en/app/reconstruct" },
   /** Interim booking destination until a real calendar tool is wired up — see components/subpages/kit.tsx MEETING_HREF. */
-  secondaryCta: { label: "Book a Live Demo", href: "mailto:georepute@gmail.com?subject=Meeting%20Request" },
+  secondaryCta: { label: "Book a Live Demo", href: "/briefing" },
   scrollHint: "Enter the system",
 } as const;
 
@@ -580,7 +580,7 @@ export const finalCta = {
   body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
   primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
   /** Interim booking destination until a real calendar tool is wired up — see components/subpages/kit.tsx MEETING_HREF. */
-  secondaryCta: { label: "Book a Live Demo", href: "mailto:georepute@gmail.com?subject=Meeting%20Request" },
+  secondaryCta: { label: "Book a Live Demo", href: "/briefing" },
 } as const;
 
 export const footer = {

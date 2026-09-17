@@ -7,8 +7,14 @@ import { nav } from "@/lib/content";
 
 export const DEMO_HREF = nav.cta.href;
 
-/** Interim booking destination for every "Book a Live Demo" / meeting CTA, until a real calendar tool is wired up. */
-export const MEETING_HREF = "mailto:georepute@gmail.com?subject=Meeting%20Request";
+/**
+ * Booking destination for every "Book a Live Demo" / meeting CTA. Points at
+ * the site's own /briefing form (emails georepute@gmail.com — see
+ * lib/services/mailer.ts) rather than a mailto: link, since mailto only
+ * works for visitors with a desktop mail app configured. Swap this to a
+ * real calendar tool's URL later if the client gets one.
+ */
+export const MEETING_HREF = "/briefing";
 
 /** Rewrites an `/en/...` route into the visitor's current locale. */
 export function lhref(href: string, locale: string) {
