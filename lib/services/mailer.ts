@@ -1,6 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
-import { buildMeetingRequestEmailHtml } from "@/lib/emails/meetingRequest";
+import { buildMeetingRequestEmailHtml, getLogoAttachment } from "@/lib/emails/meetingRequest";
 
 const MEETING_REQUEST_RECIPIENT = "georepute@gmail.com";
 
@@ -47,6 +47,8 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<void>
     request.message,
   ].filter((line) => line !== null);
 
+  const logoAttachment = getLogoAttachment();
+
   const { error } = await resend.emails.send({
     from,
     to: MEETING_REQUEST_RECIPIENT,
@@ -54,6 +56,7 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<void>
     subject: `Meeting request from ${request.name}`,
     text: lines.join("\n"),
     html: buildMeetingRequestEmailHtml(request),
+    attachments: logoAttachment ? [logoAttachment] : undefined,
   });
 
   if (error) throw new Error(`Failed to send your request: ${error.message}`);

@@ -3,22 +3,31 @@ import { join } from "node:path";
 import type { MeetingRequest } from "@/lib/services/mailer";
 
 /**
- * Inlined as base64 rather than linked by URL: email clients can't reach a
- * `localhost` URL at all, and even once this is deployed, an inline image
- * doesn't depend on the recipient's client trusting/loading remote images
- * (Outlook in particular blocks those by default). Read once and cached —
- * the file never changes at runtime.
+ * Sent as a real inline attachment (Content-ID / `cid:` reference), not a
+ * base64 `data:` URI — Gmail strips `data:` image sources from HTML email
+ * entirely, so that approach never renders there even though it previews
+ * fine in a browser. A `cid:` attachment is the approach every major
+ * client, Gmail included, actually supports for inline images.
  */
-let cachedLogoDataUri: string | null | undefined;
-function getLogoDataUri(): string | null {
-  if (cachedLogoDataUri !== undefined) return cachedLogoDataUri;
+export const LOGO_CONTENT_ID = "georepute-logo";
+
+let cachedLogoBase64: string | null | undefined;
+function getLogoBase64(): string | null {
+  if (cachedLogoBase64 !== undefined) return cachedLogoBase64;
   try {
     const bytes = readFileSync(join(process.cwd(), "public/brand/logo-g-mark.png"));
-    cachedLogoDataUri = `data:image/png;base64,${bytes.toString("base64")}`;
+    cachedLogoBase64 = bytes.toString("base64");
   } catch {
-    cachedLogoDataUri = null;
+    cachedLogoBase64 = null;
   }
-  return cachedLogoDataUri;
+  return cachedLogoBase64;
+}
+
+/** The logo as a Resend inline attachment, or `null` if the file can't be read — pass this in `attachments` alongside the HTML from `buildMeetingRequestEmailHtml`. */
+export function getLogoAttachment(): { filename: string; content: string; contentType: string; contentId: string } | null {
+  const content = getLogoBase64();
+  if (!content) return null;
+  return { filename: "logo.png", content, contentType: "image/png", contentId: LOGO_CONTENT_ID };
 }
 
 /** Escapes user-supplied text before it's interpolated into the HTML email body. */
@@ -37,7 +46,7 @@ function escapeHtml(value: string): string {
  * Colors match the site's light-mode brand palette (app/globals.css).
  */
 export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
-  const logoUrl = getLogoDataUri();
+  const hasLogo = getLogoBase64() !== null;
 
   const row = (label: string, value: string) => `
     <tr>
@@ -58,7 +67,7 @@ export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 520px; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid rgba(12, 17, 52, 0.1);">
             <tr>
               <td style="background: #0c1134; padding: 28px 32px;">
-                ${logoUrl ? `<img src="${logoUrl}" alt="GeoRepute" width="32" height="32" style="display: block; margin-bottom: 12px;" />` : ""}
+                ${hasLogo ? `<img src="cid:${LOGO_CONTENT_ID}" alt="GeoRepute" width="32" height="32" style="display: block; margin-bottom: 12px;" />` : ""}
                 <span style="font: 600 18px/1.3 -apple-system, Segoe UI, Arial, sans-serif; color: #f6f4ff;">GeoRepute</span>
                 <div style="font: 400 12px/1.4 -apple-system, Segoe UI, Arial, sans-serif; color: #a9aed0; margin-top: 2px;">New meeting request</div>
               </td>
