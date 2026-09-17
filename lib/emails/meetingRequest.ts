@@ -1,4 +1,25 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { MeetingRequest } from "@/lib/services/mailer";
+
+/**
+ * Inlined as base64 rather than linked by URL: email clients can't reach a
+ * `localhost` URL at all, and even once this is deployed, an inline image
+ * doesn't depend on the recipient's client trusting/loading remote images
+ * (Outlook in particular blocks those by default). Read once and cached —
+ * the file never changes at runtime.
+ */
+let cachedLogoDataUri: string | null | undefined;
+function getLogoDataUri(): string | null {
+  if (cachedLogoDataUri !== undefined) return cachedLogoDataUri;
+  try {
+    const bytes = readFileSync(join(process.cwd(), "public/brand/logo-g-mark.png"));
+    cachedLogoDataUri = `data:image/png;base64,${bytes.toString("base64")}`;
+  } catch {
+    cachedLogoDataUri = null;
+  }
+  return cachedLogoDataUri;
+}
 
 /** Escapes user-supplied text before it's interpolated into the HTML email body. */
 function escapeHtml(value: string): string {
@@ -16,9 +37,7 @@ function escapeHtml(value: string): string {
  * Colors match the site's light-mode brand palette (app/globals.css).
  */
 export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
-  const logoUrl = process.env.NEXT_PUBLIC_SITE_URL
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/brand/logo-g-mark.png`
-    : null;
+  const logoUrl = getLogoDataUri();
 
   const row = (label: string, value: string) => `
     <tr>
