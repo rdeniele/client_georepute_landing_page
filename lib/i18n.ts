@@ -61,6 +61,8 @@ export type Copy = {
   valueAreas: {
     label: string;
     headline: string;
+    supporting: string;
+    exploreCta: string;
     business: { title: string; items: readonly string[] };
     clients: { title: string; items: readonly string[] };
   };
@@ -156,11 +158,12 @@ export type Copy = {
     body: string;
     primaryCta: string;
     secondaryCta: string;
+    ctaSupporting: string;
   };
-  results: {
+  infrastructure: {
     label: string;
     headline: string;
-    stats: readonly [string, string, string, string];
+    items: readonly [string, string, string, string, string];
   };
   tryTool: {
     label: string;
@@ -191,10 +194,10 @@ const en: Copy = {
   hero: {
     eyebrow: "Strategic Business Intelligence Infrastructure",
     headlineWords: ["Every business", "should have its own", "intelligence center."],
-    tagline: "GeoRepute builds a living strategic intelligence layer around the business.",
+    tagline: "From market intelligence to the next move.",
     typewriterPhrases: ["See the whole board.", "Understand what is changing.", "Identify what others miss.", "Know the next move."],
-    supporting: "It connects hundreds of signals and analyses across the company, market, competitors, customers, demand, performance, Google, AI engines and historical activity, then turns them into one strategic picture, business implications, priorities and next moves.",
-    primaryCta: { label: "Explore the Platform", href: "/en/app/reconstruct" },
+    supporting: "Understand your business, market and competitors. See how customers are being influenced across Google and AI. Identify where opportunities are being missed, then turn the intelligence into a prioritized strategy and actionable work plan.",
+    primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "Book a Live Demo", href: "https://www.georepute.ai/signup" },
     scrollHint: "Enter the system",
   },
@@ -216,7 +219,9 @@ const en: Copy = {
   },
   valueAreas: {
     label: "One platform, two connected use cases",
-    headline: "Built to grow your business, and every client you manage.",
+    headline: "Built for marketing agencies and the people responsible for growth.",
+    supporting: "Understand any business, market and competitive environment before deciding where to invest, what to change and what to do next.",
+    exploreCta: "Explore the Platform",
     business: {
       title: "For Your Business",
       items: ["Research your own market", "Identify new prospects and target audiences", "Improve positioning and sales conversations", "Build stronger proposals", "Find new services and business opportunities", "Reduce manual research time", "Support business development and expansion"],
@@ -364,7 +369,8 @@ const en: Copy = {
     headline: "The decision is already happening.",
     body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
     primaryCta: "Analyze My Business",
-    secondaryCta: "Book an Executive Briefing",
+    secondaryCta: "Book a Live Demo",
+    ctaSupporting: "Start with a complete business, market, competitor, Google and AI analysis. GeoRepute turns the findings into opportunities, priorities, strategy and an actionable work plan.",
   },
   tryTool: {
     label: "Try it on your business",
@@ -380,14 +386,15 @@ const en: Copy = {
     unlockBody: "Create a free account to run the real analysis on your business.",
     unlockCta: "Unlock My Full Report",
   },
-  results: {
-    label: "Measured on the live platform",
-    headline: "Results agencies are already seeing.",
-    stats: [
-      "Average AI visibility increase",
-      "AI search platforms tracked, GPT, Gemini, Perplexity and more",
-      "Auto-generated intelligence reports",
-      "Average ROI reported by active accounts",
+  infrastructure: {
+    label: "Platform infrastructure",
+    headline: "Built on a Complete Intelligence Infrastructure",
+    items: [
+      "100+ Business & Marketing Analyses",
+      "Google + 6 AI Engines",
+      "7 Languages",
+      "Continuous PDCA Measurement",
+      "12 Connected Intelligence Engines",
     ],
   },
   footer: {
@@ -417,10 +424,10 @@ const he: Copy = {
   hero: {
     eyebrow: "תשתית מודיעין עסקי אסטרטגי",
     headlineWords: ["לכל עסק צריך", "להיות מרכז", "מודיעין משלו."],
-    tagline: "GeoRepute בונה סביב העסק שכבת מודיעין אסטרטגית חיה.",
+    tagline: "ממודיעין שוק לצעד הבא.",
     typewriterPhrases: ["לראות את כל הלוח.", "להבין מה משתנה.", "לזהות את מה שאחרים מפספסים.", "לדעת מה הצעד הבא."],
-    supporting: "היא מחברת מאות אותות וניתוחים על פני החברה, השוק, המתחרים, הלקוחות, הביקוש, הביצועים, Google, מנועי ה-AI והפעילות ההיסטורית, והופכת אותם לתמונה אסטרטגית אחת, להשלכות עסקיות, לסדרי עדיפויות ולצעדים הבאים.",
-    primaryCta: { label: "גלו את הפלטפורמה", href: "/en/app/reconstruct" },
+    supporting: "הבינו את העסק, השוק והמתחרים שלכם. ראו כיצד לקוחות מושפעים ב-Google ובבינה מלאכותית. זהו היכן מוחמצות הזדמנויות, והפכו את המודיעין לאסטרטגיה מתועדפת ולתוכנית עבודה ברת ביצוע.",
+    primaryCta: { label: "נתחו את העסק שלי", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "קבעו הדגמה חיה", href: "https://www.georepute.ai/signup" },
     scrollHint: "היכנסו למערכת",
   },
@@ -442,7 +449,9 @@ const he: Copy = {
   },
   valueAreas: {
     label: "פלטפורמה אחת, שני שימושים מחוברים",
-    headline: "נבנתה כדי לצמח את העסק שלכם, ואת כל לקוח שאתם מנהלים.",
+    headline: "נבנתה עבור סוכנויות שיווק והאנשים האחראים על הצמיחה.",
+    supporting: "הבינו כל עסק, שוק וסביבה תחרותית לפני שמחליטים היכן להשקיע, מה לשנות ומה לעשות הלאה.",
+    exploreCta: "גלו את הפלטפורמה",
     business: {
       title: "עבור העסק שלכם",
       items: ["חקרו את השוק שלכם", "זהו לידים וקהלי יעד חדשים", "שפרו מיצוב ושיחות מכירה", "בנו הצעות חזקות יותר", "מצאו שירותים והזדמנויות עסקיות חדשות", "צמצמו זמן מחקר ידני", "תמכו בפיתוח עסקי והתרחבות"],
@@ -590,7 +599,8 @@ const he: Copy = {
     headline: "ההחלטה כבר מתרחשת עכשיו.",
     body: "GeoRepute מראה לכם היכן היא מתרחשת, מדוע היא זזה, ומה לשנות הלאה.",
     primaryCta: "נתחו את העסק שלי",
-    secondaryCta: "קבעו תדריך להנהלה",
+    secondaryCta: "קבעו הדגמה חיה",
+    ctaSupporting: "התחילו בניתוח מלא של העסק, השוק, המתחרים, Google והבינה המלאכותית. GeoRepute הופכת את הממצאים להזדמנויות, לסדרי עדיפויות, לאסטרטגיה ולתוכנית עבודה ברת ביצוע.",
   },
   tryTool: {
     label: "נסו זאת על העסק שלכם",
@@ -606,14 +616,15 @@ const he: Copy = {
     unlockBody: "צרו חשבון חינמי כדי להריץ את הניתוח האמיתי על העסק שלכם.",
     unlockCta: "פתחו את הדוח המלא שלי",
   },
-  results: {
-    label: "נמדד בפלטפורמה החיה",
-    headline: "התוצאות שסוכנויות כבר רואות.",
-    stats: [
-      "עלייה ממוצעת בנראות בבינה מלאכותית",
-      "פלטפורמות חיפוש בבינה מלאכותית במעקב, GPT,‏ Gemini,‏ Perplexity ועוד",
-      "דוחות מודיעין שנוצרים אוטומטית",
-      "החזר השקעה ממוצע כפי שמדווח על ידי חשבונות פעילים",
+  infrastructure: {
+    label: "תשתית הפלטפורמה",
+    headline: "בנויה על תשתית מודיעין מקיפה",
+    items: [
+      "+100 ניתוחי עסק ושיווק",
+      "גוגל + 6 מנועי בינה מלאכותית",
+      "7 שפות",
+      "מדידת PDCA מתמשכת",
+      "12 מנועי מודיעין מחוברים",
     ],
   },
   footer: {
@@ -643,10 +654,10 @@ const ar: Copy = {
   hero: {
     eyebrow: "بنية تحتية للذكاء الاستراتيجي للأعمال",
     headlineWords: ["ينبغي أن يكون لكل", "نشاط تجاري", "مركز ذكاء خاص به."],
-    tagline: "تبني GeoRepute حول النشاط التجاري طبقة ذكاء استراتيجي حيّة.",
+    tagline: "من ذكاء السوق إلى الخطوة التالية.",
     typewriterPhrases: ["رؤية الصورة كاملة.", "فهم ما يتغيّر.", "اكتشاف ما يفوت الآخرين.", "معرفة الخطوة التالية."],
-    supporting: "تربط مئات الإشارات والتحليلات عبر الشركة والسوق والمنافسين والعملاء والطلب والأداء وGoogle ومحركات الذكاء الاصطناعي والنشاط التاريخي، ثم تحوّلها إلى صورة استراتيجية واحدة، وانعكاسات على الأعمال، وأولويات، وخطوات تالية.",
-    primaryCta: { label: "استكشفوا المنصة", href: "/en/app/reconstruct" },
+    supporting: "افهموا نشاطكم التجاري وسوقكم ومنافسيكم. شاهدوا كيف يتأثر العملاء عبر Google والذكاء الاصطناعي. حدّدوا أين تُفوَّت الفرص, ثم حوّلوا الذكاء إلى استراتيجية ذات أولويات وخطة عمل قابلة للتنفيذ.",
+    primaryCta: { label: "حلّلوا نشاطكم التجاري", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "احجزوا عرضًا تجريبيًا مباشرًا", href: "https://www.georepute.ai/signup" },
     scrollHint: "ادخلوا إلى النظام",
   },
@@ -667,7 +678,9 @@ const ar: Copy = {
   },
   valueAreas: {
     label: "منصة واحدة، حالتا استخدام متصلتان",
-    headline: "صُممت لتنمية نشاطكم التجاري, وكل عميل تديرونه.",
+    headline: "صُممت لوكالات التسويق والأشخاص المسؤولين عن النمو.",
+    supporting: "افهموا أي نشاط تجاري وسوق وبيئة تنافسية قبل أن تقرروا أين تستثمرون وما الذي يجب تغييره وما هي الخطوة التالية.",
+    exploreCta: "استكشفوا المنصة",
     business: {
       title: "لنشاطكم التجاري",
       items: ["ابحثوا في سوقكم الخاص", "حدّدوا آفاقًا وجماهير مستهدفة جديدة", "حسّنوا التموضع ومحادثات المبيعات", "ابنوا عروضًا أقوى", "اكتشفوا خدمات وفرصًا تجارية جديدة", "قلّلوا وقت البحث اليدوي", "ادعموا تطوير الأعمال والتوسع"],
@@ -816,7 +829,8 @@ const ar: Copy = {
     headline: "القرار يحدث الآن بالفعل.",
     body: "توضح لكم GeoRepute أين يحدث، ولماذا يتغيّر، وما الذي يجب تغييره تاليًا.",
     primaryCta: "حلّلوا نشاطكم التجاري",
-    secondaryCta: "احجزوا إحاطة تنفيذية",
+    secondaryCta: "احجزوا عرضًا تجريبيًا مباشرًا",
+    ctaSupporting: "ابدأوا بتحليل شامل للنشاط التجاري والسوق والمنافسين وGoogle والذكاء الاصطناعي. تحوّل GeoRepute النتائج إلى فرص وأولويات واستراتيجية وخطة عمل قابلة للتنفيذ.",
   },
   tryTool: {
     label: "جرّبوا ذلك على نشاطكم التجاري",
@@ -832,14 +846,15 @@ const ar: Copy = {
     unlockBody: "أنشئوا حسابًا مجانيًا لتشغيل التحليل الحقيقي لنشاطكم التجاري.",
     unlockCta: "افتحوا تقريري الكامل",
   },
-  results: {
-    label: "قياسات من المنصة الفعلية",
-    headline: "النتائج التي تراها الوكالات بالفعل.",
-    stats: [
-      "الزيادة المتوسطة في ظهور الذكاء الاصطناعي",
-      "منصات بحث الذكاء الاصطناعي المتابَعة, GPT وGemini وPerplexity وغيرها",
-      "تقارير معلوماتية تُنشأ تلقائيًا",
-      "متوسط العائد على الاستثمار الذي تسجله الحسابات النشطة",
+  infrastructure: {
+    label: "البنية التحتية للمنصة",
+    headline: "مبنية على بنية تحتية استخباراتية شاملة",
+    items: [
+      "+100 تحليلات تجارية وتسويقية",
+      "جوجل + 6 محركات ذكاء اصطناعي",
+      "7 لغات",
+      "قياس مستمر وفق دورة PDCA",
+      "12 محرك ذكاء متصل",
     ],
   },
   footer: {
@@ -869,10 +884,10 @@ const ru: Copy = {
   hero: {
     eyebrow: "Инфраструктура стратегической бизнес-аналитики",
     headlineWords: ["У каждого бизнеса", "должен быть свой", "центр аналитики."],
-    tagline: "GeoRepute выстраивает вокруг бизнеса живой слой стратегической аналитики.",
+    tagline: "От рыночной аналитики к следующему ходу.",
     typewriterPhrases: ["Видеть всю доску.", "Понимать, что меняется.", "Замечать то, что упускают другие.", "Знать следующий ход."],
-    supporting: "Он объединяет сотни сигналов и анализов о компании, рынке, конкурентах, клиентах, спросе, результатах, Google, ИИ-системах и истории действий, и превращает их в единую стратегическую картину, выводы для бизнеса, приоритеты и следующие шаги.",
-    primaryCta: { label: "Изучить платформу", href: "/en/app/reconstruct" },
+    supporting: "Поймите свой бизнес, рынок и конкурентов. Узнайте, как на клиентов влияют Google и ИИ. Определите, где упускаются возможности, а затем превратите аналитику в приоритетную стратегию и практический план действий.",
+    primaryCta: { label: "Анализировать мой бизнес", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "Записаться на живую демонстрацию", href: "https://www.georepute.ai/signup" },
     scrollHint: "Войти в систему",
   },
@@ -891,7 +906,9 @@ const ru: Copy = {
   },
   valueAreas: {
     label: "Одна платформа, два связанных сценария использования",
-    headline: "Создана, чтобы развивать ваш бизнес, и каждого клиента, которым вы управляете.",
+    headline: "Создана для маркетинговых агентств и людей, отвечающих за рост.",
+    supporting: "Поймите любой бизнес, рынок и конкурентную среду прежде чем решить, куда инвестировать, что изменить и что делать дальше.",
+    exploreCta: "Изучить платформу",
     business: {
       title: "Для вашего бизнеса",
       items: ["Исследуйте собственный рынок", "Находите новых потенциальных клиентов и целевые аудитории", "Улучшайте позиционирование и переговоры о продаже", "Создавайте более убедительные предложения", "Находите новые услуги и бизнес-возможности", "Сокращайте время на ручные исследования", "Поддерживайте развитие и расширение бизнеса"],
@@ -1042,7 +1059,8 @@ const ru: Copy = {
     headline: "Решение уже принимается прямо сейчас.",
     body: "GeoRepute показывает, где это происходит, почему меняется и что изменить дальше.",
     primaryCta: "Анализировать мой бизнес",
-    secondaryCta: "Записаться на брифинг для руководителей",
+    secondaryCta: "Записаться на живую демонстрацию",
+    ctaSupporting: "Начните с полного анализа бизнеса, рынка, конкурентов, Google и ИИ. GeoRepute превращает результаты в возможности, приоритеты, стратегию и практический план действий.",
   },
   tryTool: {
     label: "Проверьте на своём бизнесе",
@@ -1058,14 +1076,15 @@ const ru: Copy = {
     unlockBody: "Создайте бесплатный аккаунт, чтобы запустить настоящий анализ вашего бизнеса.",
     unlockCta: "Открыть полный отчёт",
   },
-  results: {
-    label: "Измерено на живой платформе",
-    headline: "Результаты, которые агентства уже видят.",
-    stats: [
-      "Средний рост видимости в ИИ",
-      "ИИ-поисковых платформ под наблюдением, GPT, Gemini, Perplexity и другие",
-      "Автоматически формируемых аналитических отчётов",
-      "Средняя рентабельность инвестиций у активных аккаунтов",
+  infrastructure: {
+    label: "Инфраструктура платформы",
+    headline: "Построена на комплексной аналитической инфраструктуре",
+    items: [
+      "100+ Бизнес- и маркетинговая аналитика",
+      "Google + 6 ИИ-систем",
+      "7 языков",
+      "Непрерывное измерение по циклу PDCA",
+      "12 связанных аналитических движков",
     ],
   },
   footer: {
@@ -1095,10 +1114,10 @@ const fr: Copy = {
   hero: {
     eyebrow: "Infrastructure d’intelligence stratégique d’entreprise",
     headlineWords: ["Chaque entreprise", "devrait avoir son propre", "centre d’intelligence."],
-    tagline: "GeoRepute construit autour de l’entreprise une couche vivante d’intelligence stratégique.",
+    tagline: "De l’intelligence de marché au prochain coup.",
     typewriterPhrases: ["Voir tout l’échiquier.", "Comprendre ce qui change.", "Repérer ce que les autres manquent.", "Connaître le prochain coup."],
-    supporting: "Elle relie des centaines de signaux et d’analyses sur l’entreprise, le marché, les concurrents, les clients, la demande, la performance, Google, les moteurs d’IA et l’historique d’activité, puis les transforme en une vision stratégique unique, en implications business, en priorités et en prochaines actions.",
-    primaryCta: { label: "Explorer la plateforme", href: "/en/app/reconstruct" },
+    supporting: "Comprenez votre entreprise, votre marché et vos concurrents. Découvrez comment les clients sont influencés sur Google et par l’IA. Identifiez les opportunités manquées, puis transformez l’intelligence en une stratégie priorisée et un plan d’action concret.",
+    primaryCta: { label: "Analyser mon entreprise", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "Réserver une démo en direct", href: "https://www.georepute.ai/signup" },
     scrollHint: "Entrer dans le système",
   },
@@ -1117,7 +1136,9 @@ const fr: Copy = {
   },
   valueAreas: {
     label: "Une plateforme, deux cas d’usage connectés",
-    headline: "Conçue pour développer votre entreprise, et chaque client que vous gérez.",
+    headline: "Conçue pour les agences marketing et les personnes responsables de la croissance.",
+    supporting: "Comprenez toute entreprise, tout marché et tout environnement concurrentiel avant de décider où investir, quoi changer et quoi faire ensuite.",
+    exploreCta: "Explorer la plateforme",
     business: {
       title: "Pour votre entreprise",
       items: ["Étudiez votre propre marché", "Identifiez de nouveaux prospects et audiences cibles", "Améliorez votre positionnement et vos échanges commerciaux", "Construisez des propositions plus solides", "Trouvez de nouveaux services et opportunités commerciales", "Réduisez le temps de recherche manuelle", "Soutenez le développement et l’expansion de l’entreprise"],
@@ -1268,7 +1289,8 @@ const fr: Copy = {
     headline: "La décision est déjà en train de se produire.",
     body: "GeoRepute vous montre où elle se produit, pourquoi elle évolue, et ce qu’il faut changer ensuite.",
     primaryCta: "Analyser mon entreprise",
-    secondaryCta: "Réserver un briefing exécutif",
+    secondaryCta: "Réserver une démo en direct",
+    ctaSupporting: "Commencez par une analyse complète de votre entreprise, de votre marché, de vos concurrents, de Google et de l’IA. GeoRepute transforme les résultats en opportunités, priorités, stratégie et plan d’action concret.",
   },
   tryTool: {
     label: "Essayez avec votre entreprise",
@@ -1284,14 +1306,15 @@ const fr: Copy = {
     unlockBody: "Créez un compte gratuit pour lancer la véritable analyse de votre entreprise.",
     unlockCta: "Débloquer mon rapport complet",
   },
-  results: {
-    label: "Mesuré sur la plateforme en direct",
-    headline: "Les résultats que les agences constatent déjà.",
-    stats: [
-      "Augmentation moyenne de la visibilité IA",
-      "Plateformes de recherche IA suivies, GPT, Gemini, Perplexity et plus",
-      "Rapports d'intelligence générés automatiquement",
-      "ROI moyen déclaré par les comptes actifs",
+  infrastructure: {
+    label: "Infrastructure de la plateforme",
+    headline: "Construite sur une infrastructure d’intelligence complète",
+    items: [
+      "100+ Analyses commerciales et marketing",
+      "Google + 6 moteurs d’IA",
+      "7 langues",
+      "Mesure PDCA continue",
+      "12 moteurs d’intelligence connectés",
     ],
   },
   footer: {
@@ -1321,10 +1344,10 @@ const es: Copy = {
   hero: {
     eyebrow: "Infraestructura de inteligencia estratégica empresarial",
     headlineWords: ["Toda empresa", "debería tener su propio", "centro de inteligencia."],
-    tagline: "GeoRepute construye alrededor del negocio una capa viva de inteligencia estratégica.",
+    tagline: "De la inteligencia de mercado a la próxima jugada.",
     typewriterPhrases: ["Ver todo el tablero.", "Entender qué está cambiando.", "Detectar lo que otros no ven.", "Saber la próxima jugada."],
-    supporting: "Conecta cientos de señales y análisis sobre la empresa, el mercado, los competidores, los clientes, la demanda, el rendimiento, Google, los motores de IA y la actividad histórica, y los convierte en una única visión estratégica, implicaciones para el negocio, prioridades y próximos pasos.",
-    primaryCta: { label: "Explorar la plataforma", href: "/en/app/reconstruct" },
+    supporting: "Comprenda su negocio, su mercado y sus competidores. Vea cómo se influye a los clientes en Google y en la IA. Identifique dónde se están perdiendo oportunidades y convierta la inteligencia en una estrategia priorizada y un plan de trabajo accionable.",
+    primaryCta: { label: "Analizar mi negocio", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "Reservar una demo en vivo", href: "https://www.georepute.ai/signup" },
     scrollHint: "Entrar en el sistema",
   },
@@ -1343,7 +1366,9 @@ const es: Copy = {
   },
   valueAreas: {
     label: "Una plataforma, dos casos de uso conectados",
-    headline: "Creada para hacer crecer su negocio, y cada cliente que gestiona.",
+    headline: "Creada para agencias de marketing y las personas responsables del crecimiento.",
+    supporting: "Comprenda cualquier negocio, mercado y entorno competitivo antes de decidir dónde invertir, qué cambiar y qué hacer a continuación.",
+    exploreCta: "Explorar la plataforma",
     business: {
       title: "Para su negocio",
       items: ["Investigue su propio mercado", "Identifique nuevos prospectos y audiencias objetivo", "Mejore el posicionamiento y las conversaciones de venta", "Construya propuestas más sólidas", "Encuentre nuevos servicios y oportunidades de negocio", "Reduzca el tiempo de investigación manual", "Apoye el desarrollo y la expansión del negocio"],
@@ -1494,7 +1519,8 @@ const es: Copy = {
     headline: "La decisión ya está ocurriendo.",
     body: "GeoRepute le muestra dónde ocurre, por qué cambia, y qué hacer a continuación.",
     primaryCta: "Analizar mi negocio",
-    secondaryCta: "Reservar una sesión ejecutiva",
+    secondaryCta: "Reservar una demo en vivo",
+    ctaSupporting: "Comience con un análisis completo de su negocio, mercado, competidores, Google e IA. GeoRepute convierte los hallazgos en oportunidades, prioridades, estrategia y un plan de trabajo accionable.",
   },
   tryTool: {
     label: "Pruébalo con tu negocio",
@@ -1510,14 +1536,15 @@ const es: Copy = {
     unlockBody: "Crea una cuenta gratuita para ejecutar el análisis real de tu negocio.",
     unlockCta: "Desbloquear mi informe completo",
   },
-  results: {
-    label: "Medido en la plataforma en vivo",
-    headline: "Los resultados que las agencias ya están viendo.",
-    stats: [
-      "Aumento promedio de visibilidad en IA",
-      "Plataformas de búsqueda IA monitoreadas, GPT, Gemini, Perplexity y más",
-      "Informes de inteligencia generados automáticamente",
-      "ROI promedio reportado por cuentas activas",
+  infrastructure: {
+    label: "Infraestructura de la plataforma",
+    headline: "Construida sobre una infraestructura de inteligencia completa",
+    items: [
+      "100+ Análisis comerciales y de marketing",
+      "Google + 6 motores de IA",
+      "7 idiomas",
+      "Medición PDCA continua",
+      "12 motores de inteligencia conectados",
     ],
   },
   footer: {
@@ -1547,10 +1574,10 @@ const pt: Copy = {
   hero: {
     eyebrow: "Infraestrutura de inteligência estratégica de negócios",
     headlineWords: ["Toda empresa", "deveria ter seu próprio", "centro de inteligência."],
-    tagline: "A GeoRepute constrói em torno do negócio uma camada viva de inteligência estratégica.",
+    tagline: "Da inteligência de mercado ao próximo movimento.",
     typewriterPhrases: ["Ver o tabuleiro inteiro.", "Entender o que está mudando.", "Identificar o que os outros não veem.", "Saber o próximo movimento."],
-    supporting: "Ela conecta centenas de sinais e análises sobre a empresa, o mercado, os concorrentes, os clientes, a demanda, o desempenho, o Google, os mecanismos de IA e o histórico de atividades, e os transforma em uma visão estratégica única, implicações para o negócio, prioridades e próximos passos.",
-    primaryCta: { label: "Explorar a plataforma", href: "/en/app/reconstruct" },
+    supporting: "Entenda o seu negócio, o seu mercado e os seus concorrentes. Veja como os clientes são influenciados no Google e na IA. Identifique onde as oportunidades estão sendo perdidas e transforme a inteligência em uma estratégia priorizada e um plano de trabalho executável.",
+    primaryCta: { label: "Analisar meu negócio", href: "https://www.georepute.ai/signup" },
     secondaryCta: { label: "Agendar uma demonstração ao vivo", href: "https://www.georepute.ai/signup" },
     scrollHint: "Entrar no sistema",
   },
@@ -1572,7 +1599,9 @@ const pt: Copy = {
   },
   valueAreas: {
     label: "Uma plataforma, dois casos de uso conectados",
-    headline: "Criada para fazer crescer o seu negócio, e cada cliente que você gerencia.",
+    headline: "Criada para agências de marketing e as pessoas responsáveis pelo crescimento.",
+    supporting: "Entenda qualquer negócio, mercado e ambiente competitivo antes de decidir onde investir, o que mudar e o que fazer a seguir.",
+    exploreCta: "Explorar a plataforma",
     business: {
       title: "Para o seu negócio",
       items: ["Pesquise o seu próprio mercado", "Identifique novos prospects e públicos-alvo", "Melhore o posicionamento e as conversas de venda", "Construa propostas mais sólidas", "Encontre novos serviços e oportunidades de negócio", "Reduza o tempo de pesquisa manual", "Apoie o desenvolvimento e a expansão do negócio"],
@@ -1720,7 +1749,8 @@ const pt: Copy = {
     headline: "A decisão já está acontecendo.",
     body: "A GeoRepute mostra onde ela acontece, por que muda, e o que fazer a seguir.",
     primaryCta: "Analisar meu negócio",
-    secondaryCta: "Agendar um briefing executivo",
+    secondaryCta: "Agendar uma demonstração ao vivo",
+    ctaSupporting: "Comece com uma análise completa do negócio, mercado, concorrentes, Google e IA. A GeoRepute transforma as descobertas em oportunidades, prioridades, estratégia e um plano de trabalho executável.",
   },
   tryTool: {
     label: "Experimente com o seu negócio",
@@ -1736,14 +1766,15 @@ const pt: Copy = {
     unlockBody: "Crie uma conta gratuita para executar a análise real do seu negócio.",
     unlockCta: "Desbloquear meu relatório completo",
   },
-  results: {
-    label: "Medido na plataforma em produção",
-    headline: "Os resultados que as agências já estão vendo.",
-    stats: [
-      "Aumento médio de visibilidade em IA",
-      "Plataformas de busca por IA monitoradas, GPT, Gemini, Perplexity e mais",
-      "Relatórios de inteligência gerados automaticamente",
-      "ROI médio reportado por contas ativas",
+  infrastructure: {
+    label: "Infraestrutura da plataforma",
+    headline: "Construída sobre uma infraestrutura de inteligência completa",
+    items: [
+      "100+ Análises de negócios e marketing",
+      "Google + 6 motores de IA",
+      "7 idiomas",
+      "Medição PDCA contínua",
+      "12 motores de inteligência conectados",
     ],
   },
   footer: {
@@ -1796,6 +1827,8 @@ export function localizeNav(localeValue: string) {
     links: [
       { ...nav.links[0], label: navText.how || nav.links[0].label, href: localizePath(nav.links[0].href, locale) },
       { ...nav.links[1], label: navText.methodology || nav.links[1].label, href: localizePath(nav.links[1].href, locale) },
+      // Href is left as-is (not localizePath'd) — the blog has no per-locale routes.
+      { ...nav.links[2], label: navText.blog || nav.links[2].label, href: nav.links[2].href },
     ],
     signIn: { ...nav.signIn, label: navText.signIn || nav.signIn.label, href: localizePath(nav.signIn.href, locale) },
     cta: { ...nav.cta, label: navText.cta || nav.cta.label, href: localizePath(nav.cta.href, locale) },

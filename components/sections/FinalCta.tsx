@@ -56,6 +56,10 @@ export function FinalCta({ locale = "en" }: { locale?: string }) {
             {c.secondaryCta}
           </Button>
         </div>
+
+        <p className="t-body final__cta-note" data-reveal data-reveal-delay="300">
+          {c.ctaSupporting}
+        </p>
       </div>
 
       <SiteFooter locale={locale} />

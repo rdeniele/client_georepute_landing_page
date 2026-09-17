@@ -113,6 +113,8 @@ export const nav = {
   links: [
     { label: "How It Works", href: "/en/how-it-works" },
     { label: "Methodology", href: "/en/methodology" },
+    // Not locale-prefixed: the blog isn't translated, unlike the rest of the site.
+    { label: "Blog", href: "/blog" },
   ],
   signIn: { label: "Sign In", href: "/en/signin" },
   cta: { label: "Start Analysis", href: "https://www.georepute.ai/signup" },
@@ -571,27 +573,13 @@ export const tryTool = {
   unlockHref: "https://www.georepute.ai/signup",
 } as const;
 
-/**
- * Section, measured results, published on the live GeoRepute site's own
- * marketing pages (georepute.ai). Not part of the numbered section sequence:
- * a compact trust strip ahead of the close, not a signature surface.
- */
-export const results = {
-  stats: [
-    { value: 340, prefix: "", suffix: "%", decimals: 0 },
-    { value: 50, prefix: "", suffix: "+", decimals: 0 },
-    { value: 50, prefix: "", suffix: "+", decimals: 0 },
-    { value: 8.5, prefix: "", suffix: "x", decimals: 1 },
-  ],
-} as const;
-
 export const finalCta = {
   index: "11",
   label: "Analyze my business",
   headline: "The decision is already happening.",
   body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
   primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
-  secondaryCta: { label: "Book an Executive Briefing", href: "https://www.georepute.ai/signup" },
+  secondaryCta: { label: "Book a Live Demo", href: "https://www.georepute.ai/signup" },
 } as const;
 
 export const footer = {

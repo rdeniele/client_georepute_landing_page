@@ -1948,6 +1948,12 @@
   margin-top: 14px;
 }
 
+.final__cta-note {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--color-ink-dim);
+}
+
 .foot {
   border-top: 1px solid var(--line);
   padding-block: 32px;
@@ -2447,13 +2453,25 @@
 }
 
 .values__headline {
-  margin: 0 0 clamp(36px, 5vw, 56px);
+  margin: 0 0 18px;
   max-width: 32ch;
   font-size: var(--text-h2);
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.03em;
   color: var(--color-ink);
+}
+
+.values__body {
+  margin: 0 0 clamp(36px, 5vw, 56px);
+  max-width: 60ch;
+  color: var(--color-ink-dim);
+}
+
+.values__explore {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(28px, 4vw, 44px);
 }
 
 .values__grid {
@@ -2518,22 +2536,24 @@ html[dir="rtl"] .values__item::before {
 }
 
 /* ============================================================================
-   RESULTS, measured outcomes published on the live platform's own site.
-   A compact trust strip ahead of the close, not a numbered signature section.
+   INFRASTRUCTURE, the breadth of the platform itself: surfaces watched,
+   languages, engines, measurement cadence. A compact credibility strip ahead
+   of the close, not a numbered signature section, and not a claim about
+   customer outcomes.
    ========================================================================== */
 
-.results {
+.infra {
   padding-block: clamp(56px, 8vw, 96px);
   background: var(--band-paper-soft, var(--surface-hover));
 }
 
-.results__eyebrow {
+.infra__eyebrow {
   margin: 0 0 16px;
 }
 
-.results__headline {
+.infra__headline {
   margin: 0 0 clamp(32px, 5vw, 48px);
-  max-width: 30ch;
+  max-width: 34ch;
   font-size: var(--text-h2);
   font-weight: 600;
   line-height: 1.08;
@@ -2541,38 +2561,34 @@ html[dir="rtl"] .values__item::before {
   color: var(--color-ink);
 }
 
-.results__grid {
+.infra__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(24px, 4vw, 40px);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: clamp(16px, 2.4vw, 24px);
 }
 
-.results__stat {
+.infra__item {
+  padding: clamp(20px, 2.4vw, 28px);
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  min-height: 92px;
 }
 
-.results__value {
+.infra__item-text {
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--color-ink);
 }
 
-.results__label {
-  font-size: var(--text-body-sm);
-  line-height: 1.4;
-  color: var(--color-ink-dim);
-  max-width: 24ch;
-}
-
 @media (max-width: 900px) {
-  .results__grid {
+  .infra__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(28px, 5vw, 40px) clamp(20px, 4vw, 32px);
   }
 }
 
 @media (max-width: 480px) {
-  .results__grid {
+  .infra__grid {
     grid-template-columns: 1fr;
   }
 }

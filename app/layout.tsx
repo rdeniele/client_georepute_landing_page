@@ -12,6 +12,8 @@ import "./pages-engines.css";
 import "./pages-product.css";
 import "./pages-info.css";
 import "./intro.css";
+import "./blog.css";
+import "./admin.css";
 
 const display = Inter_Tight({
   subsets: ["latin"],
@@ -36,6 +38,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : undefined,
   title: "GeoRepute | Strategic Business Intelligence Infrastructure",
   description:
     "Every business should have its own intelligence center. GeoRepute builds a living strategic intelligence layer around the business and turns hundreds of signals into one strategic picture, priorities and next moves.",

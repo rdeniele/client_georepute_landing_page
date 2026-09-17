@@ -1,13 +1,19 @@
-import { getLocaleCopy } from "@/lib/i18n";
+import { Button } from "@/components/ui/Button";
+import { getLocaleCopy, localizePath, normalizeLocale } from "@/lib/i18n";
 
 /**
  * The two connected use cases of one platform: growing the agency's own
  * business, and going deeper on every client it manages. Same visual
  * weight, same card treatment, neither reads as the "real" product with
  * the other bolted on.
+ *
+ * "Explore the Platform" lives here rather than in the hero: it's the
+ * exploration-tier CTA, positioned after the audience has been told who
+ * this is for, not competing with the hero's conversion action.
  */
 export function ValueAreas({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).valueAreas;
+  const exploreHref = localizePath("/en/app/reconstruct", normalizeLocale(locale));
   return (
     <section id="value-areas" className="section values" data-section>
       <div className="shell">
@@ -17,6 +23,9 @@ export function ValueAreas({ locale = "en" }: { locale?: string }) {
         <h2 className="values__headline" data-reveal data-reveal-delay="60">
           {c.headline}
         </h2>
+        <p className="t-lead values__body" data-reveal data-reveal-delay="90">
+          {c.supporting}
+        </p>
 
         <div className="values__grid">
           <article className="values__card glass" data-reveal data-reveal-delay="120">
@@ -50,6 +59,12 @@ export function ValueAreas({ locale = "en" }: { locale?: string }) {
               ))}
             </ul>
           </article>
+        </div>
+
+        <div className="values__explore" data-reveal data-reveal-delay="240">
+          <Button href={exploreHref} variant="ghost">
+            {c.exploreCta}
+          </Button>
         </div>
       </div>
     </section>
