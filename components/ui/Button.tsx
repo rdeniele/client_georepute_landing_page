@@ -43,10 +43,15 @@ export function Button({
     if (inner.current) inner.current.style.transform = "";
   };
 
+  // mailto/external destinations open in a new tab so the visitor never loses their place on the page.
+  const isNewTab = href.startsWith("mailto:") || href.startsWith("http");
+
   return (
     <a
       ref={ref}
       href={href}
+      target={isNewTab ? "_blank" : undefined}
+      rel={isNewTab ? "noopener noreferrer" : undefined}
       className={`btn btn--${variant} ${className}`}
       onPointerMove={move}
       onPointerLeave={reset}
