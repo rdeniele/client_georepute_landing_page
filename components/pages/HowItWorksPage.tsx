@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { Band } from "@/components/ui/Band";
-import { Crumbs, CtaBand, DEMO_HREF, DemoNote, lhref, PageHero, SectionIntro } from "@/components/subpages/kit";
+import { Crumbs, CtaBand, DemoNote, lhref, MEETING_HREF, PageHero, SectionIntro } from "@/components/subpages/kit";
 import { SubpageFx } from "@/components/subpages/fx";
 import { PhaseRing, Sometimes } from "@/components/subpages/LoopWidgets";
 import { howItWorks as c } from "@/lib/subpages/copy";
@@ -43,7 +43,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
         lead={c.lead}
         actions={
           <>
-            <Button href={DEMO_HREF} variant="primary">
+            <Button href={MEETING_HREF} variant="primary">
               Book a Live Demo
             </Button>
             <Button href="#loop" variant="ghost">
@@ -240,7 +240,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
         eyebrow="See it run"
         title={c.cta.title}
         body={c.cta.body}
-        primary={{ label: "Book a Live Demo", href: DEMO_HREF }}
+        primary={{ label: "Book a Live Demo", href: MEETING_HREF }}
         secondary={{ label: "Open Mission Control", href: lhref("/en/app/mission-control", locale) }}
       />
     </div>

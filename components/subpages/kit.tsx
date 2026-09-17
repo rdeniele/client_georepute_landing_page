@@ -7,6 +7,9 @@ import { nav } from "@/lib/content";
 
 export const DEMO_HREF = nav.cta.href;
 
+/** Interim booking destination for every "Book a Live Demo" / meeting CTA, until a real calendar tool is wired up. */
+export const MEETING_HREF = "mailto:georepute@gmail.com?subject=Meeting%20Request";
+
 /** Rewrites an `/en/...` route into the visitor's current locale. */
 export function lhref(href: string, locale: string) {
   return href.startsWith("/en") ? href.replace(/^\/en(?=\/|$)/, `/${locale}`) : href;
