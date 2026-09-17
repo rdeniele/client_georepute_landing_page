@@ -38,6 +38,22 @@
   }
 }
 
+/* Shown instead of a real photo when a post has no featured image, so every card in the grid still reads as a clickable tile rather than a bare text block. */
+.blog-card__media-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-signal-core), var(--color-signal-lit));
+}
+
+.blog-card__media-fallback img {
+  width: 40px;
+  height: 40px;
+  opacity: 0.9;
+}
+
 .blog-card__body {
   display: flex;
   flex-direction: column;
