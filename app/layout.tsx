@@ -12,6 +12,7 @@ import "./pages-engines.css";
 import "./pages-product.css";
 import "./pages-info.css";
 import "./intro.css";
+import "./trymodal.css";
 import "./blog.css";
 import "./admin.css";
 

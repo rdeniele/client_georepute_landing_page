@@ -1,18 +1,58 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { submitMeetingRequestAction, type MeetingRequestState } from "@/lib/actions/meeting";
 
 const initialState: MeetingRequestState = { status: "idle", error: null };
 
-export function MeetingRequestForm() {
+/** `YYYY-MM-DDTHH:mm` for "now" in the browser's timezone — the format `datetime-local` expects for `min`. */
+function localNowValue(): string {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+}
+
+/** `meetEnabled` is true only when Google Calendar credentials are configured on the server. */
+export function MeetingRequestForm({ meetEnabled = false }: { meetEnabled?: boolean }) {
   const [state, formAction, pending] = useActionState(submitMeetingRequestAction, initialState);
+  const [scheduleMeet, setScheduleMeet] = useState(false);
+  const [timeZone, setTimeZone] = useState("");
+  const [minStart, setMinStart] = useState("");
+
+  const toggleMeet = (checked: boolean) => {
+    setScheduleMeet(checked);
+    if (checked) {
+      setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      setMinStart(localNowValue());
+    }
+  };
 
   if (state.status === "success") {
+    const { meet } = state;
     return (
       <div className="kit-form-success" role="status">
         <p className="t-h4">Thanks — your request is in.</p>
-        <p className="t-body">We&apos;ll reply from georepute@gmail.com shortly to find a time.</p>
+        {meet?.link ? (
+          <>
+            <p className="t-body">Your Google Meet is set for {meet.slotLabel}.</p>
+            <p className="t-body">
+              <a href={meet.link} target="_blank" rel="noopener noreferrer">
+                {meet.link}
+              </a>
+            </p>
+            <p className="t-body">
+              {meet.confirmationSent
+                ? "We've emailed you the link too."
+                : "Keep this link — we couldn't email it to you."}
+            </p>
+          </>
+        ) : (
+          <p className="t-body">
+            {meet
+              ? `We couldn't create the Google Meet link automatically, so we'll reply from georepute@gmail.com to confirm ${meet.slotLabel}.`
+              : "We'll reply from georepute@gmail.com shortly to find a time."}
+          </p>
+        )}
       </div>
     );
   }
@@ -42,15 +82,52 @@ export function MeetingRequestForm() {
         </div>
       </div>
 
-      <div className="kit-field">
-        <label htmlFor="company">Company (optional)</label>
-        <input id="company" name="company" type="text" autoComplete="organization" />
+      <div className="kit-field-row">
+        <div className="kit-field">
+          <label htmlFor="phone">Phone Number (optional)</label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            inputMode="tel"
+            maxLength={30}
+            pattern="\+?[\d\s\(\)\.\-]{7,30}"
+            title="A phone number, e.g. +1 555 123 4567"
+          />
+        </div>
+        <div className="kit-field">
+          <label htmlFor="company">Company (optional)</label>
+          <input id="company" name="company" type="text" autoComplete="organization" />
+        </div>
       </div>
 
       <div className="kit-field">
         <label htmlFor="message">What would you like to discuss?</label>
         <textarea id="message" name="message" rows={4} required />
       </div>
+
+      {meetEnabled ? (
+        <div className="kit-meet">
+          <label className="kit-check">
+            <input
+              type="checkbox"
+              name="scheduleMeet"
+              checked={scheduleMeet}
+              onChange={(event) => toggleMeet(event.target.checked)}
+            />
+            Schedule a Google Meet call
+          </label>
+          {scheduleMeet ? (
+            <div className="kit-field">
+              <label htmlFor="meetingStart">Preferred date &amp; time</label>
+              <input id="meetingStart" name="meetingStart" type="datetime-local" required min={minStart} />
+              <input type="hidden" name="timezone" value={timeZone} />
+              <p className="kit-field__hint">30 minutes · {timeZone}. We&apos;ll email you the Meet link.</p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <button type="submit" className="btn btn--conversion" disabled={pending}>
         {pending ? "Sending…" : "Request a meeting"}

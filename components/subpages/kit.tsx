@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Band, type BandTone } from "@/components/ui/Band";
+import { BandNetwork } from "@/components/ui/BandNetwork";
 import { Button } from "@/components/ui/Button";
 import { SiteFooter } from "@/components/ui/SiteFooter";
 import { CONFIDENCE, DEMO_NOTE, type Confidence, type Trend } from "@/lib/subpages/demo";
@@ -56,6 +57,7 @@ export function PageHero({
   crumbs,
   className = "",
   meta,
+  backdrop,
 }: {
   id: string;
   eyebrow: string;
@@ -68,10 +70,22 @@ export function PageHero({
   crumbs: ReactNode;
   className?: string;
   meta?: ReactNode;
+  /** `"network"` swaps the band plate for the dark connected-network field from the home page, with light copy. */
+  backdrop?: "network";
 }) {
   return (
-    <section className={`kit-hero kit-hero--${layout} ${className}`} aria-labelledby={`${id}-title`}>
-      <Band tone={tone} edge="top-hard" />
+    <section
+      className={`kit-hero kit-hero--${layout} ${backdrop ? `kit-hero--${backdrop}` : ""} ${className}`}
+      aria-labelledby={`${id}-title`}
+    >
+      {backdrop === "network" ? (
+        <div className="kit-hero__backdrop" aria-hidden="true">
+          <BandNetwork className="kit-hero__net" />
+          <BandNetwork className="kit-hero__net kit-hero__net--echo" />
+        </div>
+      ) : (
+        <Band tone={tone} edge="top-hard" />
+      )}
       <div className="kit-hero__glow" aria-hidden="true" data-parallax="0.12" />
       <div className="shell kit-hero__grid">
         <div className="kit-hero__copy">

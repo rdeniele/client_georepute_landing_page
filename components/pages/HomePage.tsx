@@ -1,7 +1,6 @@
 "use client";
 
 import { Hero } from "@/components/sections/Hero";
-import { TryTool } from "@/components/sections/TryTool";
 import { Differentiation } from "@/components/sections/Differentiation";
 import { PlatformFlowSection } from "@/components/sections/PlatformFlowSection";
 import { ValueAreas } from "@/components/sections/ValueAreas";
@@ -21,7 +20,6 @@ export function HomePage({ locale = "en" }: { locale?: string }) {
   return (
     <>
       <Hero locale={locale} />
-      <TryTool locale={locale} />
       <Differentiation locale={locale} />
       <PlatformFlowSection locale={locale} />
       <ValueAreas locale={locale} />

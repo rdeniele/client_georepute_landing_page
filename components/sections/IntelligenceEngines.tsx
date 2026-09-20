@@ -238,8 +238,6 @@ export function IntelligenceEngines({ locale = "en" }: { locale?: string }) {
                        }
                       aria-pressed={focus === e.id}
                       aria-describedby="engines-readout"
-                      data-cursor="live"
-                      data-cursor-label={isHub ? c.sourceCursor : c.focusCursor}
                     >
                       <span className="engines__node-dot" aria-hidden="true" />
                       <span className="engines__node-name">{c.items[i].name}</span>

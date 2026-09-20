@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
+import { SIGNUP_URL, TRY_OPEN_EVENT } from "@/lib/tryModal";
 
 /**
  * Magnetic CTA.
@@ -48,6 +49,16 @@ export function Button({
   // so target="_blank" only leaves a blank tab behind when no mail app is configured.
   const isNewTab = href.startsWith("http");
 
+  // Sign-up CTAs open the "try it" modal first. The href stays on the anchor, so
+  // modified clicks (new tab, copy link) and no-JS visitors still reach sign-up.
+  const opensTryModal = href === SIGNUP_URL;
+  const open = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!opensTryModal || e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    window.dispatchEvent(new Event(TRY_OPEN_EVENT));
+  };
+
   return (
     <a
       ref={ref}
@@ -55,6 +66,7 @@ export function Button({
       target={isNewTab ? "_blank" : undefined}
       rel={isNewTab ? "noopener noreferrer" : undefined}
       className={`btn btn--${variant} ${className}`}
+      onClick={open}
       onPointerMove={move}
       onPointerLeave={reset}
       onBlur={reset}

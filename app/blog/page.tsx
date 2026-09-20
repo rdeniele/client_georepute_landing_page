@@ -28,6 +28,8 @@ export default async function BlogIndexPage() {
       <div className="kit-page blog-page">
         <PageHero
           id="blog"
+          layout="stack"
+          backdrop="network"
           crumbs={<Crumbs locale="en" trail={[{ label: "Blog" }]} />}
           eyebrow="Insights"
           title="From the GeoRepute team."

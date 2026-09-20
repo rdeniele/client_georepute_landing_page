@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Crumbs, PageHero } from "@/components/subpages/kit";
 import { MeetingRequestForm } from "@/components/forms/MeetingRequestForm";
+import { isGoogleMeetConfigured } from "@/lib/services/googleMeet";
 
 export const metadata: Metadata = {
   title: "Schedule a Meeting | GeoRepute",
   description: "Tell us a bit about your business and we'll get back to you to find a time.",
   alternates: { canonical: "/briefing" },
 };
+
+// Reads server env at request time, so the Meet option follows the deployment's credentials rather than the build's.
+export const dynamic = "force-dynamic";
 
 export default function BriefingPage() {
   return (
@@ -23,7 +27,7 @@ export default function BriefingPage() {
 
         <section className="kit-section kit-section--tight" data-section>
           <div className="shell">
-            <MeetingRequestForm />
+            <MeetingRequestForm meetEnabled={isGoogleMeetConfigured()} />
           </div>
         </section>
       </div>

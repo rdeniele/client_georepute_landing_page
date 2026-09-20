@@ -7,8 +7,8 @@ import { Navigation } from "@/components/ui/Navigation";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { LocaleAttributes } from "@/components/ui/LocaleAttributes";
 import { IntelligenceCanvas } from "@/components/three/IntelligenceCanvas";
-import { Cursor } from "@/components/ui/Cursor";
 import { IntroModal } from "@/components/intro/IntroModal";
+import { TryModal } from "@/components/try/TryModal";
 
 export function SiteShell({
   children,
@@ -27,7 +27,6 @@ export function SiteShell({
   return (
     <ScrollProvider>
       <LocaleAttributes locale={locale} />
-      <Cursor />
       <div className="void-wash" aria-hidden="true" />
       {home && <IntelligenceCanvas />}
       <Navigation />
@@ -36,6 +35,7 @@ export function SiteShell({
         {children}
       </main>
       <IntroModal locale={locale} />
+      <TryModal locale={locale} />
     </ScrollProvider>
   );
 }

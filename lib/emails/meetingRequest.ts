@@ -39,24 +39,31 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+const FONT = "-apple-system, Segoe UI, Arial, sans-serif";
+
+const row = (label: string, value: string) => `
+    <tr>
+      <td style="padding: 4px 0; font: 600 12px/1.4 ${FONT}; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; width: 110px; vertical-align: top;">
+        ${escapeHtml(label)}
+      </td>
+      <td style="padding: 4px 0; font: 400 15px/1.5 ${FONT}; color: #0c1134;">
+        ${escapeHtml(value)}
+      </td>
+    </tr>`;
+
+const button = (href: string, label: string) => `
+    <a href="${escapeHtml(href)}" style="display: inline-block; padding: 11px 20px; border-radius: 8px; background: #6b34e8; color: #ffffff; font: 600 14px/1 ${FONT}; text-decoration: none;">
+      ${escapeHtml(label)}
+    </a>`;
+
 /**
  * Table-based layout with every style inlined — the only markup approach
  * that renders consistently across email clients (Gmail, Outlook, Apple
  * Mail strip <style> blocks and don't support flexbox/grid).
  * Colors match the site's light-mode brand palette (app/globals.css).
  */
-export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
+function emailShell({ subtitle, body, footer }: { subtitle: string; body: string; footer: string }): string {
   const hasLogo = getLogoBase64() !== null;
-
-  const row = (label: string, value: string) => `
-    <tr>
-      <td style="padding: 4px 0; font: 600 12px/1.4 -apple-system, Segoe UI, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; width: 110px; vertical-align: top;">
-        ${escapeHtml(label)}
-      </td>
-      <td style="padding: 4px 0; font: 400 15px/1.5 -apple-system, Segoe UI, Arial, sans-serif; color: #0c1134;">
-        ${escapeHtml(value)}
-      </td>
-    </tr>`;
 
   return `<!DOCTYPE html>
 <html>
@@ -68,33 +75,18 @@ export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
             <tr>
               <td style="background: #0c1134; padding: 28px 32px;">
                 ${hasLogo ? `<img src="cid:${LOGO_CONTENT_ID}" alt="GeoRepute" width="32" height="32" style="display: block; margin-bottom: 12px;" />` : ""}
-                <span style="font: 600 18px/1.3 -apple-system, Segoe UI, Arial, sans-serif; color: #f6f4ff;">GeoRepute</span>
-                <div style="font: 400 12px/1.4 -apple-system, Segoe UI, Arial, sans-serif; color: #a9aed0; margin-top: 2px;">New meeting request</div>
+                <span style="font: 600 18px/1.3 ${FONT}; color: #f6f4ff;">GeoRepute</span>
+                <div style="font: 400 12px/1.4 ${FONT}; color: #a9aed0; margin-top: 2px;">${escapeHtml(subtitle)}</div>
               </td>
             </tr>
             <tr>
               <td style="padding: 28px 32px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                  ${row("Name", request.name)}
-                  ${row("Email", request.email)}
-                  ${request.company ? row("Company", request.company) : ""}
-                </table>
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(12, 17, 52, 0.1);">
-                  <div style="font: 600 12px/1.4 -apple-system, Segoe UI, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; margin-bottom: 8px;">
-                    Message
-                  </div>
-                  <div style="font: 400 15px/1.6 -apple-system, Segoe UI, Arial, sans-serif; color: #0c1134; white-space: pre-wrap;">${escapeHtml(request.message)}</div>
-                </div>
-                <div style="margin-top: 24px;">
-                  <a href="mailto:${encodeURIComponent(request.email)}" style="display: inline-block; padding: 11px 20px; border-radius: 8px; background: #6b34e8; color: #ffffff; font: 600 14px/1 -apple-system, Segoe UI, Arial, sans-serif; text-decoration: none;">
-                    Reply to ${escapeHtml(request.name.split(" ")[0] || request.name)}
-                  </a>
-                </div>
+                ${body}
               </td>
             </tr>
             <tr>
-              <td style="padding: 16px 32px; background: #f6f4ff; font: 400 12px/1.4 -apple-system, Segoe UI, Arial, sans-serif; color: #5d6288;">
-                Sent from the "Schedule a Meeting" form on the GeoRepute website.
+              <td style="padding: 16px 32px; background: #f6f4ff; font: 400 12px/1.4 ${FONT}; color: #5d6288;">
+                ${escapeHtml(footer)}
               </td>
             </tr>
           </table>
@@ -103,4 +95,69 @@ export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
     </table>
   </body>
 </html>`;
+}
+
+/** The internal notification sent to the GeoRepute mailbox. */
+export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
+  const { meet } = request;
+
+  const meetBlock = meet
+    ? `
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(12, 17, 52, 0.1);">
+                  <div style="font: 600 12px/1.4 ${FONT}; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; margin-bottom: 8px;">
+                    Google Meet
+                  </div>
+                  <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; margin-bottom: 12px;">
+                    ${escapeHtml(meet.slotLabel)}
+                  </div>
+                  ${
+                    meet.link
+                      ? button(meet.link, "Join Google Meet")
+                      : `<div style="font: 400 14px/1.5 ${FONT}; color: #92400e;">The Meet link could not be created automatically — please reply to arrange one at this time.</div>`
+                  }
+                </div>`
+    : "";
+
+  return emailShell({
+    subtitle: "New meeting request",
+    footer: 'Sent from the "Schedule a Meeting" form on the GeoRepute website.',
+    body: `
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  ${row("Name", request.name)}
+                  ${row("Email", request.email)}
+                  ${request.phone ? row("Phone Number", request.phone) : ""}
+                  ${request.company ? row("Company", request.company) : ""}
+                </table>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(12, 17, 52, 0.1);">
+                  <div style="font: 600 12px/1.4 ${FONT}; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; margin-bottom: 8px;">
+                    Message
+                  </div>
+                  <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; white-space: pre-wrap;">${escapeHtml(request.message)}</div>
+                </div>${meetBlock}
+                <div style="margin-top: 24px;">
+                  <a href="mailto:${encodeURIComponent(request.email)}" style="display: inline-block; padding: 11px 20px; border-radius: 8px; background: #6b34e8; color: #ffffff; font: 600 14px/1 ${FONT}; text-decoration: none;">
+                    Reply to ${escapeHtml(request.name.split(" ")[0] || request.name)}
+                  </a>
+                </div>`,
+  });
+}
+
+/** The confirmation sent to the visitor once their Google Meet has been created. */
+export function buildMeetingConfirmationEmailHtml(request: MeetingRequest, meetLink: string, slotLabel: string): string {
+  return emailShell({
+    subtitle: "Your meeting is scheduled",
+    footer: "You are receiving this because you requested a meeting on the GeoRepute website. Reply to this email if you need to change the time.",
+    body: `
+                <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; margin-bottom: 20px;">
+                  Hi ${escapeHtml(request.name.split(" ")[0] || request.name)}, thanks for getting in touch — we've set up a Google Meet call for you.
+                </div>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  ${row("When", slotLabel)}
+                  ${row("Meet link", meetLink)}
+                  ${request.phone ? row("Phone Number", request.phone) : ""}
+                </table>
+                <div style="margin-top: 24px;">
+                  ${button(meetLink, "Join Google Meet")}
+                </div>`,
+  });
 }

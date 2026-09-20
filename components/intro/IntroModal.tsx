@@ -34,7 +34,7 @@ function writeSeen() {
   }
 }
 
-function lockScroll(lock: boolean) {
+export function lockScroll(lock: boolean) {
   const root = document.documentElement;
   if (lock) {
     const gutter = window.innerWidth - root.clientWidth;

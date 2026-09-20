@@ -130,8 +130,6 @@ export function DecisionGraphSection({ locale = "en" }: { locale?: string }) {
                          }
                         aria-pressed={focus === n.id}
                         aria-describedby="dgraph-panel"
-                        data-cursor="live"
-                        data-cursor-label={c.isolateCursor}
                       >
                         <span className="dgraph__node-dot" aria-hidden="true" />
                         <span className="dgraph__node-name">{c.nodes[i].name}</span>

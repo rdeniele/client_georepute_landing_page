@@ -198,6 +198,107 @@ html.theme-dark .kit-page {
   min-width: 0;
 }
 
+/* --- Network hero --------------------------------------------------------
+   The home page's dark, connected-network field behind the copy (blog). It
+   is dark in both themes, so, like a colour band, the hero re-points the ink
+   and accent tokens to light values instead of every child needing a variant.
+   The copy spans the whole shell rather than the usual reading-width columns. */
+.kit-hero--network {
+  --color-ink: #ffffff;
+  --color-ink-dim: rgba(255, 255, 255, 0.86);
+  --color-ink-faint: rgba(255, 255, 255, 0.72);
+  --color-signal-lit: #c4b5fd;
+  --band-net: rgba(196, 181, 253, 0.5);
+  --band-net-lit: #ffffff;
+  color: var(--color-ink);
+  padding-block: clamp(56px, 9vw, 132px) clamp(64px, 10vw, 148px);
+}
+
+.kit-hero__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(58% 90% at 90% 0%, rgba(121, 71, 234, 0.5), transparent 70%),
+    radial-gradient(52% 80% at 4% 100%, rgba(60, 22, 150, 0.55), transparent 72%),
+    radial-gradient(40% 50% at 52% 50%, rgba(107, 52, 232, 0.16), transparent 70%),
+    linear-gradient(160deg, #0a0f3a 0%, #070a24 58%, #0b0a2e 100%);
+  /* Dissolve into whatever the page paints behind it (theme, void wash) */
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+}
+
+.kit-hero__net {
+  opacity: 0.95;
+}
+
+/* A second, mirrored and enlarged pass, fainter and out of phase, so the
+   field reads as a dense network rather than one repeated drawing. */
+.kit-hero__net--echo {
+  opacity: 0.4;
+  transform: scale(-1.4, 1.4) translateY(-8%);
+  --band-net: rgba(150, 120, 255, 0.4);
+}
+
+.kit-hero__net .bandnet__edge {
+  stroke-opacity: 0.55;
+}
+
+.kit-hero__net--echo .bandnet__node,
+.kit-hero__net--echo .bandnet__pulse {
+  animation-delay: 1.6s;
+}
+
+.kit-hero--network .kit-hero__glow {
+  display: none;
+}
+
+.kit-hero--network .kit-hero__copy,
+.kit-hero--network .kit-hero__title,
+.kit-hero--network .kit-hero__lead {
+  max-width: none;
+  width: 100%;
+}
+
+.kit-hero--network .kit-hero__title {
+  text-shadow: 0 2px 24px rgba(5, 8, 26, 0.5);
+}
+
+.kit-hero--network .kit-hero__lead {
+  text-shadow: 0 1px 16px rgba(5, 8, 26, 0.5);
+}
+
+/* Eyebrow becomes a glass pill so it reads as a tag over the network */
+.kit-hero--network .kit-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.kit-hero--network .kit-hero__eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-signal-lit);
+  box-shadow: 0 0 12px var(--color-signal-lit);
+}
+
+/* A long post title in the breadcrumb would repeat the headline; clip it */
+.kit-hero--network .kit-crumbs__step [aria-current] {
+  max-width: min(44ch, 56vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* --- Section intro ------------------------------------------------------- */
 .kit-intro {
   display: grid;
@@ -745,6 +846,7 @@ html[dir="rtl"] .kit-meter__fill {
 .kit-field input,
 .kit-field textarea {
   width: 100%;
+  min-width: 0;
   padding: 11px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
@@ -763,6 +865,33 @@ html[dir="rtl"] .kit-meter__fill {
 .kit-field textarea:focus {
   outline: 2px solid var(--color-signal-core);
   outline-offset: 1px;
+}
+
+.kit-field__hint {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-faint);
+}
+
+.kit-meet {
+  display: grid;
+  gap: 14px;
+}
+
+.kit-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-body-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.kit-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-signal-core);
 }
 
 .kit-form__banner {
