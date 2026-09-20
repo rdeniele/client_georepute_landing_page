@@ -199,19 +199,20 @@ html.theme-dark .kit-page {
 }
 
 /* --- Network hero --------------------------------------------------------
-   The home page's dark, connected-network field behind the copy (blog). It
-   is dark in both themes, so, like a colour band, the hero re-points the ink
-   and accent tokens to light values instead of every child needing a variant.
+   The home page's connected-network field behind the copy (blog, briefing).
+   It follows the theme: a lavender field with violet nodes in light mode, the
+   home page's navy field with luminous nodes in dark mode. Everything inside
+   reads the ordinary theme tokens, so no child needs a variant.
    The copy spans the whole shell rather than the usual reading-width columns. */
 .kit-hero--network {
-  --color-ink: #ffffff;
-  --color-ink-dim: rgba(255, 255, 255, 0.86);
-  --color-ink-faint: rgba(255, 255, 255, 0.72);
-  --color-signal-lit: #c4b5fd;
+  --band-net: rgba(107, 52, 232, 0.55);
+  --band-net-lit: #5928d4;
+  padding-block: clamp(56px, 9vw, 132px) clamp(64px, 10vw, 148px);
+}
+
+html.theme-dark .kit-hero--network {
   --band-net: rgba(196, 181, 253, 0.5);
   --band-net-lit: #ffffff;
-  color: var(--color-ink);
-  padding-block: clamp(56px, 9vw, 132px) clamp(64px, 10vw, 148px);
 }
 
 .kit-hero__backdrop {
@@ -220,13 +221,20 @@ html.theme-dark .kit-page {
   z-index: 0;
   overflow: hidden;
   background:
+    radial-gradient(58% 90% at 90% 0%, rgba(150, 110, 255, 0.3), transparent 70%),
+    radial-gradient(52% 80% at 4% 100%, rgba(107, 52, 232, 0.14), transparent 72%),
+    linear-gradient(160deg, #f6f4ff 0%, #ece6ff 60%, #f3efff 100%);
+  /* Dissolve into whatever the page paints behind it (theme, void wash) */
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+}
+
+html.theme-dark .kit-hero__backdrop {
+  background:
     radial-gradient(58% 90% at 90% 0%, rgba(121, 71, 234, 0.5), transparent 70%),
     radial-gradient(52% 80% at 4% 100%, rgba(60, 22, 150, 0.55), transparent 72%),
     radial-gradient(40% 50% at 52% 50%, rgba(107, 52, 232, 0.16), transparent 70%),
     linear-gradient(160deg, #0a0f3a 0%, #070a24 58%, #0b0a2e 100%);
-  /* Dissolve into whatever the page paints behind it (theme, void wash) */
-  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
 }
 
 .kit-hero__net {
@@ -238,6 +246,10 @@ html.theme-dark .kit-page {
 .kit-hero__net--echo {
   opacity: 0.4;
   transform: scale(-1.4, 1.4) translateY(-8%);
+  --band-net: rgba(107, 52, 232, 0.32);
+}
+
+html.theme-dark .kit-hero__net--echo {
   --band-net: rgba(150, 120, 255, 0.4);
 }
 
@@ -261,11 +273,11 @@ html.theme-dark .kit-page {
   width: 100%;
 }
 
-.kit-hero--network .kit-hero__title {
+html.theme-dark .kit-hero--network .kit-hero__title {
   text-shadow: 0 2px 24px rgba(5, 8, 26, 0.5);
 }
 
-.kit-hero--network .kit-hero__lead {
+html.theme-dark .kit-hero--network .kit-hero__lead {
   text-shadow: 0 1px 16px rgba(5, 8, 26, 0.5);
 }
 
@@ -276,8 +288,8 @@ html.theme-dark .kit-page {
   gap: 10px;
   padding: 9px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line-strong);
+  background: var(--glass-lit);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -844,6 +856,7 @@ html[dir="rtl"] .kit-meter__fill {
 }
 
 .kit-field input,
+.kit-field select,
 .kit-field textarea {
   width: 100%;
   min-width: 0;
@@ -861,37 +874,25 @@ html[dir="rtl"] .kit-meter__fill {
   min-height: 110px;
 }
 
-.kit-field input:focus,
-.kit-field textarea:focus {
-  outline: 2px solid var(--color-signal-core);
-  outline-offset: 1px;
+.kit-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: 40px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%238a8fb0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
 }
 
-.kit-field__hint {
-  margin: 0;
-  font-size: var(--text-body-sm);
+.kit-field select:invalid {
   color: var(--color-ink-faint);
 }
 
-.kit-meet {
-  display: grid;
-  gap: 14px;
-}
-
-.kit-check {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: var(--text-body-sm);
-  color: var(--color-ink);
-  cursor: pointer;
-}
-
-.kit-check input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--color-signal-core);
+.kit-field input:focus,
+.kit-field select:focus,
+.kit-field textarea:focus {
+  outline: 2px solid var(--color-signal-core);
+  outline-offset: 1px;
 }
 
 .kit-form__banner {
@@ -921,6 +922,281 @@ html[dir="rtl"] .kit-meter__fill {
   border: 1px solid var(--line);
   background: var(--color-elevated);
 }
+
+/* --- Briefing page: one full-height section -------------------------------
+   Copy, contact details and the request form share a single network-backdrop
+   hero. The form sits on a white card so it reads clearly over the dark field
+   in either theme, so the card re-points the ink/line tokens back to dark. */
+.briefing-hero {
+  display: grid;
+  align-content: center;
+  min-height: calc(100dvh - var(--nav-h));
+  padding-block: clamp(32px, 5vw, 72px);
+}
+
+/* The section fills the viewport, so it ends at the screen edge rather than
+   fading out underneath the buttons and the card. */
+.briefing-hero .kit-hero__backdrop {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.briefing-hero .kit-hero__grid {
+  align-items: center;
+}
+
+.briefing-accent {
+  background: linear-gradient(90deg, #6b34e8 0%, #2462eb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: none;
+}
+
+html.theme-dark .briefing-accent {
+  background: linear-gradient(90deg, #c4b5fd 0%, #7fb2ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.briefing-contact {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.briefing-contact li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.briefing-contact__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--glass-lit);
+  color: var(--color-signal-lit);
+}
+
+.briefing-contact__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.briefing-contact__value {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+a.briefing-contact__value:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.briefing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform var(--d-micro) var(--ease-out), filter var(--d-micro) var(--ease-out);
+}
+
+.briefing-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.briefing-btn--mail {
+  background: #6b34e8;
+  color: #ffffff;
+}
+
+/* Navy on WhatsApp green: white on this green fails contrast */
+.briefing-btn--wa {
+  background: #25d366;
+  color: #0c1134;
+}
+
+.briefing-card {
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-strong);
+  background: var(--color-elevated);
+  color: var(--color-ink);
+  box-shadow: 0 30px 80px -32px rgba(60, 30, 140, 0.4);
+}
+
+html.theme-dark .briefing-card {
+  box-shadow: 0 40px 100px -32px rgba(0, 0, 0, 0.65);
+}
+
+.briefing-card a {
+  color: var(--color-signal-lit);
+}
+
+.briefing-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 22px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--color-base);
+}
+
+.briefing-tabs button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-dim);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--d-micro) var(--ease-out), color var(--d-micro) var(--ease-out);
+}
+
+.briefing-tabs button[aria-selected="true"] {
+  background: #6b34e8;
+  color: #ffffff;
+}
+
+.briefing-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.briefing-facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--color-base);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-ink-dim);
+}
+
+.briefing-facts svg {
+  color: var(--color-signal-lit);
+}
+
+/* The scheduler is a light-scheme document. A dark-scheme page around it makes
+   the browser paint the frame opaque white, hiding the themed card, so the
+   frame declares light and lets our card colour show through. Height is
+   driven by Calendly's own page_height message (see CalendlyEmbed). */
+.briefing-embed {
+  display: block;
+  width: 100%;
+  height: 620px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-elevated);
+  color-scheme: light;
+}
+
+.briefing-card__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.briefing-card__hint {
+  margin: 6px 0 24px;
+  font-size: var(--text-body-sm);
+  color: var(--color-ink-faint);
+}
+
+.briefing-card .kit-form {
+  max-width: none;
+}
+
+.briefing-card .kit-field label {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-ink);
+}
+
+/* Inputs sit inset against the card: the page background, not the card fill */
+.briefing-card .kit-field input,
+.briefing-card .kit-field select,
+.briefing-card .kit-field textarea {
+  background-color: var(--color-base);
+}
+
+.briefing-card .kit-field input::placeholder,
+.briefing-card .kit-field textarea::placeholder {
+  color: var(--color-ink-faint);
+  opacity: 0.8;
+}
+
+.briefing-card .kit-form-success {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.kit-req {
+  color: var(--color-signal-lit);
+}
+
+.briefing-submit {
+  min-height: 52px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, #a78bfa 0%, #6b34e8 55%, #7c1ce0 100%);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -10px rgba(107, 52, 232, 0.7);
+  transition: filter var(--d-micro) var(--ease-out), transform var(--d-micro) var(--ease-out);
+}
+
+.briefing-submit:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.briefing-submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   [data-enter] {
