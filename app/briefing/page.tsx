@@ -4,7 +4,6 @@ import { Envelope, MapPin, Phone, WhatsappLogo } from "@phosphor-icons/react/ssr
 import { Crumbs, PageHero } from "@/components/subpages/kit";
 import { MeetingRequestForm } from "@/components/forms/MeetingRequestForm";
 import { CONTACT } from "@/lib/contact";
-import { getCalendlyUrl } from "@/lib/services/calendly";
 
 export const metadata: Metadata = {
   title: "Schedule a Meeting | GeoRepute",
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/briefing" },
 };
 
-// Reads server env at request time, so the Calendly tab follows the deployment's settings rather than the build's.
+// Reads server env at request time, so the Meet option follows the deployment's credentials rather than the build's.
 export const dynamic = "force-dynamic";
 
 export default function BriefingPage() {
@@ -71,7 +70,7 @@ export default function BriefingPage() {
               </a>
             </>
           }
-          aside={<MeetingRequestForm calendlyUrl={getCalendlyUrl()} />}
+          aside={<MeetingRequestForm />}
         />
       </div>
     </SiteShell>

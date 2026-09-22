@@ -51,6 +51,11 @@ const row = (label: string, value: string) => `
       </td>
     </tr>`;
 
+const button = (href: string, label: string) => `
+    <a href="${escapeHtml(href)}" style="display: inline-block; padding: 11px 20px; border-radius: 8px; background: #6b34e8; color: #ffffff; font: 600 14px/1 ${FONT}; text-decoration: none;">
+      ${escapeHtml(label)}
+    </a>`;
+
 /**
  * Table-based layout with every style inlined — the only markup approach
  * that renders consistently across email clients (Gmail, Outlook, Apple
@@ -92,11 +97,34 @@ function emailShell({ subtitle, body, footer }: { subtitle: string; body: string
 </html>`;
 }
 
-/** The notification sent to the GeoRepute mailbox for each message. */
+/** The internal notification sent to the GeoRepute mailbox. */
 export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
+  const { meet } = request;
+
+  const meetBlock = meet
+    ? `
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(12, 17, 52, 0.1);">
+                  <div style="font: 600 12px/1.4 ${FONT}; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; margin-bottom: 8px;">
+                    Requested meeting
+                  </div>
+                  <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; margin-bottom: 12px;">
+                    ${escapeHtml(meet.slotLabel)}
+                  </div>
+                  ${
+                    meet.link
+                      ? button(meet.link, "Join Google Meet")
+                      : `<div style="font: 400 14px/1.5 ${FONT}; color: #92400e;">${
+                          meet.automatic
+                            ? "The Meet link could not be created automatically — please reply to arrange one at this time."
+                            : "The visitor asked to meet at this time — please reply to confirm it and send a Meet link."
+                        }</div>`
+                  }
+                </div>`
+    : "";
+
   return emailShell({
-    subtitle: "New inquiry",
-    footer: "Sent from the contact form on the GeoRepute website.",
+    subtitle: "New meeting request",
+    footer: 'Sent from the "Schedule a Meeting" form on the GeoRepute website.',
     body: `
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   ${row("Name", request.name)}
@@ -110,11 +138,32 @@ export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
                     Message
                   </div>
                   <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; white-space: pre-wrap;">${escapeHtml(request.message)}</div>
-                </div>
+                </div>${meetBlock}
                 <div style="margin-top: 24px;">
                   <a href="mailto:${encodeURIComponent(request.email)}" style="display: inline-block; padding: 11px 20px; border-radius: 8px; background: #6b34e8; color: #ffffff; font: 600 14px/1 ${FONT}; text-decoration: none;">
                     Reply to ${escapeHtml(request.name.split(" ")[0] || request.name)}
                   </a>
+                </div>`,
+  });
+}
+
+/** The confirmation sent to the visitor once their Google Meet has been created. */
+export function buildMeetingConfirmationEmailHtml(request: MeetingRequest, meetLink: string, slotLabel: string): string {
+  return emailShell({
+    subtitle: "Your meeting is scheduled",
+    footer: "You are receiving this because you requested a meeting on the GeoRepute website. Reply to this email if you need to change the time.",
+    body: `
+                <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; margin-bottom: 20px;">
+                  Hi ${escapeHtml(request.name.split(" ")[0] || request.name)}, thanks for getting in touch — we've set up a Google Meet call for you.
+                </div>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  ${row("Topic", request.subject)}
+                  ${row("When", slotLabel)}
+                  ${row("Meet link", meetLink)}
+                  ${request.phone ? row("Phone Number", request.phone) : ""}
+                </table>
+                <div style="margin-top: 24px;">
+                  ${button(meetLink, "Join Google Meet")}
                 </div>`,
   });
 }
