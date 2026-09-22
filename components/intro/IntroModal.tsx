@@ -15,6 +15,8 @@ export const SCROLL_LOCK_EVENT = "georepute:scroll-lock";
 
 const OPEN_DELAY_MS = 650;
 const CLOSE_MS = 240;
+/** Matches the modal's own single-column breakpoint (app/intro.css `max-width: 980px`). */
+const DESKTOP_QUERY = "(min-width: 981px)";
 
 type Phase = "closed" | "open" | "closing";
 
@@ -47,27 +49,29 @@ export function lockScroll(lock: boolean) {
   window.dispatchEvent(new CustomEvent(SCROLL_LOCK_EVENT, { detail: lock }));
 }
 
-function VideoArea({ c }: { c: IntroCopy }) {
-  if (introVideo?.kind === "file") {
+function VideoArea({ c, isDesktop }: { c: IntroCopy; isDesktop: boolean }) {
+  const active = introVideo && (!introVideo.desktopOnly || isDesktop) ? introVideo : null;
+
+  if (active?.kind === "file") {
     return (
       <video
         className="intro__video"
         controls
         playsInline
         preload="metadata"
-        poster={introVideo.poster}
+        poster={active.poster}
         aria-label={c.videoLabel}
       >
-        <source src={introVideo.src} />
-        {introVideo.captions ? <track kind="captions" src={introVideo.captions} default /> : null}
+        <source src={active.src} />
+        {active.captions ? <track kind="captions" src={active.captions} default /> : null}
       </video>
     );
   }
-  if (introVideo?.kind === "embed") {
+  if (active?.kind === "embed") {
     return (
       <iframe
         className="intro__video"
-        src={introVideo.src}
+        src={active.src}
         title={c.videoLabel}
         allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
         allowFullScreen
@@ -93,9 +97,23 @@ function VideoArea({ c }: { c: IntroCopy }) {
 export function IntroModal({ locale = "en" }: { locale?: string }) {
   const c = getIntroCopy(locale);
   const [phase, setPhase] = useState<Phase>("closed");
+  // Defaults to desktop: nothing renders before `visible` flips true (well after
+  // mount), by which point the effect below has already run, so this default
+  // is never actually shown.
+  const [isDesktop, setIsDesktop] = useState(true);
   const dialogRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const closeTimer = useRef<number | undefined>(undefined);
+
+  // A `desktopOnly` video (see lib/intro.ts) only plays above this width; kept
+  // live so resizing the window while the dialog is open still swaps correctly.
+  useEffect(() => {
+    const mql = window.matchMedia(DESKTOP_QUERY);
+    const update = () => setIsDesktop(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
 
   const open = useCallback(() => {
     window.clearTimeout(closeTimer.current);
@@ -208,7 +226,7 @@ export function IntroModal({ locale = "en" }: { locale?: string }) {
 
           <figure className="intro__media">
             <div className="intro__frame">
-              <VideoArea c={c} />
+              <VideoArea c={c} isDesktop={isDesktop} />
             </div>
             <figcaption className="intro__points">
               <span className="t-label">{c.pointsLabel}</span>
