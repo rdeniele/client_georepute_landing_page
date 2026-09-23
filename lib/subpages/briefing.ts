@@ -19,6 +19,7 @@ export type BriefingCopy = {
   contactLabels: { email: string; phone: string; headquarters: string };
   emailUs: string;
   chatWhatsapp: string;
+  booking: { title: string; hint: string };
   form: {
     title: string;
     hint: string;
@@ -62,6 +63,7 @@ const en: BriefingCopy = {
   contactLabels: { email: "Email us", phone: "Phone", headquarters: "Headquarters" },
   emailUs: "Email us",
   chatWhatsapp: "Chat on WhatsApp",
+  booking: { title: "Book a time", hint: "Pick a slot that works for you, we'll send the calendar invite and meeting link." },
   form: {
     title: "Request a meeting",
     hint: "Fields marked with an asterisk (*) are mandatory.",
@@ -107,6 +109,7 @@ const he: BriefingCopy = {
   contactLabels: { email: "כתבו לנו", phone: "טלפון", headquarters: "משרדים" },
   emailUs: "כתבו לנו",
   chatWhatsapp: "שיחה בוואטסאפ",
+  booking: { title: "קביעת מועד", hint: "בחרו זמן מתאים, ונשלח לכם הזמנה ליומן וקישור לפגישה." },
   form: {
     title: "בקשת פגישה",
     hint: "שדות המסומנים בכוכבית (*) הם שדות חובה.",

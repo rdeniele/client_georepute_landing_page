@@ -3,8 +3,10 @@ import { SiteShell } from "@/components/layout/SiteShell";
 import { Envelope, MapPin, Phone, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import { Crumbs, PageHero } from "@/components/subpages/kit";
 import { MeetingRequestForm } from "@/components/forms/MeetingRequestForm";
+import { CalendlyEmbed } from "@/components/forms/CalendlyEmbed";
 import { CONTACT } from "@/lib/contact";
 import { getBriefingCopy } from "@/lib/subpages/briefing";
+import { getCalendlyUrl } from "@/lib/services/calendly";
 import { LOCALES } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/en/briefing" },
 };
 
-// Reads server env at request time, so the Meet option follows the deployment's credentials rather than the build's.
+// Reads server env at request time, so the Calendly link follows the deployment's settings rather than the build's.
 export const dynamic = "force-dynamic";
 
 export default async function BriefingPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -22,6 +24,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ local
   if (!LOCALES.includes(locale as (typeof LOCALES)[number])) notFound();
 
   const c = getBriefingCopy(locale);
+  const calendlyUrl = getCalendlyUrl();
   const rows = [
     { label: c.contactLabels.email, value: CONTACT.email, href: `mailto:${CONTACT.email}`, Icon: Envelope },
     { label: c.contactLabels.phone, value: CONTACT.phone, href: CONTACT.phoneHref, Icon: Phone },
@@ -77,7 +80,19 @@ export default async function BriefingPage({ params }: { params: Promise<{ local
               </a>
             </>
           }
-          aside={<MeetingRequestForm locale={locale} />}
+          aside={
+            calendlyUrl ? (
+              <div className="briefing-card">
+                <h2 className="briefing-card__title">{c.booking.title}</h2>
+                <p className="briefing-card__hint">{c.booking.hint}</p>
+                <CalendlyEmbed url={calendlyUrl} locale={locale} />
+              </div>
+            ) : (
+              // Only reachable if CALENDLY_URL is set to something invalid — the
+              // built-in default above is always a valid calendly.com link.
+              <MeetingRequestForm locale={locale} />
+            )
+          }
         />
       </div>
     </SiteShell>
