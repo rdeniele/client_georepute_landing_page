@@ -3,47 +3,37 @@ import { normalizeLocale } from "./i18n";
 /**
  * The entry introduction shown to first-time visitors.
  *
- * ─── HOW TO ADD THE SYSTEM VIDEO ────────────────────────────────────────────
- * The client supplies the final video. Until then `introVideo` is `null` and
- * the modal renders a clearly labelled placeholder. To go live, set it to one
- * of the two shapes below, nothing in the component needs to change:
+ * ─── HOW TO ADD/CHANGE THE SYSTEM VIDEO ─────────────────────────────────────
+ * `introVideo.desktop` and `introVideo.mobile` are independent, each `null`
+ * until supplied, in which case the modal renders a clearly labelled
+ * placeholder for that breakpoint only (see DESKTOP_QUERY in
+ * IntroModal.tsx, which picks between them at render time). Set either to
+ * one of the two shapes below, nothing in the component needs to change:
  *
  *   // A self-hosted file (drop it in /public/videos/):
- *   export const introVideo: IntroVideo = {
- *     kind: "file",
- *     src: "/videos/georepute-system.mp4",
+ *   { kind: "file", src: "/videos/georepute-system.mp4",
  *     poster: "/videos/georepute-system-poster.jpg", // optional
- *     captions: "/videos/georepute-system.en.vtt",   // optional, recommended
- *   };
+ *     captions: "/videos/georepute-system.en.vtt" }  // optional, recommended
  *
  *   // Or a hosted player (YouTube / Vimeo / Wistia embed URL):
- *   export const introVideo: IntroVideo = {
- *     kind: "embed",
- *     src: "https://player.vimeo.com/video/000000000",
- *   };
+ *   { kind: "embed", src: "https://player.vimeo.com/video/000000000" }
  *
- * `desktopOnly: true` plays it only above the modal's own desktop breakpoint
- * (see DESKTOP_QUERY in IntroModal.tsx); narrower viewports keep seeing the
- * placeholder until a portrait/mobile cut is supplied — set it only once that
- * exists too.
- *
- * Bump INTRO_VERSION whenever the video changes, so returning visitors who
+ * Bump INTRO_VERSION whenever a video changes, so returning visitors who
  * dismissed the old introduction see the new one once.
  * ────────────────────────────────────────────────────────────────────────────
  */
-export type IntroVideo =
-  | { kind: "file"; src: string; poster?: string; captions?: string; desktopOnly?: boolean }
-  | { kind: "embed"; src: string; desktopOnly?: boolean };
+export type IntroVideoSource =
+  | { kind: "file"; src: string; poster?: string; captions?: string }
+  | { kind: "embed"; src: string };
 
-export const introVideo: IntroVideo | null = {
-  kind: "file",
-  src: "/videos/16x9_intro_video.mp4",
-  // 16:9 widescreen cut, supplied for the desktop layout only — narrower
-  // viewports still get the placeholder until a mobile cut arrives.
-  desktopOnly: true,
+export const introVideo: { desktop: IntroVideoSource | null; mobile: IntroVideoSource | null } = {
+  // 16:9 widescreen cut.
+  desktop: { kind: "file", src: "/videos/16x9_intro_video.mp4" },
+  // 9:16 portrait cut.
+  mobile: { kind: "file", src: "/videos/9x16_intro_video.mp4" },
 };
 
-export const INTRO_VERSION = "2";
+export const INTRO_VERSION = "3";
 export const INTRO_STORAGE_KEY = `georepute-intro-seen:v${INTRO_VERSION}`;
 /** Fired on window to reopen the introduction from anywhere (e.g. the hero). */
 export const INTRO_OPEN_EVENT = "georepute:open-intro";

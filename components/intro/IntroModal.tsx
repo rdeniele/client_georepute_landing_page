@@ -50,7 +50,7 @@ export function lockScroll(lock: boolean) {
 }
 
 function VideoArea({ c, isDesktop }: { c: IntroCopy; isDesktop: boolean }) {
-  const active = introVideo && (!introVideo.desktopOnly || isDesktop) ? introVideo : null;
+  const active = isDesktop ? introVideo.desktop : introVideo.mobile;
 
   if (active?.kind === "file") {
     return (
