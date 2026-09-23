@@ -54,6 +54,7 @@ export function SampleReportsPage({ locale }: { locale: string }) {
         title="This is what GeoRepute would generate for your business."
         body="Every score above came from the same engine. Run it on your own domain."
         primary={{ label: "Analyze My Business", href: DEMO_HREF }}
+        secondary={{ label: "Browse the full intelligence library", href: "/en/marketplace" }}
       />
     </div>
   );

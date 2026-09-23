@@ -87,28 +87,6 @@ export const nav = {
       ],
       more: { label: "See all twelve engines", href: "/en/engines" },
     },
-    {
-      id: "marketplace",
-      label: "Marketplace",
-      items: [
-        {
-          name: "AI Visibility Intelligence",
-          desc: "Does AI know the business exists, and what does it think it is?",
-          href: "/en/marketplace/category/ai-visibility-intelligence",
-        },
-        {
-          name: "Competitive Intelligence",
-          desc: "Who receives the decision instead, and what do they have?",
-          href: "/en/marketplace/category/competitive-intelligence",
-        },
-        {
-          name: "Executive Intelligence",
-          desc: "What is it worth, and what happens next?",
-          href: "/en/marketplace/category/executive-intelligence",
-        },
-      ],
-      more: { label: "See the full intelligence ecosystem", href: "/en/marketplace" },
-    },
   ],
   links: [
     { label: "How It Works", href: "/en/how-it-works" },

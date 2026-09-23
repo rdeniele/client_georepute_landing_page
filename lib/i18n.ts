@@ -1820,9 +1820,6 @@ export function localizeNav(localeValue: string) {
       ...(group.id === "engines" && "more" in group
         ? { more: { ...group.more, label: navText.moreEngines, href: localizePath(group.more.href, locale) } }
         : {}),
-      ...(group.id === "marketplace" && "more" in group
-        ? { more: { ...group.more, label: navText.moreMarketplace, href: localizePath(group.more.href, locale) } }
-        : {}),
     })),
     links: [
       { ...nav.links[0], label: navText.how || nav.links[0].label, href: localizePath(nav.links[0].href, locale) },
