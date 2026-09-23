@@ -84,6 +84,20 @@ export default function RootLayout({
             __html: `try{var l=(location.pathname.split("/")[1]||"");var locales=${JSON.stringify(LOCALES)};var dirs=${JSON.stringify(localeDirections)};if(locales.indexOf(l)===-1)l="en";document.documentElement.lang=l;document.documentElement.dir=dirs[l];document.documentElement.dataset.locale=l}catch(e){}`,
           }}
         />
+        {/* Next.js 16 + React 19 call the browser's native
+            document.startViewTransition() for App Router navigations, whose
+            promise rejects with a "Transition was skipped" AbortError
+            whenever a transition gets superseded (e.g. two navigations close
+            together) — this is normal View Transition API behavior, not a
+            bug in this app (grep confirms nothing here calls the API
+            directly), but neither Next nor React attach a .catch() to it
+            yet, so it surfaces as a console error on an otherwise-successful
+            navigation. Swallow only that exact, known-benign rejection. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.addEventListener("unhandledrejection",function(e){var r=e&&e.reason;if(r&&r.name==="AbortError"&&/transition/i.test(r.message||""))e.preventDefault()});`,
+          }}
+        />
         {/* Scroll reveals start hidden and are shown by IntersectionObserver.
             If scripting is unavailable that observer never runs, so without
             this the entire page below the hero would stay blank. */}
