@@ -150,7 +150,7 @@ export function PostForm({
         {uploading ? <span className="admin-field__hint">Uploading…</span> : null}
         {!uploading && optimizedStat ? (
           <span className="admin-field__hint">
-            ✓ Optimized — {formatBytes(optimizedStat.from)} → {formatBytes(optimizedStat.to)}
+            ✓ Optimized: {formatBytes(optimizedStat.from)} → {formatBytes(optimizedStat.to)}
           </span>
         ) : null}
         {uploadError ? (
@@ -182,6 +182,19 @@ export function PostForm({
             value={values.tags}
             onChange={(event) => set("tags", event.target.value)}
           />
+        </div>
+        <div className="admin-field">
+          <label htmlFor="locale">Language</label>
+          <select
+            id="locale"
+            name="locale"
+            value={values.locale}
+            onChange={(event) => set("locale", event.target.value as PostFormValues["locale"])}
+          >
+            <option value="en">English</option>
+            <option value="he">עברית (Hebrew)</option>
+          </select>
+          <span className="admin-field__hint">Which locale this post is published under. Public URL: /blog/{values.slug || "…"}{values.locale === "he" ? "?lang=he" : ""}</span>
         </div>
       </div>
 

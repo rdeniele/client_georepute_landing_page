@@ -276,3 +276,12 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.blog-filters {
+  margin-bottom: 24px;
+}
+
+.blog-filters .kit-pill--active {
+  color: var(--color-ink);
+  font-weight: 600;
+}

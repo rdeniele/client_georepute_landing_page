@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import {
   buildMeetingConfirmationEmailHtml,
   buildMeetingRequestEmailHtml,
+  buildRequestReceivedEmailHtml,
   getLogoAttachment,
 } from "@/lib/emails/meetingRequest";
 
@@ -55,10 +56,12 @@ export type MeetingRequest = {
 /**
  * Sends a meeting request to the GeoRepute mailbox, with the visitor's address set as reply-to so replying goes straight to them.
  *
- * When a Google Meet was scheduled, the visitor also gets a confirmation
- * email carrying the link. That second send is best-effort: the request
- * itself has already been delivered, so a failure there is reported through
- * the return value rather than thrown.
+ * The visitor always gets a confirmation email back too — a copy of what
+ * they sent, and the Meet link when one exists — so they have something in
+ * their own inbox to check the booking against, not just a page they might
+ * navigate away from. That second send is best-effort: the request itself
+ * has already been delivered, so a failure there is reported through the
+ * return value rather than thrown.
  */
 export async function sendMeetingRequest(request: MeetingRequest): Promise<{ confirmationSent: boolean }> {
   const { resend, from } = getClient();
@@ -70,7 +73,7 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<{ con
     request.company ? `Company: ${request.company}` : null,
     `Subject: ${request.subject}`,
     request.meet
-      ? `Meeting: ${request.meet.slotLabel} — ${
+      ? `Meeting: ${request.meet.slotLabel}, ${
           request.meet.link ??
           (request.meet.automatic
             ? "Meet link could not be created, please reply to arrange one"
@@ -96,26 +99,45 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<{ con
 
   if (error) throw new Error(`Failed to send your request: ${error.message}`);
 
-  if (!request.meet?.link) return { confirmationSent: false };
-
-  const { slotLabel, link } = request.meet;
+  const hasLink = Boolean(request.meet?.link);
   const confirmation = await resend.emails
-    .send({
-      from,
-      to: request.email,
-      replyTo: getRecipient(),
-      subject: "Your GeoRepute meeting is scheduled",
-      text: [
-        `Hi ${request.name}, thanks for getting in touch — we've set up a Google Meet call for you.`,
-        "",
-        `When: ${slotLabel}`,
-        `Join: ${link}`,
-        "",
-        "Reply to this email if you need to change the time.",
-      ].join("\n"),
-      html: buildMeetingConfirmationEmailHtml(request, link, slotLabel),
-      attachments,
-    })
+    .send(
+      hasLink
+        ? {
+            from,
+            to: request.email,
+            replyTo: getRecipient(),
+            subject: "Your GeoRepute meeting is scheduled",
+            text: [
+              `Hi ${request.name}, thanks for getting in touch. We've set up a Google Meet call for you.`,
+              "",
+              `When: ${request.meet!.slotLabel}`,
+              `Join: ${request.meet!.link}`,
+              "",
+              "Reply to this email if you need to change the time.",
+            ].join("\n"),
+            html: buildMeetingConfirmationEmailHtml(request, request.meet!.link!, request.meet!.slotLabel),
+            attachments,
+          }
+        : {
+            from,
+            to: request.email,
+            replyTo: getRecipient(),
+            subject: request.meet ? "We received your meeting request" : "We received your message",
+            text: [
+              `Hi ${request.name}, thanks for getting in touch. Here's a copy of what you sent us for your records.`,
+              "",
+              `Subject: ${request.subject}`,
+              request.meet ? `Requested time: ${request.meet.slotLabel} (we'll reply to confirm and send a Meet link)` : null,
+              "",
+              request.message,
+            ]
+              .filter((line) => line !== null)
+              .join("\n"),
+            html: buildRequestReceivedEmailHtml(request),
+            attachments,
+          },
+    )
     .catch(() => ({ error: true }));
 
   return { confirmationSent: !confirmation.error };

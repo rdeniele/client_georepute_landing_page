@@ -4,12 +4,12 @@ import { Band } from "@/components/ui/Band";
 import { Crumbs, CtaBand, DEMO_HREF, lhref, PageHero, SectionIntro } from "@/components/subpages/kit";
 import { CountUp, SubpageFx } from "@/components/subpages/fx";
 import { ModuleExplorer } from "@/components/subpages/MarketWidgets";
-import { categories, CATEGORY_ROUTES, marketplace as mk, type Category } from "@/lib/subpages/copy";
+import { getCategoriesCopy, getMarketplaceCopy, CATEGORY_ROUTES, type Category } from "@/lib/subpages/copy";
 
 const catHref = (slug: string) => `/en/marketplace/category/${slug}`;
 
 /** The seven categories as one ring, segment size by module count, lit where a category is live in this demo. */
-function CategoryRing() {
+function CategoryRing({ categories, mk }: { categories: Category[]; mk: ReturnType<typeof getMarketplaceCopy> }) {
   const total = categories.reduce((s, c) => s + c.modules, 0);
   const totalLive = categories.reduce((s, c) => s + c.live, 0);
   const size = 168;
@@ -17,7 +17,7 @@ function CategoryRing() {
   const r = 68;
   let acc = 0;
   return (
-    <div className="mkt-ring" aria-label={`${categories.length} intelligence categories, ${total} modules, ${totalLive} live in this demo`}>
+    <div className="mkt-ring" aria-label={mk.ui.ringLabel(total, totalLive, categories.length)}>
       <div className="mkt-ring__wrap">
         <svg viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
           {categories.map((cat, i) => {
@@ -43,15 +43,15 @@ function CategoryRing() {
         </svg>
         <div className="mkt-ring__core">
           <b className="kit-num">{total}</b>
-          <span>modules</span>
+          <span>{mk.ui.modulesWord}</span>
         </div>
       </div>
       <ul className="mkt-ring__legend">
         <li className="is-live">
-          <i aria-hidden="true" /> {totalLive} live in this demo
+          <i aria-hidden="true" /> {mk.ui.liveInDemoCount(totalLive)}
         </li>
         <li>
-          <i aria-hidden="true" /> {total - totalLive} in platform
+          <i aria-hidden="true" /> {mk.ui.inPlatformCount(total - totalLive)}
         </li>
       </ul>
     </div>
@@ -63,6 +63,8 @@ function CategoryRing() {
    ======================================================================= */
 
 export function MarketplacePage({ locale }: { locale: string }) {
+  const mk = getMarketplaceCopy(locale);
+  const categories = getCategoriesCopy(locale);
   return (
     <div className="kit-page mkt-page">
       <SubpageFx />
@@ -70,11 +72,11 @@ export function MarketplacePage({ locale }: { locale: string }) {
         id="mkt"
         layout="center"
         className="mkt-hero"
-        crumbs={<Crumbs locale={locale} trail={[{ label: "Marketplace" }]} />}
+        crumbs={<Crumbs locale={locale} trail={[{ label: mk.ui.crumb }]} />}
         eyebrow={mk.eyebrow}
         title={
           <>
-            Whatever the business question, <em>there is already intelligence built for it.</em>
+            {mk.ui.heroTitle[0]} <em>{mk.ui.heroTitle[1]}</em>
           </>
         }
         lead={mk.lead}
@@ -93,23 +95,23 @@ export function MarketplacePage({ locale }: { locale: string }) {
         actions={
           <>
             <Button href="#categories" variant="primary">
-              Start with your question
+              {mk.ui.ctaStart}
             </Button>
             <Button href={lhref("/en/methodology", locale)} variant="ghost">
-              How the models work
+              {mk.ui.ctaHow}
             </Button>
           </>
         }
-        aside={<CategoryRing />}
+        aside={<CategoryRing categories={categories} mk={mk} />}
       />
 
       <section id="categories" className="kit-section mkt-cats" data-section>
         <div className="shell">
           <SectionIntro
             index="01"
-            label="Seven categories"
-            title="Start with the question you actually have."
-            body="Each category opens into the modules underneath it. Every module answers one business question and returns evidence, an analysis and a recommendation, never a figure on its own."
+            label={mk.ui.sec1Label}
+            title={mk.ui.sec1Title}
+            body={mk.ui.sec1Body}
             align="split"
           />
           <ul className="mkt-bento">
@@ -130,15 +132,15 @@ export function MarketplacePage({ locale }: { locale: string }) {
                   </span>
                   <span className="mkt-cat__foot">
                     <span className="mkt-cat__count">
-                      <b className="kit-num">{c.modules}</b> modules
-                      {c.live ? <span className="mkt-cat__live">{c.live} live in demo</span> : null}
+                      <b className="kit-num">{c.modules}</b> {mk.ui.modulesWord}
+                      {c.live ? <span className="mkt-cat__live">{c.live} {mk.ui.liveInDemo}</span> : null}
                     </span>
                     {routed ? (
                       <span className="mkt-cat__open">
-                        Explore <span aria-hidden="true">→</span>
+                        {mk.ui.explore} <span aria-hidden="true">→</span>
                       </span>
                     ) : (
-                      <span className="mkt-cat__soon">Available in platform</span>
+                      <span className="mkt-cat__soon">{mk.ui.availableInPlatform}</span>
                     )}
                   </span>
                 </>
@@ -164,8 +166,8 @@ export function MarketplacePage({ locale }: { locale: string }) {
         <div className="shell">
           <SectionIntro
             index="02"
-            label="What you are buying"
-            title={<>The document is the output. <em className="t-editorial">The intelligence is the product.</em></>}
+            label={mk.ui.sec2Label}
+            title={<>{mk.ui.sec2TitleLead} <em className="t-editorial">{mk.ui.sec2TitleEm}</em></>}
             align="center"
           />
           <ol className="mkt-triad">
@@ -182,10 +184,10 @@ export function MarketplacePage({ locale }: { locale: string }) {
 
       <CtaBand
         locale={locale}
-        eyebrow="See it run"
-        title="Watch a module answer a question live."
-        primary={{ label: "See a module run live", href: "/en/app/reconstruct" }}
-        secondary={{ label: "Monitor continuously instead", href: "/en/app/mission-control" }}
+        eyebrow={mk.ui.ctaEyebrow}
+        title={mk.ui.ctaTitle}
+        primary={{ label: mk.ui.ctaSeeModule, href: "/en/app/reconstruct" }}
+        secondary={{ label: mk.ui.ctaMonitor, href: "/en/app/mission-control" }}
       />
     </div>
   );
@@ -195,7 +197,7 @@ export function MarketplacePage({ locale }: { locale: string }) {
    /marketplace/category/{slug}
    ======================================================================= */
 
-function CategoryHeroVisual({ c }: { c: Category }) {
+function CategoryHeroVisual({ c, mk }: { c: Category; mk: ReturnType<typeof getMarketplaceCopy> }) {
   const modules = c.detail!.modules;
   return (
     <div className="cat-visual">
@@ -219,23 +221,25 @@ function CategoryHeroVisual({ c }: { c: Category }) {
         </svg>
         <div className="cat-visual__core">
           <b className="kit-num">{c.modules}</b>
-          <span>modules</span>
+          <span>{mk.ui.modulesWord}</span>
         </div>
       </div>
       <ul className="cat-visual__legend">
         <li className="is-live">
-          <i aria-hidden="true" /> {c.live} live in demo
+          <i aria-hidden="true" /> {mk.ui.liveInDemoCount(c.live)}
         </li>
         <li>
-          <i aria-hidden="true" /> {c.modules - c.live} in platform
+          <i aria-hidden="true" /> {mk.ui.inPlatformCount(c.modules - c.live)}
         </li>
-        <li className="cat-visual__engines">{c.detail!.engines.length === 1 ? "1 engine" : `${c.detail!.engines.length} engines`} underneath</li>
+        <li className="cat-visual__engines">{mk.ui.enginesUnderneath(c.detail!.engines.length)}</li>
       </ul>
     </div>
   );
 }
 
 export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale: string }) {
+  const mk = getMarketplaceCopy(locale);
+  const categories = getCategoriesCopy(locale);
   const c = categories.find((x) => x.slug === slug)!;
   const d = c.detail!;
   const others = categories.filter((x) => x.slug !== slug);
@@ -246,30 +250,30 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
       <PageHero
         id="cat"
         className="cat-hero"
-        crumbs={<Crumbs locale={locale} trail={[{ label: "Marketplace", href: "/en/marketplace" }, { label: c.name }]} />}
+        crumbs={<Crumbs locale={locale} trail={[{ label: mk.ui.crumb, href: "/en/marketplace" }, { label: c.name }]} />}
         eyebrow={c.name}
         title={c.question}
         lead={c.body}
         actions={
           <>
             <Button href="#offers" variant="primary">
-              Buy this intelligence
+              {mk.ui.catCtaBuy}
             </Button>
             <Button href="#modules" variant="ghost">
-              Browse the modules
+              {mk.ui.catCtaBrowse}
             </Button>
           </>
         }
-        aside={<CategoryHeroVisual c={c} />}
+        aside={<CategoryHeroVisual c={c} mk={mk} />}
       />
 
       <section id="modules" className="kit-section cat-modsec" data-section>
         <div className="shell">
           <SectionIntro
             index="01"
-            label={`${c.modules} modules`}
-            title="Every module answers one question."
-            body="Each returns the evidence behind its answer, what that answer means commercially, and what should change as a result."
+            label={`${c.modules} ${mk.ui.modulesWord}`}
+            title={mk.ui.catSec1Title}
+            body={mk.ui.catSec1Body}
             align="split"
           />
           <div data-reveal>
@@ -283,9 +287,9 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
         <div className="shell">
           <SectionIntro
             index="02"
-            label="Buy this intelligence"
-            title="Take one question, or take the whole category."
-            body="Each purchase states what it examines, what it needs from you, how confident it can be and how it is delivered. No sales call is required to find any of that out."
+            label={mk.ui.catSec2Label}
+            title={mk.ui.catSec2Title}
+            body={mk.ui.catSec2Body}
             align="split"
           />
           <ul className={`cat-offers__grid cat-offers__grid--${d.offers.length}`}>
@@ -300,11 +304,11 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
                   ))}
                 </ul>
                 <span className="cat-offer__delivery">
-                  <span className="kit-mono">Delivery</span>
+                  <span className="kit-mono">{mk.ui.deliveryLabel}</span>
                   {o.delivery}
                 </span>
                 <Button href={DEMO_HREF} variant={i === d.offers.length - 1 ? "primary" : "ghost"}>
-                  Start {o.tier.toLowerCase()}
+                  {mk.ui.startPrefix} {o.tier}
                 </Button>
               </li>
             ))}
@@ -317,9 +321,9 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
           <div>
             <SectionIntro
               index="03"
-              label="Underneath"
-              title={d.engines.length === 1 ? "One engine produces this category." : `${d.engines.length} engines produce this category.`}
-              body="Engines are the machinery, not the offer. Nothing above required you to know one existed."
+              label={mk.ui.catSec3Label}
+              title={d.engines.length === 1 ? mk.ui.catSec3TitleOne : mk.ui.catSec3TitleMany(d.engines.length)}
+              body={mk.ui.catSec3Body}
             />
           </div>
           <ul className="cat-engines">
@@ -327,16 +331,16 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
               <li key={e.name} data-reveal data-reveal-delay={String(i * 80)}>
                 {e.href ? (
                   <a className="kit-card cat-engine" href={lhref(e.href, locale)} data-spotlight>
-                    <span className="kit-pill kit-pill--up">Built</span>
+                    <span className="kit-pill kit-pill--up">{mk.ui.builtPill}</span>
                     <b>{e.name}</b>
                     <p>{e.question}</p>
                     <span className="cat-engine__open">
-                      Open the engine <span aria-hidden="true">→</span>
+                      {mk.ui.openEngine} <span aria-hidden="true">→</span>
                     </span>
                   </a>
                 ) : (
                   <div className="kit-card cat-engine">
-                    <span className="kit-pill kit-pill--muted">In platform</span>
+                    <span className="kit-pill kit-pill--muted">{mk.ui.inPlatformPill}</span>
                     <b>{e.name}</b>
                     <p>{e.question}</p>
                   </div>
@@ -351,9 +355,9 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
         <Band tone="tint" edge="feather" />
         <div className="shell">
           <div className="cat-others__head">
-            <span className="t-label">Other intelligence categories</span>
+            <span className="t-label">{mk.ui.otherCategories}</span>
             <a className="cat-others__all" href={lhref("/en/marketplace", locale)}>
-              All categories <span aria-hidden="true">→</span>
+              {mk.ui.allCategories} <span aria-hidden="true">→</span>
             </a>
           </div>
           <ul className="cat-others__rail">
@@ -362,7 +366,7 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
               const inner = (
                 <>
                   <b>{o.name}</b>
-                  <span>{o.modules} modules</span>
+                  <span>{o.modules} {mk.ui.modulesWord}</span>
                 </>
               );
               return (
@@ -384,10 +388,10 @@ export function MarketplaceCategoryPage({ slug, locale }: { slug: string; locale
 
       <CtaBand
         locale={locale}
-        eyebrow="Not sure where to start"
-        title="Start with a decision, then open the intelligence behind it."
-        primary={{ label: "Start Analysis", href: DEMO_HREF }}
-        secondary={{ label: "Reconstruct a decision", href: "/en/app/reconstruct" }}
+        eyebrow={mk.ui.catCtaEyebrow}
+        title={mk.ui.catCtaTitle}
+        primary={{ label: mk.ui.catCtaStart, href: DEMO_HREF }}
+        secondary={{ label: mk.ui.catCtaReconstruct, href: "/en/app/reconstruct" }}
       />
     </div>
   );

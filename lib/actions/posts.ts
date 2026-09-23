@@ -12,7 +12,7 @@ import {
   updatePost,
 } from "@/lib/services/posts";
 import { deleteBlogImage, pathFromPublicUrl } from "@/lib/services/storage";
-import type { ContentBlock, PostFormValues, PostStatus } from "@/types/posts";
+import type { ContentBlock, PostFormValues, PostLocale, PostStatus } from "@/types/posts";
 
 export type PostFormState = { error: string | null };
 
@@ -26,6 +26,11 @@ function readContentBlocks(formData: FormData): ContentBlock[] {
   }
 }
 
+function readLocale(formData: FormData): PostLocale {
+  const raw = String(formData.get("locale") ?? "en");
+  return raw === "he" ? "he" : "en";
+}
+
 function readFormValues(formData: FormData): PostFormValues {
   return {
     title: String(formData.get("title") ?? "").trim(),
@@ -36,6 +41,7 @@ function readFormValues(formData: FormData): PostFormValues {
     category: String(formData.get("category") ?? "").trim(),
     tags: String(formData.get("tags") ?? ""),
     status: (formData.get("status") as PostStatus) ?? "draft",
+    locale: readLocale(formData),
   };
 }
 

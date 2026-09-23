@@ -1,0 +1,88 @@
+/* ============================================================================
+   COOKIE CONSENT BANNER (components/cookies/CookieConsentBanner.tsx)
+   A quiet, non-blocking bottom bar, not a dialog. Sits above the nav
+   (z-index 20 in ui.css) and below the intro/try dialogs (z-index 60 in
+   intro.css), so a modal opening over it still reads as the foreground.
+   ========================================================================== */
+
+.cookiebar {
+  position: fixed;
+  left: clamp(12px, 3vw, 24px);
+  right: clamp(12px, 3vw, 24px);
+  bottom: clamp(12px, 3vw, 24px);
+  z-index: 55;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1040px;
+  margin-inline: auto;
+  padding: 18px 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-elevated);
+  color: var(--color-ink);
+  box-shadow:
+    0 30px 80px -30px rgba(7, 10, 36, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  animation: cookiebar-in 420ms var(--ease-out) both;
+}
+
+html.theme-dark .cookiebar {
+  background: var(--color-raised);
+}
+
+@keyframes cookiebar-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookiebar {
+    animation: none;
+  }
+}
+
+.cookiebar__body {
+  flex: 1 1 380px;
+  margin: 0;
+  color: var(--color-ink-dim);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.cookiebar__body a {
+  color: var(--color-signal-lit);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cookiebar__actions {
+  display: flex;
+  flex: none;
+  gap: 10px;
+}
+
+.cookiebar__btn {
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 560px) {
+  .cookiebar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cookiebar__actions {
+    justify-content: flex-end;
+  }
+}

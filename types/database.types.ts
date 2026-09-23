@@ -23,6 +23,7 @@ export type Json =
   | Json[];
 
 export type PostStatus = "draft" | "published";
+export type PostLocale = "en" | "he";
 export type ProfileRole = "admin" | "editor";
 
 export interface Database {
@@ -46,6 +47,7 @@ export interface Database {
           preview_token: string;
           preview_expires_at: string | null;
           content_blocks: Json | null;
+          locale: PostLocale;
         };
         Insert: {
           id?: string;
@@ -64,6 +66,7 @@ export interface Database {
           preview_token?: string;
           preview_expires_at?: string | null;
           content_blocks?: Json | null;
+          locale?: PostLocale;
         };
         Update: {
           id?: string;
@@ -82,6 +85,7 @@ export interface Database {
           preview_token?: string;
           preview_expires_at?: string | null;
           content_blocks?: Json | null;
+          locale?: PostLocale;
         };
         Relationships: [
           {

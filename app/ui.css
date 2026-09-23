@@ -322,6 +322,14 @@ html.theme-dark .static-network {
   -webkit-backdrop-filter: blur(18px) saturate(1.25);
 }
 
+/* RTL: .nav__shell/.nav__actions are unreversed flex rows, so they auto-mirror
+   under dir="rtl" and this trigger ends up near the left edge of the nav.
+   Open the menu from its left edge instead of the right so it stays on-screen. */
+html[dir="rtl"] .nav__locale-menu {
+  right: auto;
+  left: 0;
+}
+
 .nav__locale-menu a {
   display: flex;
   align-items: center;

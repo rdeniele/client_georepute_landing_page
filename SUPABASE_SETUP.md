@@ -399,6 +399,35 @@ Step 5.
 
 ---
 
+## Step 11 — Post locale (migration)
+
+Adds a `locale` column so a post belongs to a specific language (currently
+`en` or `he`, matching the two locales the blog supports). The `slug`
+uniqueness constraint moves from "unique across all posts" to "unique per
+locale" — `/blog/my-post` can now exist once in English and once in Hebrew
+without colliding. Run once in **SQL Editor**:
+
+```sql
+alter table public.posts
+  add column if not exists locale text not null default 'en' check (locale in ('en', 'he'));
+
+-- Was `unique` on slug alone (from Step 3); replaced with a composite
+-- uniqueness so the same slug can exist once per locale.
+alter table public.posts drop constraint if exists posts_slug_key;
+drop index if exists posts_slug_idx;
+
+create unique index if not exists posts_locale_slug_idx on public.posts (locale, slug);
+create index if not exists posts_locale_idx on public.posts (locale);
+create index if not exists posts_locale_status_published_at_idx on public.posts (locale, status, published_at desc);
+```
+
+No RLS changes needed — it's covered by the existing `posts` policies from
+Step 5. The table is empty at the time of writing, so this migration is safe
+to run with no data backfill; if posts already exist when you run this, every
+existing row defaults to `locale = 'en'`.
+
+---
+
 ## Regenerating types once the schema is live
 
 `types/database.types.ts` is hand-written to match the SQL above exactly. Once

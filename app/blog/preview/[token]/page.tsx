@@ -85,7 +85,7 @@ export default async function BlogPreviewPage({ params }: { params: Promise<Para
               </div>
             ) : (
               <div className="admin-banner admin-banner--info" role="status">
-                This post is already published — <a href={`/blog/${post.slug}`}>view the live version</a>.
+                This post is already published. <a href={`/blog/${post.slug}`}>View the live version</a>.
               </div>
             )}
 

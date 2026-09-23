@@ -7,8 +7,11 @@ import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPublishedPostBySlug } from "@/lib/services/posts";
 import { formatDate } from "@/lib/utils/format";
+import type { PostLocale } from "@/types/posts";
+import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 
 type Params = { slug: string };
+type SearchParams = { lang?: string };
 
 const WORDS_PER_MINUTE = 220;
 
@@ -17,17 +20,28 @@ function readingMinutes(text: string): number {
   return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 
-async function loadPost(slug: string) {
-  const supabase = await createSupabaseServerClient();
-  return getPublishedPostBySlug(supabase, slug);
+function toLocale(lang?: string): PostLocale {
+  return lang === "he" ? "he" : "en";
 }
 
-export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+async function loadPost(slug: string, locale: PostLocale) {
+  const supabase = await createSupabaseServerClient();
+  return getPublishedPostBySlug(supabase, slug, locale);
+}
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
   const { slug } = await params;
+  const { lang } = await searchParams;
 
   let post;
   try {
-    post = await loadPost(slug);
+    post = await loadPost(slug, toLocale(lang));
   } catch {
     return { title: "Blog | GeoRepute" };
   }
@@ -61,25 +75,34 @@ function safeJsonLd(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<Params> }) {
+export default async function BlogPostPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
+}) {
   const { slug } = await params;
+  const { lang } = await searchParams;
+  const requestedLocale = toLocale(lang);
 
   let post;
   try {
-    post = await loadPost(slug);
+    post = await loadPost(slug, requestedLocale);
   } catch {
     post = undefined;
   }
 
   if (post === undefined) {
+    const uc = getBlogChromeCopy(requestedLocale);
     return (
-      <SiteShell locale="en">
+      <SiteShell locale={requestedLocale}>
         <div className="kit-page blog-page">
           <section className="kit-section" data-section>
             <div className="shell">
               <div className="blog-state" role="alert">
-                <h2 className="t-h3 blog-state__title">This post is temporarily unavailable</h2>
-                <p className="t-body">We couldn&apos;t reach the content service. Please try again shortly.</p>
+                <h2 className="t-h3 blog-state__title">{uc.postUnavailableTitle}</h2>
+                <p className="t-body">{uc.unavailableBody}</p>
               </div>
             </div>
           </section>
@@ -89,6 +112,12 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   }
 
   if (post === null) notFound();
+
+  // Trust the row's own locale over the `?lang=` query param — the service
+  // falls back across locales when the param doesn't match, so what actually
+  // rendered may differ from what was requested.
+  const locale = post.locale;
+  const c = getBlogChromeCopy(locale);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -103,7 +132,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   };
 
   return (
-    <SiteShell locale="en">
+    <SiteShell locale={locale}>
       <div className="kit-page blog-page">
         <script
           type="application/ld+json"
@@ -114,8 +143,8 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
           layout="stack"
           backdrop="network"
           className="blog-hero--post"
-          crumbs={<Crumbs locale="en" trail={[{ label: "Blog", href: "/blog" }, { label: post.title }]} />}
-          eyebrow={post.category ?? "Insight"}
+          crumbs={<Crumbs locale={locale} trail={[{ label: c.crumb, href: locale === "he" ? "/blog?lang=he" : "/blog" }, { label: post.title }]} />}
+          eyebrow={post.category ?? c.insightFallback}
           title={post.title}
           lead={post.excerpt ?? undefined}
           meta={
@@ -134,7 +163,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               ) : null}
               <li className="blog-meta__chip">
                 <Clock weight="duotone" aria-hidden="true" />
-                <span>{readingMinutes(post.content)} min read</span>
+                <span>{c.minRead(readingMinutes(post.content))}</span>
               </li>
             </ul>
           }
@@ -172,10 +201,10 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         </section>
 
         <CtaBand
-          title="See what GeoRepute sees about your business."
-          primary={{ label: "Start Analysis", href: "https://www.georepute.ai/signup" }}
-          secondary={{ label: "Back to Blog", href: "/blog" }}
-          locale="en"
+          title={c.ctaTitle}
+          primary={{ label: c.startAnalysis, href: "https://www.georepute.ai/signup" }}
+          secondary={{ label: c.backToBlog, href: locale === "he" ? "/blog?lang=he" : "/blog" }}
+          locale={locale}
         />
       </div>
     </SiteShell>

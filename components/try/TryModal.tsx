@@ -71,13 +71,16 @@ export function TryModal({ locale = "en" }: { locale?: string }) {
     };
   }, [open]);
 
-  // Scroll lock + focus handoff tied to visibility
+  // Scroll lock + focus handoff tied to visibility. The rAF mirrors
+  // IntroModal's own initial-focus guard (see components/intro/IntroModal.tsx):
+  // focusing synchronously in this effect can miss the portal's first paint.
   const visible = visibility !== "closed";
   useEffect(() => {
     if (!visible) return;
     lockScroll(true);
-    inputRef.current?.focus({ preventScroll: true });
+    const raf = requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
     return () => {
+      cancelAnimationFrame(raf);
       lockScroll(false);
       returnFocus.current?.focus?.({ preventScroll: true });
     };

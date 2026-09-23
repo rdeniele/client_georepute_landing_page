@@ -7,8 +7,20 @@
  * here is a customer result; pages that render it carry `DEMO_NOTE`.
  */
 
+import { normalizeLocale } from "../i18n";
+
 export const DEMO_NOTE =
   "Demonstration environment, seeded organisation Ironvale Supply. Illustrative data, not a customer result.";
+
+const DEMO_NOTE_HE =
+  "סביבת הדגמה, ארגון לדוגמה Ironvale Supply. נתונים להמחשה, לא תוצאת לקוח.";
+
+const demoNotePacks: Partial<Record<string, string>> = { en: DEMO_NOTE, he: DEMO_NOTE_HE };
+
+/** English is the fallback until the other five locales are translated. */
+export function getDemoNote(locale: string): string {
+  return demoNotePacks[normalizeLocale(locale)] ?? DEMO_NOTE;
+}
 
 export type Confidence = "high" | "medium" | "directional" | "insufficient";
 
@@ -18,6 +30,23 @@ export const CONFIDENCE: Record<Confidence, { mark: string; label: string; detai
   directional: { mark: "◔", label: "Directional", detail: "Useful for prioritization, not an audited or verified fact." },
   insufficient: { mark: "○", label: "Insufficient history", detail: "The platform must withhold predictive conclusions until enough evidence exists." },
 };
+
+const CONFIDENCE_HE: Record<Confidence, { mark: string; label: string; detail: string }> = {
+  high: { mark: "●", label: "רמת ביטחון גבוהה", detail: "מספר מקורות ראיות עדכניים ואמינים תומכים במסקנה." },
+  medium: { mark: "◐", label: "רמת ביטחון בינונית", detail: "הראיות משמעותיות אך חלקן מוערכות או לא שלמות." },
+  directional: { mark: "◔", label: "כיווני", detail: "שימושי לתעדוף, לא עובדה מבוקרת או מאומתת." },
+  insufficient: { mark: "○", label: "היסטוריה לא מספקת", detail: "הפלטפורמה חייבת להימנע ממסקנות חזויות עד שיהיו מספיק ראיות." },
+};
+
+const confidencePacks: Partial<Record<string, Record<Confidence, { mark: string; label: string; detail: string }>>> = {
+  en: CONFIDENCE,
+  he: CONFIDENCE_HE,
+};
+
+/** English is the fallback until the other five locales are translated. */
+export function getConfidence(locale: string): Record<Confidence, { mark: string; label: string; detail: string }> {
+  return confidencePacks[normalizeLocale(locale)] ?? CONFIDENCE;
+}
 
 export type Trend = "up" | "down" | "stable";
 

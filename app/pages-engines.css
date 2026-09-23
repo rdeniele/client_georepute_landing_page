@@ -1503,3 +1503,86 @@
     animation: none;
   }
 }
+
+/* ============================================================================
+   RTL (Arabic/Hebrew) overrides
+   ========================================================================== */
+
+html[dir="rtl"] .eng-radial__label {
+  padding: 5px 6px 5px 10px;
+}
+
+html[dir="rtl"] .eng-counters__seg {
+  transform-origin: right;
+}
+
+html[dir="rtl"] .eng-share__row b {
+  text-align: left;
+}
+
+html[dir="rtl"] .rec-row__head {
+  text-align: right;
+}
+
+html[dir="rtl"] .rec-row__meter i {
+  transform-origin: right center;
+}
+
+html[dir="rtl"] .gap__f::before {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+html[dir="rtl"] .gap__band {
+  left: auto;
+  right: 16px;
+}
+
+html[dir="rtl"] .gap__top10 {
+  border-left: 0;
+  border-right: 1px dashed var(--line-strong);
+}
+
+html[dir="rtl"] .gap__top10 em {
+  left: auto;
+  right: 8px;
+}
+
+html[dir="rtl"] .gap__item {
+  padding: 12px 22px 12px 14px;
+}
+
+html[dir="rtl"] .gap__item::before {
+  left: auto;
+  right: 4px;
+}
+
+html[dir="rtl"] .recmap__row {
+  text-align: right;
+}
+
+html[dir="rtl"] .recmap__bar i {
+  transform-origin: right center;
+}
+
+html[dir="rtl"] .recmap__share {
+  text-align: left;
+}
+
+html[dir="rtl"] .eng-impact__item {
+  transform: translateX(calc(var(--i) * -18px));
+}
+
+html[dir="rtl"] .eng-pager__link--next {
+  text-align: left;
+}
+
+@media (max-width: 520px) {
+  html[dir="rtl"] .eng-radial__label {
+    padding: 4px 4px 4px 8px;
+  }
+
+  html[dir="rtl"] .eng-pager__link--next {
+    text-align: right;
+  }
+}

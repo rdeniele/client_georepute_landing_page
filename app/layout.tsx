@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/lib/theme";
+import { CookieConsentBanner } from "@/components/cookies/CookieConsentBanner";
+import { LOCALES, localeDirections } from "@/lib/i18n";
 import "./globals.css";
 import "./ui.css";
 import "./sections.css";
@@ -13,6 +15,7 @@ import "./pages-product.css";
 import "./pages-info.css";
 import "./intro.css";
 import "./trymodal.css";
+import "./cookies.css";
 import "./blog.css";
 import "./admin.css";
 
@@ -74,6 +77,13 @@ export default function RootLayout({
             __html: `try{if(localStorage.getItem("georepute-theme")==="light"){document.documentElement.classList.remove("theme-dark");document.documentElement.style.colorScheme="light";document.querySelector('meta[name="theme-color"]')?.setAttribute("content","#F6F5FC")}}catch(e){}`,
           }}
         />
+        {/* Sets lang/dir from the URL before first paint, so RTL locales don't
+            flash LTR while waiting for LocaleAttributes' post-hydration effect. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var l=(location.pathname.split("/")[1]||"");var locales=${JSON.stringify(LOCALES)};var dirs=${JSON.stringify(localeDirections)};if(locales.indexOf(l)===-1)l="en";document.documentElement.lang=l;document.documentElement.dir=dirs[l];document.documentElement.dataset.locale=l}catch(e){}`,
+          }}
+        />
         {/* Scroll reveals start hidden and are shown by IntersectionObserver.
             If scripting is unavailable that observer never runs, so without
             this the entire page below the hero would stay blank. */}
@@ -86,6 +96,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <ThemeProvider>{children}</ThemeProvider>
+        <CookieConsentBanner />
         <div className="grain" aria-hidden="true" />
       </body>
     </html>

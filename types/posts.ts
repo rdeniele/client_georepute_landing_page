@@ -1,8 +1,9 @@
-import type { Database, PostStatus } from "./database.types";
+import type { Database, PostLocale, PostStatus } from "./database.types";
 import type { ContentBlock } from "./blocks";
 import { textToBlocks } from "@/lib/utils/blocks";
 
 export type { PostStatus };
+export type { PostLocale };
 export type { ContentBlock };
 
 type PostRow = Omit<Database["public"]["Tables"]["posts"]["Row"], "content_blocks"> & {
@@ -30,6 +31,7 @@ export type PostFormValues = {
   category: string;
   tags: string; // comma-separated in the form, split into an array before writing
   status: PostStatus;
+  locale: PostLocale;
 };
 
 export const EMPTY_POST_FORM: PostFormValues = {
@@ -41,6 +43,7 @@ export const EMPTY_POST_FORM: PostFormValues = {
   category: "",
   tags: "",
   status: "draft",
+  locale: "en",
 };
 
 export function postToFormValues(post: Post): PostFormValues {
@@ -56,5 +59,6 @@ export function postToFormValues(post: Post): PostFormValues {
     category: post.category ?? "",
     tags: post.tags.join(", "),
     status: post.status,
+    locale: post.locale,
   };
 }

@@ -546,3 +546,30 @@
     transition: none;
   }
 }
+
+/* ============================================================================
+   RTL (Arabic/Hebrew) overrides
+   ========================================================================== */
+
+html[dir="rtl"] .subnav__label {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+html[dir="rtl"] .subsection__heading > .t-body {
+  text-align: left;
+}
+
+html[dir="rtl"] .reconstruction-card:hover {
+  transform: translateX(-6px);
+}
+
+html[dir="rtl"] .reconstruction-card__signal {
+  text-align: left;
+}
+
+@media (max-width: 860px) {
+  html[dir="rtl"] .subsection__heading > .t-body {
+    text-align: right;
+  }
+}

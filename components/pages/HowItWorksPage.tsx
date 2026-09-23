@@ -4,11 +4,11 @@ import { Band } from "@/components/ui/Band";
 import { Crumbs, CtaBand, DemoNote, lhref, MEETING_HREF, PageHero, SectionIntro } from "@/components/subpages/kit";
 import { SubpageFx } from "@/components/subpages/fx";
 import { PhaseRing, Sometimes } from "@/components/subpages/LoopWidgets";
-import { howItWorks as c } from "@/lib/subpages/copy";
+import { getHowItWorksCopy } from "@/lib/subpages/copy";
 
-function HeroLoop() {
+function HeroLoop({ c }: { c: ReturnType<typeof getHowItWorksCopy> }) {
   return (
-    <div className="hiw-orbit" aria-label="Plan, do, check, act, one continuous loop">
+    <div className="hiw-orbit" aria-label={c.ui.heroAriaLabel}>
       <span className="hiw-orbit__ring" aria-hidden="true" />
       <span className="hiw-orbit__ring hiw-orbit__ring--inner" aria-hidden="true" />
       <span className="hiw-orbit__comet" aria-hidden="true" />
@@ -19,39 +19,40 @@ function HeroLoop() {
         </span>
       ))}
       <span className="hiw-orbit__core">
-        <b>Repeat</b>
-        <small>The output of one cycle becomes the intelligence of the next.</small>
+        <b>{c.ui.repeatBadge}</b>
+        <small>{c.ui.repeatNote}</small>
       </span>
     </div>
   );
 }
 
 export function HowItWorksPage({ locale }: { locale: string }) {
+  const c = getHowItWorksCopy(locale);
   return (
     <div className="kit-page hiw-page">
       <SubpageFx />
       <PageHero
         id="hiw"
         className="hiw-hero"
-        crumbs={<Crumbs locale={locale} trail={[{ label: "How it works" }]} />}
+        crumbs={<Crumbs locale={locale} trail={[{ label: c.ui.crumb }]} />}
         eyebrow={c.eyebrow}
         title={
           <>
-            From intelligence to execution. <em>From execution back to intelligence.</em>
+            {c.ui.heroTitle[0]} <em>{c.ui.heroTitle[1]}</em>
           </>
         }
         lead={c.lead}
         actions={
           <>
             <Button href={MEETING_HREF} variant="primary">
-              Book a Live Demo
+              {c.ui.ctaDemo}
             </Button>
             <Button href="#loop" variant="ghost">
-              Walk the loop
+              {c.ui.ctaWalkLoop}
             </Button>
           </>
         }
-        aside={<HeroLoop />}
+        aside={<HeroLoop c={c} />}
       />
 
       <section className="kit-section hiw-gap" data-section>
@@ -59,7 +60,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
           <SectionIntro index="01" label={c.disconnected.eyebrow} title={c.disconnected.title} body={c.disconnected.body} align="split" />
           <div className="hiw-compare">
             <div className="hiw-compare__side hiw-compare__side--broken" data-reveal>
-              <span className="kit-mono">The traditional model is fragmented</span>
+              <span className="kit-mono">{c.ui.fragmentedLabel}</span>
               <ul className="hiw-scatter">
                 {c.disconnected.pieces.map((p, i) => (
                   <li key={p} style={{ "--r": `${((i * 47) % 9) - 4}deg` } as CSSProperties}>
@@ -74,16 +75,14 @@ export function HowItWorksPage({ locale }: { locale: string }) {
               </ol>
             </div>
             <div className="hiw-compare__side hiw-compare__side--closed" data-reveal data-reveal-delay="120">
-              <span className="kit-mono">GeoRepute closes the gap</span>
-              <p className="hiw-compare__claim">GeoRepute connects the entire decision cycle.</p>
+              <span className="kit-mono">{c.ui.connectedLabel}</span>
+              <p className="hiw-compare__claim">{c.ui.connectClaim}</p>
               <ol className="hiw-chain hiw-chain--closed">
                 {c.disconnected.connected.map((s) => (
                   <li key={s}>{s}</li>
                 ))}
               </ol>
-              <p className="hiw-compare__foot">
-                The same intelligence that identifies the problem guides the strategy. The execution is measured against the original objective. And the result determines what the system does next.
-              </p>
+              <p className="hiw-compare__foot">{c.ui.compareFoot}</p>
             </div>
           </div>
         </div>
@@ -94,7 +93,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
         <div className="shell hiw-phases__grid">
           <aside className="hiw-phases__rail">
             <PhaseRing phases={c.phases.map((p) => ({ key: p.key, name: p.name }))} />
-            <p className="hiw-phases__pdca">Plan → Do → Check → Act → Repeat</p>
+            <p className="hiw-phases__pdca">{c.ui.pdca}</p>
           </aside>
 
           <div className="hiw-phases__list">
@@ -121,7 +120,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
                     </ul>
                   </div>
                   <div className="kit-card hiw-phase__card hiw-phase__card--q">
-                    <span className="kit-mono">The question</span>
+                    <span className="kit-mono">{c.ui.questionLabel}</span>
                     <b className="hiw-phase__question">{p.question}</b>
                     <ul className="hiw-checks">
                       {p.determines.map((d) => (
@@ -140,9 +139,9 @@ export function HowItWorksPage({ locale }: { locale: string }) {
                 {p.key === "check" ? (
                   <div className="kit-card hiw-ba" data-reveal>
                     <div className="hiw-ba__head">
-                      <span className="kit-mono">Before → Action → After</span>
+                      <span className="kit-mono">{c.ui.baLabel}</span>
                       <span className="hiw-ba__legend">
-                        <i className="is-before" /> Before <i className="is-after" /> After <i className="is-target" /> Target
+                        <i className="is-before" /> {c.ui.baLegend[0]} <i className="is-after" /> {c.ui.baLegend[1]} <i className="is-target" /> {c.ui.baLegend[2]}
                       </span>
                     </div>
                     <ul>
@@ -151,7 +150,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
                         return (
                           <li key={row.signal} className="hiw-ba__row">
                             <span className="hiw-ba__signal">{row.signal}</span>
-                            <span className="hiw-ba__bars" aria-label={`${row.signal}: before ${row.before}${row.unit}, after ${row.after}${row.unit}, target ${row.target}${row.unit}`}>
+                            <span className="hiw-ba__bars" aria-label={`${row.signal}: ${c.ui.baLegend[0]} ${row.before}${row.unit}, ${c.ui.baLegend[1]} ${row.after}${row.unit}, ${c.ui.baLegend[2]} ${row.target}${row.unit}`}>
                               <i className="is-before" style={{ "--v": row.before / max } as CSSProperties} data-reveal />
                               <i className="is-after" style={{ "--v": row.after / max } as CSSProperties} data-reveal data-reveal-delay="200" />
                               <b className="is-target" style={{ left: `${(row.target / max) * 100}%` }} />
@@ -159,7 +158,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
                             <span className="hiw-ba__nums">
                               {row.before}
                               {row.unit} → <b>{row.after}{row.unit}</b>
-                              <small>target {row.target}{row.unit}</small>
+                              <small>{c.ui.baLegend[2]} {row.target}{row.unit}</small>
                             </span>
                           </li>
                         );
@@ -176,7 +175,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
 
       <section className="kit-section hiw-cycle" data-section>
         <div className="shell">
-          <SectionIntro index="02" label="The closed loop" title="One system. One continuous learning cycle." body="Every cycle makes the next cycle more informed." align="center" />
+          <SectionIntro index="02" label={c.ui.cycleLabel} title={c.ui.cycleTitle} body={c.ui.cycleBody} align="center" />
           <ol className="hiw-seven">
             {c.loop.map((s, i) => (
               <li key={s.name} className="kit-card kit-card--lift hiw-seven__step" data-reveal data-reveal-delay={String(i * 60)} data-spotlight style={{ "--i": i } as CSSProperties}>
@@ -187,7 +186,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
             ))}
           </ol>
           <p className="hiw-seven__return" data-reveal>
-            <span aria-hidden="true">↺</span> Correct feeds straight back into Understand.
+            <span aria-hidden="true">↺</span> {c.ui.cycleReturn}
           </p>
         </div>
       </section>
@@ -202,7 +201,7 @@ export function HowItWorksPage({ locale }: { locale: string }) {
             </div>
           </div>
           <div className="hiw-diff" data-reveal data-reveal-delay="120">
-            <span className="kit-mono">The difference</span>
+            <span className="kit-mono">{c.ui.diffLabel}</span>
             <ol>
               {c.difference.map(([k, v], i) => (
                 <li key={k} style={{ "--i": i } as CSSProperties}>
@@ -210,14 +209,14 @@ export function HowItWorksPage({ locale }: { locale: string }) {
                 </li>
               ))}
             </ol>
-            <p>GeoRepute connects all five, and runs the cycle again.</p>
+            <p>{c.ui.diffFoot}</p>
           </div>
         </div>
       </section>
 
       <section className="kit-section hiw-living" data-section>
         <div className="shell hiw-living__inner">
-          <SectionIntro label="From a snapshot to a living strategy" title={c.living.title} body={c.living.body} align="center" />
+          <SectionIntro label={c.ui.livingLabel} title={c.living.title} body={c.living.body} align="center" />
         </div>
         <div className="hiw-marquee" aria-label={c.living.verbs.join(". ")}>
           <div className="hiw-marquee__track" aria-hidden="true">
@@ -237,11 +236,11 @@ export function HowItWorksPage({ locale }: { locale: string }) {
 
       <CtaBand
         locale={locale}
-        eyebrow="See it run"
+        eyebrow={c.ui.ctaEyebrow}
         title={c.cta.title}
         body={c.cta.body}
-        primary={{ label: "Book a Live Demo", href: MEETING_HREF }}
-        secondary={{ label: "Open Mission Control", href: lhref("/en/app/mission-control", locale) }}
+        primary={{ label: c.ui.ctaDemo, href: MEETING_HREF }}
+        secondary={{ label: c.ui.ctaMissionControl, href: lhref("/en/app/mission-control", locale) }}
       />
     </div>
   );

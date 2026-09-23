@@ -3,16 +3,8 @@ import { Button } from "@/components/ui/Button";
 import { ConfidenceMark, Crumbs, CtaBand, lhref, PageHero } from "@/components/subpages/kit";
 import { SubpageFx } from "@/components/subpages/fx";
 import { DocToc, IndexCalculator } from "@/components/subpages/MethodWidgets";
-import { methodology as m } from "@/lib/subpages/copy";
-import { CONFIDENCE, type Confidence } from "@/lib/subpages/demo";
-
-const TOC = [
-  { id: "geon", label: "The GEON framework" },
-  { id: "evidence", label: "Where observations come from" },
-  { id: "confidence", label: "Confidence" },
-  { id: "financial", label: "Financial model" },
-  { id: "limits", label: "Limitations" },
-];
+import { getMethodologyCopy } from "@/lib/subpages/copy";
+import { getConfidence, type Confidence } from "@/lib/subpages/demo";
 
 function hexPoint(i: number, count: number, d: number, c: number) {
   const a = ((-90 + i * (360 / count)) * Math.PI) / 180;
@@ -20,11 +12,10 @@ function hexPoint(i: number, count: number, d: number, c: number) {
 }
 
 /** The six published GEON vectors, plotted at their observed scores, resolving to the same DHI the calculator below computes. */
-function VectorHex() {
+function VectorHex({ vectors }: { vectors: ReturnType<typeof getMethodologyCopy>["vectors"] }) {
   const size = 168;
   const c = size / 2;
   const r = 66;
-  const vectors = m.vectors;
   const dhi = Math.round(vectors.reduce((s, v) => s + v.weight * v.score, 0));
   const grid = (k: number) => vectors.map((_, i) => hexPoint(i, vectors.length, r * k, c)).join(" ");
   return (
@@ -69,7 +60,10 @@ function DocSection({ id, n, label, title, children }: { id: string; n: string; 
 }
 
 export function MethodologyPage({ locale }: { locale: string }) {
+  const m = getMethodologyCopy(locale);
+  const CONFIDENCE = getConfidence(locale);
   const weights = m.vectors;
+  const TOC = m.ui.toc.map((label, i) => ({ id: ["geon", "evidence", "confidence", "financial", "limits"][i], label }));
   return (
     <div className="kit-page meth-page">
       <SubpageFx />
@@ -77,11 +71,11 @@ export function MethodologyPage({ locale }: { locale: string }) {
         id="meth"
         layout="stack"
         className="meth-hero"
-        crumbs={<Crumbs locale={locale} trail={[{ label: "Methodology" }]} />}
+        crumbs={<Crumbs locale={locale} trail={[{ label: m.ui.crumb }]} />}
         eyebrow={m.eyebrow}
         title={
           <>
-            The stronger the claim, <em>the stronger the evidence path must be.</em>
+            {m.ui.heroTitle[0]} <em>{m.ui.heroTitle[1]}</em>
           </>
         }
         lead={m.lead}
@@ -92,13 +86,13 @@ export function MethodologyPage({ locale }: { locale: string }) {
               {m.version}
             </span>
             <span className="meth-trace">
-              {["Date", "Source", "Engine", "Prompt", "Dataset"].map((t) => (
+              {m.ui.traceLabels.map((t) => (
                 <span key={t}>{t}</span>
               ))}
             </span>
           </>
         }
-        aside={<VectorHex />}
+        aside={<VectorHex vectors={weights} />}
       />
 
       <div className="shell meth-layout">
@@ -107,11 +101,11 @@ export function MethodologyPage({ locale }: { locale: string }) {
         </aside>
 
         <div className="meth-layout__doc">
-          <DocSection id="geon" n="01" label="The GEON framework" title="Six vectors, one published weighting.">
+          <DocSection id="geon" n="01" label={m.ui.sec1Label} title={m.ui.sec1Title}>
             <p className="t-body meth-p" data-reveal>
-              The Decision Health Index is a weighted function of these six vectors, not a score assigned by judgement. The weighting is published so the index can be recomputed independently. Move any vector to see how.
+              {m.ui.sec1Body}
             </p>
-            <div className="meth-weights" data-reveal aria-label="Published vector weights">
+            <div className="meth-weights" data-reveal aria-label={m.ui.weightsAria}>
               {weights.map((v) => (
                 <span key={v.name} className="meth-weights__seg" style={{ flexGrow: v.weight } as CSSProperties}>
                   <b>{Math.round(v.weight * 1000) / 10}%</b>
@@ -122,10 +116,10 @@ export function MethodologyPage({ locale }: { locale: string }) {
             <div className="kit-card meth-calc-wrap" data-reveal>
               <IndexCalculator />
             </div>
-            <p className="meth-small">Observed values are from the demonstration environment (Ironvale Supply). The weights are the published GEON-2.4 weights.</p>
+            <p className="meth-small">{m.ui.sec1Note}</p>
           </DocSection>
 
-          <DocSection id="evidence" n="02" label="Evidence" title="Where the observations come from.">
+          <DocSection id="evidence" n="02" label={m.ui.sec2Label} title={m.ui.sec2Title}>
             <ol className="meth-evidence">
               {m.evidence.map((e, i) => (
                 <li key={e.name} className="meth-evidence__item" data-reveal data-reveal-delay={String((i % 4) * 50)}>
@@ -139,9 +133,9 @@ export function MethodologyPage({ locale }: { locale: string }) {
             </ol>
           </DocSection>
 
-          <DocSection id="confidence" n="03" label="Confidence" title="Every conclusion carries its own confidence.">
+          <DocSection id="confidence" n="03" label={m.ui.sec3Label} title={m.ui.sec3Title}>
             <p className="t-body meth-p" data-reveal>
-              Confidence is attached to the individual conclusion, not to the product. Two findings in the same readout can carry different confidence, and they frequently do.
+              {m.ui.sec3Body}
             </p>
             <ul className="meth-conf">
               {(Object.keys(CONFIDENCE) as Confidence[]).map((k, i) => (
@@ -156,8 +150,8 @@ export function MethodologyPage({ locale }: { locale: string }) {
             </ul>
           </DocSection>
 
-          <DocSection id="financial" n="04" label="Financial model" title="Directional, ranged, and never described as confirmed.">
-            <div className="meth-formula" data-reveal aria-label={m.financial.formula.join(" times ")}>
+          <DocSection id="financial" n="04" label={m.ui.sec4Label} title={m.ui.sec4Title}>
+            <div className="meth-formula" data-reveal aria-label={m.financial.formula.join(" × ")}>
               {m.financial.formula.map((t, i) => (
                 <span key={t} className="meth-formula__term">
                   {i > 0 ? (
@@ -174,13 +168,13 @@ export function MethodologyPage({ locale }: { locale: string }) {
                 ))}
               </ul>
               <div className="kit-card meth-cpc" data-reveal data-reveal-delay="100">
-                <span className="kit-mono">Search economics, derived</span>
+                <span className="kit-mono">{m.ui.economicsLabel}</span>
                 <div className="meth-cpc__scale" aria-hidden="true">
                   <span className="meth-cpc__be" style={{ left: `${(6.13 / 10) * 100}%` }}>
-                    <small>Break-even $6.13</small>
+                    <small>{m.ui.breakEvenLabel} {m.financial.economics[1][1]}</small>
                   </span>
                   <span className="meth-cpc__blend" style={{ left: `${(8.42 / 10) * 100}%` }}>
-                    <small>Blended $8.42</small>
+                    <small>{m.ui.blendedLabel} {m.financial.economics[0][1]}</small>
                   </span>
                 </div>
                 <dl>
@@ -197,7 +191,7 @@ export function MethodologyPage({ locale }: { locale: string }) {
             </div>
           </DocSection>
 
-          <DocSection id="limits" n="05" label="Limitations" title="What this system cannot tell you.">
+          <DocSection id="limits" n="05" label={m.ui.sec5Label} title={m.ui.sec5Title}>
             <ol className="meth-limits">
               {m.limitations.map((l, i) => (
                 <li key={l} data-reveal data-reveal-delay={String(i * 50)}>
@@ -208,10 +202,10 @@ export function MethodologyPage({ locale }: { locale: string }) {
             </ol>
             <div className="meth-end" data-reveal>
               <Button href={lhref("/en/app/mission-control", locale)} variant="primary">
-                Open Mission Control
+                {m.ui.btnMissionControl}
               </Button>
               <Button href={lhref("/en/engines", locale)} variant="ghost">
-                See the engines
+                {m.ui.btnEngines}
               </Button>
             </div>
           </DocSection>
@@ -220,11 +214,11 @@ export function MethodologyPage({ locale }: { locale: string }) {
 
       <CtaBand
         locale={locale}
-        eyebrow="Audit it yourself"
-        title="Every number on this site opens its evidence."
-        body="Start from a decision and follow any figure back to the engine, the question and the date it was observed."
-        primary={{ label: "Reconstruct a decision", href: "/en/app/reconstruct" }}
-        secondary={{ label: "Open Mission Control", href: "/en/app/mission-control" }}
+        eyebrow={m.ui.ctaEyebrow}
+        title={m.ui.ctaTitle}
+        body={m.ui.ctaBody}
+        primary={{ label: m.ui.btnReconstruct, href: "/en/app/reconstruct" }}
+        secondary={{ label: m.ui.btnMissionControl, href: "/en/app/mission-control" }}
       />
     </div>
   );

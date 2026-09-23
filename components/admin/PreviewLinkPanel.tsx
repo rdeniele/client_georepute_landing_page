@@ -33,7 +33,7 @@ export function PreviewLinkPanel({ post }: { post: Post }) {
       <h2 className="admin-section-title">Share draft preview</h2>
       <p className="admin-field__hint">
         Anyone with this link can view the post before it&apos;s published. It stops working the moment you
-        regenerate it{state.expiresAt ? " or after it expires" : ""} — publishing the post doesn&apos;t require it
+        regenerate it{state.expiresAt ? " or after it expires" : ""}. Publishing the post doesn&apos;t require it
         and doesn&apos;t revoke it.
       </p>
 

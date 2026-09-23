@@ -13,12 +13,14 @@ import {
 export type MeetingRequestState = {
   status: "idle" | "success" | "error";
   error: string | null;
+  /** Set on success — whether the visitor's own confirmation email (a copy of their request, or the Meet link) actually went out. */
+  confirmationSent?: boolean;
   /**
    * Set on success when the visitor asked for a Google Meet. `link` is `null`
    * when there is none yet: `automatic` says whether Google was asked to make
    * it (and failed) or is not configured, so the team confirms by email.
    */
-  meet?: { slotLabel: string; link: string | null; automatic: boolean; confirmationSent: boolean };
+  meet?: { slotLabel: string; link: string | null; automatic: boolean };
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -111,7 +113,7 @@ export async function submitMeetingRequestAction(
 
   try {
     const { confirmationSent } = await sendMeetingRequest({ name, email, company, phone, subject, message, meet });
-    return { status: "success", error: null, meet: meet && { ...meet, confirmationSent } };
+    return { status: "success", error: null, confirmationSent, meet };
   } catch (error) {
     if (eventId) await deleteMeetEvent(eventId);
     return {

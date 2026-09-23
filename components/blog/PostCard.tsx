@@ -9,9 +9,13 @@ export function PostCard({ post }: { post: PostWithAuthor }) {
   // there's no separate featured image set, before giving up to the
   // branded placeholder.
   const cardImage = post.featured_image || getFirstContentImage(post.content_blocks);
+  // Carries the post's own locale in the URL (rather than relying on the
+  // post page's cross-locale fallback) so the link, canonical tag and
+  // rendered language agree from the first request.
+  const href = post.locale === "he" ? `/blog/${post.slug}?lang=he` : `/blog/${post.slug}`;
 
   return (
-    <a className="kit-card blog-card" href={`/blog/${post.slug}`}>
+    <a className="kit-card blog-card" href={href}>
       <div className="blog-card__media">
         {cardImage ? (
           // eslint-disable-next-line @next/next/no-img-element

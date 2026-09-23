@@ -2867,3 +2867,159 @@ html.theme-dark .cat-offer__tier {
     overflow-x: auto;
   }
 }
+
+/* ============================================================================
+   RTL (Arabic/Hebrew) overrides
+   ========================================================================== */
+
+html[dir="rtl"] .eix-chain__step {
+  padding-right: 0;
+  padding-left: 28px;
+}
+
+html[dir="rtl"] .eix-chain__step:last-child {
+  padding-left: 0;
+}
+
+html[dir="rtl"] .eix-chain__link {
+  right: auto;
+  left: 0;
+}
+
+html[dir="rtl"] .eix-card__open span {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .eix-card:hover .eix-card__open span {
+  transform: translateX(-4px) scaleX(-1);
+}
+
+html[dir="rtl"] .hiw-chain li + li::before {
+  content: "←";
+  margin-right: 0;
+  margin-left: 4px;
+}
+
+html[dir="rtl"] .hiw-chain--closed li + li::before {
+  left: auto;
+  right: -8px;
+  margin-left: 0;
+}
+
+html[dir="rtl"] .hiw-checks li {
+  padding-left: 0;
+  padding-right: 22px;
+}
+
+html[dir="rtl"] .hiw-checks li::before {
+  left: auto;
+  right: 2px;
+}
+
+html[dir="rtl"] .hiw-ba__nums {
+  text-align: left;
+}
+
+html[dir="rtl"] .hiw-marquee__set > span {
+  padding-right: 0;
+  padding-left: clamp(20px, 3vw, 40px);
+}
+
+html[dir="rtl"] .meth-toc ol {
+  border-left: 0;
+  border-right: 1px solid var(--line);
+}
+
+html[dir="rtl"] .meth-toc a {
+  padding-left: 0;
+  padding-right: 16px;
+}
+
+html[dir="rtl"] .meth-toc a::before {
+  left: auto;
+  right: -1px;
+}
+
+html[dir="rtl"] .meth-vec__head output {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .meth-rules li {
+  padding-left: 0;
+  padding-right: 30px;
+}
+
+html[dir="rtl"] .meth-rules li::before {
+  left: auto;
+  right: 0;
+}
+
+html[dir="rtl"] .mkt-cat__open span {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .mkt-cat.is-routed:hover .mkt-cat__open span {
+  transform: translateX(-4px) scaleX(-1);
+}
+
+html[dir="rtl"] .mkt-triad::before {
+  background: linear-gradient(90deg, var(--color-up), var(--color-signal));
+}
+
+html[dir="rtl"] .cat-offer__scope li {
+  padding-left: 0;
+  padding-right: 22px;
+}
+
+html[dir="rtl"] .cat-offer__scope li::before {
+  left: auto;
+  right: 0;
+}
+
+html[dir="rtl"] .cat-other b {
+  padding-right: 0;
+  padding-left: 20px;
+}
+
+html[dir="rtl"] .cat-other i {
+  right: auto;
+  left: 16px;
+}
+
+html[dir="rtl"] .si__preview small {
+  margin-left: 0;
+  margin-right: 2px;
+}
+
+@media (max-width: 1180px) {
+  html[dir="rtl"] .eix-chain__step:nth-child(2n) {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  html[dir="rtl"] .eix-chain__step {
+    padding-left: 0;
+  }
+
+  html[dir="rtl"] .eix-chain__step .eix-chain__link,
+  html[dir="rtl"] .eix-chain__step:nth-child(2n) .eix-chain__link {
+    right: auto;
+    left: 32px;
+  }
+
+  html[dir="rtl"] .eix-chain__link span {
+    left: auto;
+    right: 12px;
+  }
+
+  html[dir="rtl"] .mkt-triad::before {
+    left: auto;
+    right: 27px;
+  }
+
+  html[dir="rtl"] .mkt-triad__step {
+    text-align: right;
+  }
+}

@@ -11,7 +11,7 @@ export default function NewBlogPostPage() {
       <div className="admin-header">
         <div>
           <h1>New Post</h1>
-          <p>Saved as a draft first — publish it from the post list when it&apos;s ready.</p>
+          <p>Saved as a draft first. Publish it from the post list when it&apos;s ready.</p>
         </div>
       </div>
       <PostForm action={createPostAction} initialValues={EMPTY_POST_FORM} submitLabel="Create draft" />

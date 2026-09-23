@@ -14,8 +14,11 @@ export const DEMO_HREF = nav.cta.href;
  * lib/services/mailer.ts) rather than a mailto: link, since mailto only
  * works for visitors with a desktop mail app configured. Swap this to a
  * real calendar tool's URL later if the client gets one.
+ *
+ * `/en`-prefixed so lhref() below rewrites it into the visitor's own locale,
+ * same as every other in-app link — /briefing now lives under [locale].
  */
-export const MEETING_HREF = "/briefing";
+export const MEETING_HREF = "/en/briefing";
 
 /** Rewrites an `/en/...` route into the visitor's current locale. */
 export function lhref(href: string, locale: string) {

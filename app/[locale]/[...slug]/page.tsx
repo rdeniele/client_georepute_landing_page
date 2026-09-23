@@ -13,6 +13,7 @@ import { HowItWorksPage } from "@/components/pages/HowItWorksPage";
 import { MethodologyPage } from "@/components/pages/MethodologyPage";
 import { MarketplaceCategoryPage, MarketplacePage } from "@/components/pages/MarketplacePages";
 import { SignInPage } from "@/components/pages/SignInPage";
+import { PrivacyPolicyPage } from "@/components/pages/PrivacyPolicyPage";
 import { LOCALES } from "@/lib/i18n";
 
 const ROUTES: Record<string, (locale: string) => ReactNode> = {
@@ -20,6 +21,7 @@ const ROUTES: Record<string, (locale: string) => ReactNode> = {
   "how-it-works": (l) => <HowItWorksPage locale={l} />,
   methodology: (l) => <MethodologyPage locale={l} />,
   signin: (l) => <SignInPage locale={l} />,
+  privacy: (l) => <PrivacyPolicyPage locale={l} />,
 
   "app/mission-control": (l) => <MissionControlPage locale={l} />,
   "app/reconstruct": (l) => <DecisionReconstructionPage locale={l} />,
@@ -35,9 +37,16 @@ const ROUTES: Record<string, (locale: string) => ReactNode> = {
 
   marketplace: (l) => <MarketplacePage locale={l} />,
   "marketplace/category/ai-visibility-intelligence": (l) => <MarketplaceCategoryPage slug="ai-visibility-intelligence" locale={l} />,
+  "marketplace/category/search-intelligence": (l) => <MarketplaceCategoryPage slug="search-intelligence" locale={l} />,
   "marketplace/category/competitive-intelligence": (l) => <MarketplaceCategoryPage slug="competitive-intelligence" locale={l} />,
+  "marketplace/category/trust-intelligence": (l) => <MarketplaceCategoryPage slug="trust-intelligence" locale={l} />,
+  "marketplace/category/content-intelligence": (l) => <MarketplaceCategoryPage slug="content-intelligence" locale={l} />,
+  "marketplace/category/market-intelligence": (l) => <MarketplaceCategoryPage slug="market-intelligence" locale={l} />,
   "marketplace/category/executive-intelligence": (l) => <MarketplaceCategoryPage slug="executive-intelligence" locale={l} />,
 };
+
+/** The subpage slugs this route serves, e.g. `"app/mission-control"` — read by app/sitemap.ts so it doesn't have to duplicate this list. */
+export const SUBPAGE_ROUTE_SLUGS = Object.keys(ROUTES);
 
 export default async function SubpageRoute({
   params,

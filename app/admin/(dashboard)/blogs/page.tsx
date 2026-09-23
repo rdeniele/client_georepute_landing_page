@@ -63,7 +63,7 @@ export default async function AdminBlogsPage({
                 <td>
                   <span className={`admin-status admin-status--${post.status}`}>{post.status}</span>
                 </td>
-                <td>{post.category || "—"}</td>
+                <td>{post.category || "None"}</td>
                 <td>{formatDate(post.updated_at)}</td>
                 <td>
                   <PostRowActions post={post} />

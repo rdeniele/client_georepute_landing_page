@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { submitMeetingRequestAction, type MeetingRequestState } from "@/lib/actions/meeting";
 import { MEETING_SUBJECTS } from "@/lib/contact";
+import { getBriefingCopy } from "@/lib/subpages/briefing";
 
 const initialState: MeetingRequestState = { status: "idle", error: null };
 
@@ -19,7 +20,8 @@ function localNowValue(): string {
  * otherwise the preferred time is emailed to the team, who confirm it by
  * reply and send the link themselves.
  */
-export function MeetingRequestForm() {
+export function MeetingRequestForm({ locale = "en" }: { locale?: string }) {
+  const c = getBriefingCopy(locale).form;
   const [state, formAction, pending] = useActionState(submitMeetingRequestAction, initialState);
   const [scheduleMeet, setScheduleMeet] = useState(false);
   const [timeZone, setTimeZone] = useState("");
@@ -34,33 +36,32 @@ export function MeetingRequestForm() {
   };
 
   if (state.status === "success") {
-    const { meet } = state;
+    const { meet, confirmationSent } = state;
     return (
       <div className="briefing-card">
         <div className="kit-form-success" role="status">
-          <p className="t-h4">Thanks — your request is in.</p>
+          <p className="t-h4">{c.successTitle}</p>
           {meet?.link ? (
             <>
-              <p className="t-body">Your Google Meet is set for {meet.slotLabel}.</p>
+              <p className="t-body">{c.successWithMeet(meet.slotLabel)}</p>
               <p className="t-body">
                 <a href={meet.link} target="_blank" rel="noopener noreferrer">
                   {meet.link}
                 </a>
               </p>
-              <p className="t-body">
-                {meet.confirmationSent
-                  ? "We've emailed you the link too."
-                  : "Keep this link — we couldn't email it to you."}
-              </p>
+              <p className="t-body">{confirmationSent ? c.successConfirmationSent : c.successConfirmationNotSent}</p>
             </>
           ) : (
-            <p className="t-body">
-              {!meet
-                ? "We'll reply from georepute@gmail.com shortly to find a time."
-                : meet.automatic
-                  ? `We couldn't create the Google Meet link automatically, so we'll reply from georepute@gmail.com to confirm ${meet.slotLabel}.`
-                  : `We've noted ${meet.slotLabel} as your preferred time. We'll reply from georepute@gmail.com to confirm it and send your Google Meet link.`}
-            </p>
+            <>
+              <p className="t-body">
+                {!meet
+                  ? c.successNoMeet
+                  : meet.automatic
+                    ? c.successMeetPendingAutomatic(meet.slotLabel)
+                    : c.successMeetPendingManual(meet.slotLabel)}
+              </p>
+              <p className="t-body">{confirmationSent ? c.successConfirmationSentGeneral : c.successConfirmationNotSentGeneral}</p>
+            </>
           )}
         </div>
       </div>
@@ -69,8 +70,8 @@ export function MeetingRequestForm() {
 
   return (
     <div className="briefing-card">
-      <h2 className="briefing-card__title">Request a meeting</h2>
-      <p className="briefing-card__hint">Fields marked with an asterisk (*) are mandatory.</p>
+      <h2 className="briefing-card__title">{c.title}</h2>
+      <p className="briefing-card__hint">{c.hint}</p>
       <form action={formAction} className="kit-form">
         {state.status === "error" ? (
           <div className="kit-form__banner" role="alert">
@@ -80,32 +81,32 @@ export function MeetingRequestForm() {
 
         {/* Honeypot: hidden from real visitors via CSS, invisible to screen readers, but a bot's form-filler will still find and fill it. */}
         <div className="kit-form__honeypot" aria-hidden="true">
-          <label htmlFor="website">Leave this field empty</label>
+          <label htmlFor="website">{c.honeypotLabel}</label>
           <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
         </div>
 
         <div className="kit-field-row">
           <div className="kit-field">
             <label htmlFor="name">
-              Full name <span className="kit-req" aria-hidden="true">*</span>
+              {c.nameLabel} <span className="kit-req" aria-hidden="true">*</span>
             </label>
-            <input id="name" name="name" type="text" required autoComplete="name" placeholder="John Doe" />
+            <input id="name" name="name" type="text" required autoComplete="name" placeholder={c.namePlaceholder} />
           </div>
           <div className="kit-field">
-            <label htmlFor="company">Company</label>
-            <input id="company" name="company" type="text" autoComplete="organization" placeholder="Your company" />
+            <label htmlFor="company">{c.companyLabel}</label>
+            <input id="company" name="company" type="text" autoComplete="organization" placeholder={c.companyPlaceholder} />
           </div>
         </div>
 
         <div className="kit-field-row">
           <div className="kit-field">
             <label htmlFor="email">
-              Email address <span className="kit-req" aria-hidden="true">*</span>
+              {c.emailLabel} <span className="kit-req" aria-hidden="true">*</span>
             </label>
-            <input id="email" name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
+            <input id="email" name="email" type="email" required autoComplete="email" placeholder={c.emailPlaceholder} />
           </div>
           <div className="kit-field">
-            <label htmlFor="phone">Phone Number</label>
+            <label htmlFor="phone">{c.phoneLabel}</label>
             <input
               id="phone"
               name="phone"
@@ -115,18 +116,18 @@ export function MeetingRequestForm() {
               maxLength={30}
               pattern="\+?[\d\s\(\)\.\-]{7,30}"
               title="A phone number, e.g. +1 555 123 4567"
-              placeholder="+1 555 123 4567"
+              placeholder={c.phonePlaceholder}
             />
           </div>
         </div>
 
         <div className="kit-field">
           <label htmlFor="subject">
-            Subject <span className="kit-req" aria-hidden="true">*</span>
+            {c.subjectLabel} <span className="kit-req" aria-hidden="true">*</span>
           </label>
           <select id="subject" name="subject" required defaultValue="">
             <option value="" disabled>
-              Select a subject
+              {c.subjectPlaceholder}
             </option>
             {MEETING_SUBJECTS.map((subject) => (
               <option key={subject} value={subject}>
@@ -138,9 +139,9 @@ export function MeetingRequestForm() {
 
         <div className="kit-field">
           <label htmlFor="message">
-            Message <span className="kit-req" aria-hidden="true">*</span>
+            {c.messageLabel} <span className="kit-req" aria-hidden="true">*</span>
           </label>
-          <textarea id="message" name="message" rows={4} required placeholder="How can we help you reach your goals?" />
+          <textarea id="message" name="message" rows={4} required placeholder={c.messagePlaceholder} />
         </div>
 
         <div className="kit-meet">
@@ -152,22 +153,22 @@ export function MeetingRequestForm() {
               onChange={(event) => toggleMeet(event.target.checked)}
             />
             <span className="kit-check__text">
-              Book a Google Meet call
-              <small>Pick a time now and we&apos;ll email you the link.</small>
+              {c.meetLabel}
+              <small>{c.meetHint}</small>
             </span>
           </label>
           {scheduleMeet ? (
             <div className="kit-field">
-              <label htmlFor="meetingStart">Preferred date &amp; time</label>
+              <label htmlFor="meetingStart">{c.meetStartLabel}</label>
               <input id="meetingStart" name="meetingStart" type="datetime-local" required min={minStart} />
               <input type="hidden" name="timezone" value={timeZone} />
-              <p className="kit-field__hint">30 minutes · {timeZone}. We&apos;ll email you the Meet link.</p>
+              <p className="kit-field__hint">{c.meetStartHint(timeZone)}</p>
             </div>
           ) : null}
         </div>
 
         <button type="submit" className="briefing-submit" disabled={pending}>
-          {pending ? "Sending…" : "Send request"}
+          {pending ? c.sending : c.submit}
         </button>
       </form>
     </div>

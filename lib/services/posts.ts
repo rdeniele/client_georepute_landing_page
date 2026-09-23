@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/types/database.types";
-import type { Post, PostFormValues, PostWithAuthor } from "@/types/posts";
+import type { Post, PostFormValues, PostLocale, PostWithAuthor } from "@/types/posts";
 import { slugify } from "@/lib/utils/slug";
 import { blocksToPlainText } from "@/lib/utils/blocks";
 
@@ -28,17 +28,20 @@ function raise(action: string, error: { message: string } | null): never {
 export type PostListOptions = {
   limit?: number;
   offset?: number;
+  /** Defaults to "en" — matches the site's default locale. */
+  locale?: PostLocale;
 };
 
-/** Public listing feed: published posts only, newest first. Safe to call with the anon key. */
+/** Public listing feed: published posts only, newest first, scoped to one locale. Safe to call with the anon key. */
 export async function getPublishedPosts(
   supabase: Client,
-  { limit = 20, offset = 0 }: PostListOptions = {},
+  { limit = 20, offset = 0, locale = "en" }: PostListOptions = {},
 ): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from("posts")
     .select(AUTHOR_SELECT)
     .eq("status", "published")
+    .eq("locale", locale)
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -47,12 +50,35 @@ export async function getPublishedPosts(
   return (data ?? []) as unknown as PostWithAuthor[];
 }
 
-/** Public post page: a single published post by slug, or `null` if it doesn't exist / isn't published. */
+/**
+ * Public post page: a single published post by (locale, slug), or `null` if
+ * it doesn't exist / isn't published. `slug` alone is no longer unique
+ * (Step 11 in SUPABASE_SETUP.md scopes uniqueness to `(locale, slug)`), so a
+ * locale is needed to disambiguate — but a URL's `?lang=` query param can be
+ * stale, missing, or just wrong, and a real post shouldn't 404 over that.
+ * If the exact `(locale, slug)` pair isn't found, this falls back to any
+ * published post with that slug regardless of locale. Callers should read
+ * the returned row's own `locale` field (not trust the `locale` they passed
+ * in) when deciding how to render the page.
+ */
 export async function getPublishedPostBySlug(
   supabase: Client,
   slug: string,
+  locale: PostLocale = "en",
 ): Promise<PostWithAuthor | null> {
   const { data, error } = await supabase
+    .from("posts")
+    .select(AUTHOR_SELECT)
+    .eq("slug", slug)
+    .eq("locale", locale)
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
+    .maybeSingle();
+
+  if (error) raise("load post", error);
+  if (data) return data as unknown as PostWithAuthor;
+
+  const fallback = await supabase
     .from("posts")
     .select(AUTHOR_SELECT)
     .eq("slug", slug)
@@ -60,8 +86,8 @@ export async function getPublishedPostBySlug(
     .lte("published_at", new Date().toISOString())
     .maybeSingle();
 
-  if (error) raise("load post", error);
-  return data as unknown as PostWithAuthor | null;
+  if (fallback.error) raise("load post", fallback.error);
+  return fallback.data as unknown as PostWithAuthor | null;
 }
 
 /** Admin list: every post regardless of status, most recently updated first. Requires an admin session — RLS enforces this. */
@@ -105,6 +131,7 @@ function toInsert(values: PostFormValues, authorId: string | null) {
     category: values.category.trim() || null,
     tags: normalizeTags(values.tags),
     status: values.status,
+    locale: values.locale,
     author_id: authorId,
   };
 }

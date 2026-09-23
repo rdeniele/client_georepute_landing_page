@@ -115,8 +115,8 @@ export function buildMeetingRequestEmailHtml(request: MeetingRequest): string {
                       ? button(meet.link, "Join Google Meet")
                       : `<div style="font: 400 14px/1.5 ${FONT}; color: #92400e;">${
                           meet.automatic
-                            ? "The Meet link could not be created automatically — please reply to arrange one at this time."
-                            : "The visitor asked to meet at this time — please reply to confirm it and send a Meet link."
+                            ? "The Meet link could not be created automatically. Please reply to arrange one at this time."
+                            : "The visitor asked to meet at this time. Please reply to confirm it and send a Meet link."
                         }</div>`
                   }
                 </div>`
@@ -154,7 +154,7 @@ export function buildMeetingConfirmationEmailHtml(request: MeetingRequest, meetL
     footer: "You are receiving this because you requested a meeting on the GeoRepute website. Reply to this email if you need to change the time.",
     body: `
                 <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; margin-bottom: 20px;">
-                  Hi ${escapeHtml(request.name.split(" ")[0] || request.name)}, thanks for getting in touch — we've set up a Google Meet call for you.
+                  Hi ${escapeHtml(request.name.split(" ")[0] || request.name)}, thanks for getting in touch. We've set up a Google Meet call for you.
                 </div>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   ${row("Topic", request.subject)}
@@ -164,6 +164,52 @@ export function buildMeetingConfirmationEmailHtml(request: MeetingRequest, meetL
                 </table>
                 <div style="margin-top: 24px;">
                   ${button(meetLink, "Join Google Meet")}
+                </div>`,
+  });
+}
+
+/**
+ * The confirmation sent to the visitor when there is no Meet link yet —
+ * either no meeting was requested at all, or one was requested but Google
+ * Meet isn't configured (or link creation failed), so the team confirms the
+ * time by reply. Every submission gets one of these two visitor-facing
+ * emails or the one above; none of the three paths used to leave the
+ * visitor with nothing in their inbox to check back against.
+ */
+export function buildRequestReceivedEmailHtml(request: MeetingRequest): string {
+  const { meet } = request;
+  const firstName = escapeHtml(request.name.split(" ")[0] || request.name);
+
+  const meetBlock = meet
+    ? `
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 4px;">
+                  ${row("Requested time", meet.slotLabel)}
+                </table>
+                <div style="font: 400 14px/1.6 ${FONT}; color: #5d6288; margin-top: 12px;">
+                  We'll reply to confirm this time and send your Google Meet link.
+                </div>`
+    : `<div style="font: 400 15px/1.6 ${FONT}; color: #5d6288;">We'll get back to you shortly.</div>`;
+
+  return emailShell({
+    subtitle: meet ? "We received your meeting request" : "We received your message",
+    footer: "You are receiving this because you got in touch on the GeoRepute website. Reply to this email any time.",
+    body: `
+                <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; margin-bottom: 20px;">
+                  Hi ${firstName}, thanks for getting in touch. Here's a copy of what you sent us for your records.
+                </div>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  ${row("Subject", request.subject)}
+                  ${request.phone ? row("Phone Number", request.phone) : ""}
+                  ${request.company ? row("Company", request.company) : ""}
+                </table>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(12, 17, 52, 0.1);">
+                  <div style="font: 600 12px/1.4 ${FONT}; text-transform: uppercase; letter-spacing: 0.04em; color: #5d6288; margin-bottom: 8px;">
+                    Your message
+                  </div>
+                  <div style="font: 400 15px/1.6 ${FONT}; color: #0c1134; white-space: pre-wrap;">${escapeHtml(request.message)}</div>
+                </div>
+                <div style="margin-top: 20px;">
+                  ${meetBlock}
                 </div>`,
   });
 }

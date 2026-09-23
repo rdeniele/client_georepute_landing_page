@@ -3544,3 +3544,150 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
     transform: scaleY(1) !important;
   }
 }
+
+/* ============================================================================
+   RTL (Arabic/Hebrew) overrides
+   ========================================================================== */
+
+html[dir="rtl"] .mc-ticker__dhi {
+  padding-right: 0;
+  padding-left: 24px;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+
+html[dir="rtl"] .mc-tile {
+  text-align: right;
+}
+
+html[dir="rtl"] .mc-chain__spine {
+  left: auto;
+  right: 21px;
+}
+
+html[dir="rtl"] .mc-detail__link:hover span {
+  transform: translateX(-3px);
+}
+
+html[dir="rtl"] .mc-event__meta time {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .ac-item__head {
+  text-align: right;
+}
+
+html[dir="rtl"] .ac-road__label {
+  padding-right: 0;
+  padding-left: 16px;
+}
+
+html[dir="rtl"] .ac-road__bar {
+  transform-origin: left center;
+}
+
+html[dir="rtl"] .ac-road__due {
+  transform: translateX(100%);
+}
+
+html[dir="rtl"] .cr-dim {
+  text-align: right;
+}
+
+html[dir="rtl"] .cr-dim__bar i {
+  transform-origin: right center;
+}
+
+html[dir="rtl"] .cr-dim__score {
+  text-align: left;
+}
+
+html[dir="rtl"] .cr-step__dep {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .nar-health__item {
+  padding-left: 0;
+  padding-right: 14px;
+}
+
+html[dir="rtl"] .nar-health__item::before {
+  left: auto;
+  right: 0;
+}
+
+html[dir="rtl"] .nar-story__owner {
+  padding-left: 0;
+  padding-right: 20px;
+  border-left: 0;
+  border-right: 1px solid var(--line);
+}
+
+html[dir="rtl"] .nar-own__key b {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .nar-comp__tab {
+  text-align: right;
+}
+
+html[dir="rtl"] .rc-query {
+  text-align: right;
+}
+
+html[dir="rtl"] .rc-query__text::after {
+  margin-left: 0;
+  margin-right: 3px;
+}
+
+html[dir="rtl"] .rc-outcome__big small {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+html[dir="rtl"] .rc-competitor__vs > div b {
+  text-align: left;
+}
+
+html[dir="rtl"] .rc-competitor__bar i {
+  transform-origin: right;
+}
+
+html[dir="rtl"] .rc-timing__track i {
+  transform-origin: right;
+}
+
+html[dir="rtl"] .rc-journey__track li::before {
+  right: -50%;
+  left: 50%;
+}
+
+html[dir="rtl"] .rc-graph li {
+  margin-right: 0;
+  margin-left: 14px;
+}
+
+html[dir="rtl"] .rc-graph li:not(:last-child)::after {
+  content: "←";
+  right: auto;
+  left: -14px;
+}
+
+html[dir="rtl"] .rc-graph li:last-child {
+  margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+  html[dir="rtl"] .nar-story__owner {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  html[dir="rtl"] .cr-step__dep {
+    margin-right: 0;
+  }
+}
