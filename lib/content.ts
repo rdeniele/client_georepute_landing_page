@@ -113,6 +113,7 @@ export const nav = {
   links: [
     { label: "How It Works", href: "/en/how-it-works" },
     { label: "Methodology", href: "/en/methodology" },
+    { label: "Sample Reports", href: "/en/reports" },
     // Not locale-prefixed: the blog isn't translated, unlike the rest of the site.
     { label: "Blog", href: "/blog" },
   ],

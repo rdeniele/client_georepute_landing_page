@@ -14,6 +14,7 @@ import { MethodologyPage } from "@/components/pages/MethodologyPage";
 import { MarketplaceCategoryPage, MarketplacePage } from "@/components/pages/MarketplacePages";
 import { SignInPage } from "@/components/pages/SignInPage";
 import { PrivacyPolicyPage } from "@/components/pages/PrivacyPolicyPage";
+import { SampleReportsPage } from "@/components/pages/SampleReportsPage";
 import { LOCALES } from "@/lib/i18n";
 
 const ROUTES: Record<string, (locale: string) => ReactNode> = {
@@ -22,6 +23,7 @@ const ROUTES: Record<string, (locale: string) => ReactNode> = {
   methodology: (l) => <MethodologyPage locale={l} />,
   signin: (l) => <SignInPage locale={l} />,
   privacy: (l) => <PrivacyPolicyPage locale={l} />,
+  reports: (l) => <SampleReportsPage locale={l} />,
 
   "app/mission-control": (l) => <MissionControlPage locale={l} />,
   "app/reconstruct": (l) => <DecisionReconstructionPage locale={l} />,

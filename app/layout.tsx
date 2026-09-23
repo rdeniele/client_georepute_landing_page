@@ -16,6 +16,7 @@ import "./pages-info.css";
 import "./intro.css";
 import "./trymodal.css";
 import "./cookies.css";
+import "./reports.css";
 import "./blog.css";
 import "./admin.css";
 
