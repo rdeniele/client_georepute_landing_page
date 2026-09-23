@@ -28,12 +28,12 @@ export type IntroVideoSource =
 
 export const introVideo: { desktop: IntroVideoSource | null; mobile: IntroVideoSource | null } = {
   // 16:9 widescreen cut.
-  desktop: { kind: "file", src: "/videos/16x9_intro_video.mp4" },
+  desktop: { kind: "file", src: "/videos/GeoRepute_Flow_1080p.mp4" },
   // 9:16 portrait cut.
   mobile: { kind: "file", src: "/videos/9x16_intro_video.mp4" },
 };
 
-export const INTRO_VERSION = "3";
+export const INTRO_VERSION = "4";
 export const INTRO_STORAGE_KEY = `georepute-intro-seen:v${INTRO_VERSION}`;
 /** Fired on window to reopen the introduction from anywhere (e.g. the hero). */
 export const INTRO_OPEN_EVENT = "georepute:open-intro";
