@@ -86,7 +86,7 @@ export async function submitMeetingRequestAction(
       try {
         const event = await createMeetEvent({
           slot,
-          summary: `${subject} — ${name}`,
+          summary: `${subject}: ${name}`,
           description: [
             `Name: ${name}`,
             `Email: ${email}`,
