@@ -188,7 +188,7 @@ const SIGNAL_NAMES_EN = [
 ] as const;
 
 const en: Copy = {
-  nav: { cta: "Analyze My Business", reports: "Sample Reports" },
+  nav: { cta: "Analyze My Business", reports: "Intelligence Reports" },
   navItems: {},
   navFeature: { eyebrow: "Signature experience", title: "Reconstruct the decision.", desc: "Ten surfaces, one commercial question, from what each engine understood to what must change next.", cta: "Open the reconstruction" },
   hero: {
@@ -404,7 +404,7 @@ const en: Copy = {
 };
 
 const he: Copy = {
-  nav: { platform: "פלטפורמה", engines: "מנועי מודיעין", marketplace: "שוק המודיעין", how: "איך זה עובד", methodology: "מתודולוגיה", signIn: "כניסה", cta: "נתחו את העסק שלי", reports: "דוחות לדוגמה", moreEngines: "ראו את כל שנים עשר המנועים", moreMarketplace: "ראו את כל מערכת המודיעין", language: "שפה" },
+  nav: { platform: "פלטפורמה", engines: "מנועי מודיעין", marketplace: "שוק המודיעין", how: "איך זה עובד", methodology: "מתודולוגיה", signIn: "כניסה", cta: "נתחו את העסק שלי", reports: "דוחות מודיעין", moreEngines: "ראו את כל שנים עשר המנועים", moreMarketplace: "ראו את כל מערכת המודיעין", language: "שפה" },
   navItems: {
     "/en/app/mission-control": { name: "מרכז בקרת ההנהלה", desc: "עשרה מדדים, עמדת החלטה אחת, כשכל אחד פותח את הראיות שלו." },
     "/en/app/reconstruct": { name: "שחזור החלטה", desc: "הזינו דומיין, בחרו שאלה מסחרית, וצפו בהחלטה נבנית מחדש." },
@@ -634,7 +634,7 @@ const he: Copy = {
 };
 
 const ar: Copy = {
-  nav: { platform: "المنصة", engines: "محركات الذكاء", marketplace: "سوق الذكاء", how: "كيف تعمل", methodology: "المنهجية", signIn: "تسجيل الدخول", cta: "حلّلوا نشاطكم التجاري", reports: "تقارير نموذجية", moreEngines: "شاهدوا محركات الذكاء الاثني عشر", moreMarketplace: "استكشفوا منظومة الذكاء", language: "اللغة" },
+  nav: { platform: "المنصة", engines: "محركات الذكاء", marketplace: "سوق الذكاء", how: "كيف تعمل", methodology: "المنهجية", signIn: "تسجيل الدخول", cta: "حلّلوا نشاطكم التجاري", reports: "تقارير الذكاء", moreEngines: "شاهدوا محركات الذكاء الاثني عشر", moreMarketplace: "استكشفوا منظومة الذكاء", language: "اللغة" },
   navItems: {
     "/en/app/mission-control": { name: "مركز التحكم التنفيذي", desc: "عشرة مقاييس، موقع قرار واحد، كل منها يفتح أدلته." },
     "/en/app/reconstruct": { name: "إعادة بناء القرار", desc: "أدخلوا نطاقًا، اختاروا سؤالًا تجاريًا، وشاهدوا القرار يُعاد بناؤه." },
@@ -864,7 +864,7 @@ const ar: Copy = {
 };
 
 const ru: Copy = {
-  nav: { platform: "Платформа", engines: "Аналитические движки", marketplace: "Маркетплейс интеллекта", how: "Как это работает", methodology: "Методология", signIn: "Вход", cta: "Анализировать мой бизнес", reports: "Примеры отчётов", moreEngines: "Все двенадцать движков", moreMarketplace: "Вся экосистема интеллекта", language: "Язык" },
+  nav: { platform: "Платформа", engines: "Аналитические движки", marketplace: "Маркетплейс интеллекта", how: "Как это работает", methodology: "Методология", signIn: "Вход", cta: "Анализировать мой бизнес", reports: "Аналитические отчёты", moreEngines: "Все двенадцать движков", moreMarketplace: "Вся экосистема интеллекта", language: "Язык" },
   navItems: {
     "/en/app/mission-control": { name: "Центр управления руководителя", desc: "Десять показателей, одна позиция решения, у каждой своя доказательная база." },
     "/en/app/reconstruct": { name: "Реконструкция решения", desc: "Введите домен, выберите коммерческий вопрос, и наблюдайте, как решение восстанавливается заново." },
@@ -1094,7 +1094,7 @@ const ru: Copy = {
 };
 
 const fr: Copy = {
-  nav: { platform: "Plateforme", engines: "Moteurs d’intelligence", marketplace: "Marketplace de l’intelligence", how: "Comment ça marche", methodology: "Méthodologie", signIn: "Connexion", cta: "Analyser mon entreprise", reports: "Exemples de rapports", moreEngines: "Voir les douze moteurs", moreMarketplace: "Voir tout l’écosystème", language: "Langue" },
+  nav: { platform: "Plateforme", engines: "Moteurs d’intelligence", marketplace: "Marketplace de l’intelligence", how: "Comment ça marche", methodology: "Méthodologie", signIn: "Connexion", cta: "Analyser mon entreprise", reports: "Rapports d’intelligence", moreEngines: "Voir les douze moteurs", moreMarketplace: "Voir tout l’écosystème", language: "Langue" },
   navItems: {
     "/en/app/mission-control": { name: "Centre de contrôle exécutif", desc: "Dix mesures, une position de décision, chacune ouvrant ses preuves." },
     "/en/app/reconstruct": { name: "Reconstruction de décision", desc: "Entrez un domaine, choisissez une question commerciale, regardez la décision se reconstruire." },
@@ -1324,7 +1324,7 @@ const fr: Copy = {
 };
 
 const es: Copy = {
-  nav: { platform: "Plataforma", engines: "Motores de inteligencia", marketplace: "Mercado de inteligencia", how: "Cómo funciona", methodology: "Metodología", signIn: "Iniciar sesión", cta: "Analizar mi negocio", reports: "Informes de ejemplo", moreEngines: "Ver los doce motores", moreMarketplace: "Ver todo el ecosistema", language: "Idioma" },
+  nav: { platform: "Plataforma", engines: "Motores de inteligencia", marketplace: "Mercado de inteligencia", how: "Cómo funciona", methodology: "Metodología", signIn: "Iniciar sesión", cta: "Analizar mi negocio", reports: "Informes de inteligencia", moreEngines: "Ver los doce motores", moreMarketplace: "Ver todo el ecosistema", language: "Idioma" },
   navItems: {
     "/en/app/mission-control": { name: "Centro de control ejecutivo", desc: "Diez medidas, una posición de decisión, cada una con su evidencia." },
     "/en/app/reconstruct": { name: "Reconstrucción de decisiones", desc: "Introduzca un dominio, elija una pregunta comercial y observe cómo se reconstruye la decisión." },
@@ -1554,7 +1554,7 @@ const es: Copy = {
 };
 
 const pt: Copy = {
-  nav: { platform: "Plataforma", engines: "Motores de inteligência", marketplace: "Mercado de inteligência", how: "Como funciona", methodology: "Metodologia", signIn: "Iniciar sessão", cta: "Analisar meu negócio", reports: "Relatórios de exemplo", moreEngines: "Ver os doze motores", moreMarketplace: "Ver todo o ecossistema", language: "Idioma" },
+  nav: { platform: "Plataforma", engines: "Motores de inteligência", marketplace: "Mercado de inteligência", how: "Como funciona", methodology: "Metodologia", signIn: "Iniciar sessão", cta: "Analisar meu negócio", reports: "Relatórios de inteligência", moreEngines: "Ver os doze motores", moreMarketplace: "Ver todo o ecossistema", language: "Idioma" },
   navItems: {
     "/en/app/mission-control": { name: "Centro de controle executivo", desc: "Dez medidas, uma posição de decisão, cada uma com sua evidência." },
     "/en/app/reconstruct": { name: "Reconstrução de decisão", desc: "Insira um domínio, escolha uma pergunta comercial e veja a decisão se reconstruir." },

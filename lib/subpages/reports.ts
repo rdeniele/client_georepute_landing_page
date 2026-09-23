@@ -30,7 +30,7 @@ export type ReportsCopy = {
 };
 
 const en: ReportsCopy = {
-  crumb: "Sample Reports",
+  crumb: "Intelligence Reports",
   eyebrow: "See it before you ask for it",
   title: "Three real businesses. The reports GeoRepute actually generated for them.",
   lead: "Not mockups, not a demo dataset, the same Marketing Due Diligence report a business or agency receives before a campaign launches. Every score, every finding, every recommendation below is real.",
