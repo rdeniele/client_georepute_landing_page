@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { ContentBlock } from "@/types/posts";
+import { safeHref } from "@/lib/utils/safeHref";
 
 type InlineNode = {
   type?: string;
@@ -18,8 +19,12 @@ function renderInline(content: unknown): ReactNode {
     if (!node || typeof node !== "object") return null;
 
     if (node.type === "link") {
+      // Editor content is untrusted: a javascript: or data: URL would run script on click, so only
+      // http(s), mailto, tel and site-relative links become anchors. Anything else keeps its text.
+      const href = safeHref(node.href);
+      if (!href) return <span key={i}>{renderInline(node.content)}</span>;
       return (
-        <a key={i} href={node.href} target="_blank" rel="noopener noreferrer">
+        <a key={i} href={href} target="_blank" rel="noopener noreferrer">
           {renderInline(node.content)}
         </a>
       );

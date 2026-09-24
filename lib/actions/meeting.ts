@@ -1,7 +1,10 @@
 "use server";
 
+import { headers } from "next/headers";
 import { MEETING_SUBJECTS } from "@/lib/contact";
 import { sendMeetingRequest } from "@/lib/services/mailer";
+import { withinBudget } from "@/lib/services/rateLimit";
+import { describeError } from "@/lib/utils/safeLog";
 import {
   createMeetEvent,
   deleteMeetEvent,
@@ -23,6 +26,9 @@ export type MeetingRequestState = {
   meet?: { slotLabel: string; link: string | null; automatic: boolean };
 };
 
+const MEETING_MAX_PER_WINDOW = 5;
+const MEETING_WINDOW_MS = 10 * 60 * 1000;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Digits plus the usual separators (+ ( ) - . space), 7–15 digits overall (E.164 maximum). */
@@ -39,6 +45,15 @@ export async function submitMeetingRequestAction(
   // the form), so a non-empty value here means a bot filled every field.
   if (String(formData.get("website") ?? "")) {
     return { status: "success", error: null };
+  }
+
+  // The confirmation email goes to whatever address the visitor typed, so an open form is a way to
+  // spam third parties and to flood the team inbox. Per-IP, in-memory: it slows a single source on one
+  // server instance; the honeypot above and the email provider's own limits back it up.
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+  if (!withinBudget(`meeting:${ip}`, MEETING_MAX_PER_WINDOW, MEETING_WINDOW_MS).ok) {
+    return { status: "error", error: "Too many requests from your connection. Please try again in a few minutes." };
   }
 
   const name = String(formData.get("name") ?? "").trim();
@@ -105,7 +120,7 @@ export async function submitMeetingRequestAction(
       } catch (error) {
         // The request itself is still worth delivering; the team is told in the
         // email that no link exists so they can arrange one by reply.
-        console.error("Google Meet creation failed:", error);
+        console.error("Google Meet creation failed:", describeError(error));
         meet = { slotLabel, link: null, automatic: true };
       }
     }
@@ -116,9 +131,9 @@ export async function submitMeetingRequestAction(
     return { status: "success", error: null, confirmationSent, meet };
   } catch (error) {
     if (eventId) await deleteMeetEvent(eventId);
-    return {
-      status: "error",
-      error: error instanceof Error ? error.message : "Failed to send your request. Please try again shortly.",
-    };
+    // Provider messages can quote the visitor's own address or reveal how mail is configured, so they are
+    // logged (redacted) and never shown. The visitor always gets the same plain message.
+    console.error("Meeting request could not be sent:", describeError(error));
+    return { status: "error", error: "Failed to send your request. Please try again shortly." };
   }
 }

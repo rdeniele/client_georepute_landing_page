@@ -1,4 +1,5 @@
 import "server-only";
+import { redact } from "@/lib/utils/safeLog";
 import { Resend } from "resend";
 import {
   buildMeetingConfirmationEmailHtml,
@@ -160,7 +161,7 @@ export async function sendMeetingRequest(request: MeetingRequest): Promise<{ con
     // Best-effort by design (the request itself already succeeded above), but
     // silent failure here is exactly what made this bug invisible last time:
     // log the real error so it shows up in server/Vercel logs.
-    console.error("Visitor confirmation email failed to send:", confirmationError);
+    console.error("Visitor confirmation email failed to send:", redact(confirmationError));
   }
 
   return { confirmationSent: !confirmationError };
