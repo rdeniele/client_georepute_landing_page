@@ -2,9 +2,8 @@ import { FileArrowDown } from "@phosphor-icons/react/ssr";
 import { Crumbs, CtaBand, DEMO_HREF, PageHero, Pill, SectionIntro } from "@/components/subpages/kit";
 import { getReportsCopy, sampleReports } from "@/lib/subpages/reports";
 
-// Downloads are intentionally disabled for now — the report files aren't
-// published (see public/reports/ removal), so this button is a preview of
-// what the CTA will look like once they go live, not a working link.
+// The report PDFs have the business name redacted (shown as "Company A"), so
+// the downloads are live. Names of competitors/cited domains in it are public.
 
 export function SampleReportsPage({ locale }: { locale: string }) {
   const c = getReportsCopy(locale);
@@ -23,9 +22,9 @@ export function SampleReportsPage({ locale }: { locale: string }) {
 
       <section className="kit-section" data-section>
         <div className="shell">
-          <SectionIntro index="01" label="Real reports, real domains" title="Pick one, see what it actually reveals." />
+          <SectionIntro index="01" label="Real reports, anonymized" title="See what they actually reveal." />
 
-          <ul className="reports-grid">
+          <ul className={sampleReports.length === 1 ? "reports-grid reports-grid--single" : "reports-grid"}>
             {sampleReports.map((r, i) => (
               <li
                 key={r.slug}
@@ -34,21 +33,29 @@ export function SampleReportsPage({ locale }: { locale: string }) {
                 data-reveal-delay={String(i * 90)}
               >
                 <div className="reports-card__top">
-                  <span className="kit-mono">{r.domain}</span>
-                  <Pill tone={r.priority === "Critical" ? "down" : "warn"}>{r.priority} priority</Pill>
+                  <span className="kit-mono">{r.name} · {r.kind}</span>
+                  <Pill tone={r.priority === "Medium" ? "warn" : "down"}>{r.priority} priority</Pill>
                 </div>
                 <p className="t-body reports-card__intro">{r.intro}</p>
                 <div className="reports-card__meta">
-                  <span>{c.meta(r.dataCoverage, r.analysisWindow)}</span>
+                  <span>{r.meta}</span>
                   <span>{r.sizeLabel}</span>
                 </div>
-                <button type="button" className="btn btn--primary reports-card__cta">
+                <details className="reports-card__why">
+                  <summary>{c.why}</summary>
+                  <p className="reports-card__explain">{r.explain}</p>
+                  <p className="reports-card__checked">
+                    <strong>{c.checkedLabel}.</strong> {r.checked}
+                  </p>
+                </details>
+                <a className="btn btn--primary reports-card__cta" href={r.file} download>
                   <FileArrowDown size={18} weight="bold" aria-hidden="true" />
                   {c.download}
-                </button>
+                </a>
               </li>
             ))}
           </ul>
+          <p className="reports-note">{c.note}</p>
         </div>
       </section>
 
