@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { WarRoomPage } from "@/components/pages/WarRoomPage";
@@ -16,6 +17,7 @@ import { SignInPage } from "@/components/pages/SignInPage";
 import { PrivacyPolicyPage } from "@/components/pages/PrivacyPolicyPage";
 import { SampleReportsPage } from "@/components/pages/SampleReportsPage";
 import { LOCALES } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 
 const ROUTES: Record<string, (locale: string) => ReactNode> = {
   "election-intelligence": (l) => <WarRoomPage locale={l} />,
@@ -49,6 +51,17 @@ const ROUTES: Record<string, (locale: string) => ReactNode> = {
 
 /** The subpage slugs this route serves, e.g. `"app/mission-control"` — read by app/sitemap.ts so it doesn't have to duplicate this list. */
 export const SUBPAGE_ROUTE_SLUGS = Object.keys(ROUTES);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string[] }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const key = slug.join("/");
+  if (!LOCALES.includes(locale as (typeof LOCALES)[number]) || !(key in ROUTES)) return {};
+  return pageMetadata(locale, key);
+}
 
 export default async function SubpageRoute({
   params,

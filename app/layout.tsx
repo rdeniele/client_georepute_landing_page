@@ -42,11 +42,22 @@ const mono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+// Falls back to the production domain so canonical, hreflang and social-share URLs are
+// absolute even if NEXT_PUBLIC_SITE_URL is missing from the environment.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.georepute.ai";
+
+const DEFAULT_TITLE = "GeoRepute | Strategic Business Intelligence Infrastructure";
+const DEFAULT_DESCRIPTION =
+  "Every business should have its own intelligence center. GeoRepute builds a living strategic intelligence layer around the business and turns hundreds of signals into one strategic picture, priorities and next moves.";
+
 export const metadata: Metadata = {
-  metadataBase: process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : undefined,
-  title: "GeoRepute | Strategic Business Intelligence Infrastructure",
-  description:
-    "Every business should have its own intelligence center. GeoRepute builds a living strategic intelligence layer around the business and turns hundreds of signals into one strategic picture, priorities and next moves.",
+  metadataBase: new URL(SITE_URL),
+  title: DEFAULT_TITLE,
+  description: DEFAULT_DESCRIPTION,
+  applicationName: "GeoRepute",
+  // Share previews: the image comes from app/opengraph-image.png and app/twitter-image.png.
+  openGraph: { type: "website", siteName: "GeoRepute", title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
+  twitter: { card: "summary_large_image", title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
 };
 
 export const viewport: Viewport = {

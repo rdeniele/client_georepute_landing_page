@@ -230,8 +230,9 @@
 
 .blog-article__body blockquote {
   margin: 0 0 1.25em;
-  padding: 4px 0 4px 20px;
-  border-left: 3px solid var(--color-signal-core);
+  padding-block: 4px;
+  padding-inline-start: 20px;
+  border-inline-start: 3px solid var(--color-signal-core);
   color: var(--color-ink);
   font-style: italic;
 }
@@ -245,7 +246,7 @@
 .blog-article__body ul,
 .blog-article__body ol {
   margin: 0 0 1.25em;
-  padding-left: 1.4em;
+  padding-inline-start: 1.4em;
 }
 
 .blog-article__body li {

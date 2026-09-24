@@ -28,6 +28,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
+  // Booking page (rendered by app/[locale]/briefing, not part of the ROUTES map above).
+  for (const locale of LOCALES) {
+    entries.push({ url: `${base}/${locale}/briefing`, changeFrequency: "monthly", priority: 0.7 });
+  }
+
   // Blog index.
   entries.push({ url: `${base}/blog`, changeFrequency: "daily", priority: 0.7 });
 

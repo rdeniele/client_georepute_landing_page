@@ -8,13 +8,13 @@ import { CONTACT } from "@/lib/contact";
 import { getBriefingCopy } from "@/lib/subpages/briefing";
 import { getCalendlyUrl } from "@/lib/services/calendly";
 import { LOCALES } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Schedule a Meeting | GeoRepute",
-  description: "Tell us a bit about your business and we'll get back to you to find a time.",
-  alternates: { canonical: "/en/briefing" },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return LOCALES.includes(locale as (typeof LOCALES)[number]) ? pageMetadata(locale, "briefing") : {};
+}
 
 // Reads server env at request time, so the Calendly link follows the deployment's settings rather than the build's.
 export const dynamic = "force-dynamic";

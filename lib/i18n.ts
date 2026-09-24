@@ -179,7 +179,31 @@ export type Copy = {
     unlockBody: string;
     unlockCta: string;
   };
-  footer: { tagline: string; note: string };
+  footer: {
+    tagline: string;
+    note: string;
+    poweredBy: string;
+    product: string;
+    intelligence: string;
+    methodology: string;
+    company: string;
+    ecosystem: string;
+    ecoGintex: string;
+    ecoCopyup: string;
+    ecoOnlinePerception: string;
+    geon: string;
+    evidence: string;
+    confidence: string;
+    financial: string;
+    limits: string;
+    privacy: string;
+    bookDemo: string;
+    emailUs: string;
+    whatsapp: string;
+    disclaimer: string;
+    demoNote: string;
+    rights: string;
+  };
 };
 
 const SIGNAL_NAMES_EN = [
@@ -400,6 +424,27 @@ const en: Copy = {
   footer: {
     tagline: "The intelligence & execution layer for modern agencies.",
     note: "Traditional platforms optimize channels. GeoRepute reconstructs decisions.",
+    poweredBy: "Powered by Gintex",
+    product: "Product",
+    intelligence: "Intelligence",
+    methodology: "Methodology",
+    company: "Company",
+    ecosystem: "Ecosystem",
+    ecoGintex: "The group behind GeoRepute.",
+    ecoCopyup: "Content and media execution.",
+    ecoOnlinePerception: "Perception measurement.",
+    geon: "The GEON framework",
+    evidence: "Evidence sources",
+    confidence: "Confidence model",
+    financial: "Financial model",
+    limits: "Limitations",
+    privacy: "Privacy Policy",
+    bookDemo: "Book a live demo",
+    emailUs: "Email us",
+    whatsapp: "WhatsApp",
+    disclaimer: "Directional modelling. Commercial figures are estimates for prioritisation, not audited financial statements. Every model exposes its assumptions and data boundaries.",
+    demoNote: "Demonstration environment · Seeded data",
+    rights: "All rights reserved.",
   },
 };
 
@@ -630,6 +675,27 @@ const he: Copy = {
   footer: {
     tagline: "שכבת המודיעין והביצוע לסוכנויות מודרניות.",
     note: "פלטפורמות מסורתיות מייעלות ערוצים. GeoRepute משחזרת החלטות.",
+    poweredBy: "מופעל על ידי Gintex",
+    product: "מוצר",
+    intelligence: "מודיעין",
+    methodology: "מתודולוגיה",
+    company: "החברה",
+    ecosystem: "האקוסיסטם",
+    ecoGintex: "הקבוצה שמאחורי GeoRepute.",
+    ecoCopyup: "ביצוע תוכן ומדיה.",
+    ecoOnlinePerception: "מדידת תפיסה.",
+    geon: "מסגרת GEON",
+    evidence: "מקורות ראיות",
+    confidence: "מודל הביטחון",
+    financial: "המודל הפיננסי",
+    limits: "מגבלות",
+    privacy: "מדיניות פרטיות",
+    bookDemo: "הזמינו הדגמה חיה",
+    emailUs: "שלחו לנו אימייל",
+    whatsapp: "וואטסאפ",
+    disclaimer: "מודלים כיווניים. הנתונים המסחריים הם הערכות לצורך תעדוף, ולא דוחות כספיים מבוקרים. כל מודל חושף את ההנחות ואת גבולות הנתונים שלו.",
+    demoNote: "סביבת הדגמה · נתוני דוגמה",
+    rights: "כל הזכויות שמורות.",
   },
 };
 
@@ -860,6 +926,27 @@ const ar: Copy = {
   footer: {
     tagline: "طبقة الذكاء والتنفيذ لوكالات التسويق الحديثة.",
     note: "المنصات التقليدية تُحسّن القنوات. أما GeoRepute فتُعيد بناء القرارات.",
+    poweredBy: "مدعوم من Gintex",
+    product: "المنتج",
+    intelligence: "الاستخبارات",
+    methodology: "المنهجية",
+    company: "الشركة",
+    ecosystem: "المنظومة",
+    ecoGintex: "المجموعة التي تقف وراء GeoRepute.",
+    ecoCopyup: "تنفيذ المحتوى والإعلام.",
+    ecoOnlinePerception: "قياس الإدراك.",
+    geon: "إطار GEON",
+    evidence: "مصادر الأدلة",
+    confidence: "نموذج الثقة",
+    financial: "النموذج المالي",
+    limits: "القيود",
+    privacy: "سياسة الخصوصية",
+    bookDemo: "احجزوا عرضًا مباشرًا",
+    emailUs: "راسلونا",
+    whatsapp: "واتساب",
+    disclaimer: "نمذجة استرشادية. الأرقام التجارية تقديرات لأغراض تحديد الأولويات، وليست بيانات مالية مدققة. يعرض كل نموذج افتراضاته وحدود بياناته.",
+    demoNote: "بيئة تجريبية · بيانات أولية",
+    rights: "جميع الحقوق محفوظة.",
   },
 };
 
@@ -1090,6 +1177,27 @@ const ru: Copy = {
   footer: {
     tagline: "Слой интеллекта и исполнения для современных агентств.",
     note: "Традиционные платформы оптимизируют каналы. GeoRepute восстанавливает решения.",
+    poweredBy: "На платформе Gintex",
+    product: "Продукт",
+    intelligence: "Аналитика",
+    methodology: "Методология",
+    company: "Компания",
+    ecosystem: "Экосистема",
+    ecoGintex: "Группа, стоящая за GeoRepute.",
+    ecoCopyup: "Исполнение контента и медиа.",
+    ecoOnlinePerception: "Измерение восприятия.",
+    geon: "Фреймворк GEON",
+    evidence: "Источники данных",
+    confidence: "Модель достоверности",
+    financial: "Финансовая модель",
+    limits: "Ограничения",
+    privacy: "Политика конфиденциальности",
+    bookDemo: "Заказать живую демонстрацию",
+    emailUs: "Написать нам",
+    whatsapp: "WhatsApp",
+    disclaimer: "Ориентировочное моделирование. Коммерческие показатели являются оценками для расстановки приоритетов, а не аудированной финансовой отчётностью. Каждая модель раскрывает свои допущения и границы данных.",
+    demoNote: "Демонстрационная среда · Тестовые данные",
+    rights: "Все права защищены.",
   },
 };
 
@@ -1320,6 +1428,27 @@ const fr: Copy = {
   footer: {
     tagline: "La couche d’intelligence et d’exécution pour les agences modernes.",
     note: "Les plateformes traditionnelles optimisent des canaux. GeoRepute reconstruit des décisions.",
+    poweredBy: "Propulsé par Gintex",
+    product: "Produit",
+    intelligence: "Intelligence",
+    methodology: "Méthodologie",
+    company: "Entreprise",
+    ecosystem: "Écosystème",
+    ecoGintex: "Le groupe derrière GeoRepute.",
+    ecoCopyup: "Exécution de contenu et de médias.",
+    ecoOnlinePerception: "Mesure de la perception.",
+    geon: "Le cadre GEON",
+    evidence: "Sources de preuves",
+    confidence: "Modèle de confiance",
+    financial: "Modèle financier",
+    limits: "Limites",
+    privacy: "Politique de confidentialité",
+    bookDemo: "Réserver une démo en direct",
+    emailUs: "Nous écrire",
+    whatsapp: "WhatsApp",
+    disclaimer: "Modélisation indicative. Les chiffres commerciaux sont des estimations destinées à hiérarchiser les priorités, et non des états financiers audités. Chaque modèle expose ses hypothèses et les limites de ses données.",
+    demoNote: "Environnement de démonstration · Données d'exemple",
+    rights: "Tous droits réservés.",
   },
 };
 
@@ -1550,6 +1679,27 @@ const es: Copy = {
   footer: {
     tagline: "La capa de inteligencia y ejecución para agencias modernas.",
     note: "Las plataformas tradicionales optimizan canales. GeoRepute reconstruye decisiones.",
+    poweredBy: "Con tecnología de Gintex",
+    product: "Producto",
+    intelligence: "Inteligencia",
+    methodology: "Metodología",
+    company: "Empresa",
+    ecosystem: "Ecosistema",
+    ecoGintex: "El grupo detrás de GeoRepute.",
+    ecoCopyup: "Ejecución de contenido y medios.",
+    ecoOnlinePerception: "Medición de la percepción.",
+    geon: "El marco GEON",
+    evidence: "Fuentes de evidencia",
+    confidence: "Modelo de confianza",
+    financial: "Modelo financiero",
+    limits: "Limitaciones",
+    privacy: "Política de privacidad",
+    bookDemo: "Reservar una demo en vivo",
+    emailUs: "Escríbanos",
+    whatsapp: "WhatsApp",
+    disclaimer: "Modelización orientativa. Las cifras comerciales son estimaciones para priorizar, no estados financieros auditados. Cada modelo expone sus supuestos y los límites de sus datos.",
+    demoNote: "Entorno de demostración · Datos de ejemplo",
+    rights: "Todos los derechos reservados.",
   },
 };
 
@@ -1780,6 +1930,27 @@ const pt: Copy = {
   footer: {
     tagline: "A camada de inteligência e execução para agências modernas.",
     note: "Plataformas tradicionais otimizam canais. A GeoRepute reconstrói decisões.",
+    poweredBy: "Desenvolvido por Gintex",
+    product: "Produto",
+    intelligence: "Inteligência",
+    methodology: "Metodologia",
+    company: "Empresa",
+    ecosystem: "Ecossistema",
+    ecoGintex: "O grupo por trás da GeoRepute.",
+    ecoCopyup: "Execução de conteúdo e mídia.",
+    ecoOnlinePerception: "Medição de percepção.",
+    geon: "O framework GEON",
+    evidence: "Fontes de evidência",
+    confidence: "Modelo de confiança",
+    financial: "Modelo financeiro",
+    limits: "Limitações",
+    privacy: "Política de privacidade",
+    bookDemo: "Agendar uma demo ao vivo",
+    emailUs: "Escreva para nós",
+    whatsapp: "WhatsApp",
+    disclaimer: "Modelagem orientativa. Os números comerciais são estimativas para definir prioridades, não demonstrações financeiras auditadas. Cada modelo expõe suas premissas e os limites dos seus dados.",
+    demoNote: "Ambiente de demonstração · Dados de exemplo",
+    rights: "Todos os direitos reservados.",
   },
 };
 
