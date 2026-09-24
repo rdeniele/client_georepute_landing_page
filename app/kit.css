@@ -205,8 +205,8 @@ html.theme-dark .kit-page {
    reads the ordinary theme tokens, so no child needs a variant.
    The copy spans the whole shell rather than the usual reading-width columns. */
 .kit-hero--network {
-  --band-net: rgba(107, 52, 232, 0.55);
-  --band-net-lit: #5928d4;
+  --band-net: rgba(116, 75, 209, 0.55);
+  --band-net-lit: #6441bb;
   padding-block: clamp(56px, 9vw, 132px) clamp(64px, 10vw, 148px);
 }
 
@@ -221,8 +221,8 @@ html.theme-dark .kit-hero--network {
   z-index: 0;
   overflow: hidden;
   background:
-    radial-gradient(58% 90% at 90% 0%, rgba(150, 110, 255, 0.3), transparent 70%),
-    radial-gradient(52% 80% at 4% 100%, rgba(107, 52, 232, 0.14), transparent 72%),
+    radial-gradient(58% 90% at 90% 0%, rgba(156, 125, 240, 0.3), transparent 70%),
+    radial-gradient(52% 80% at 4% 100%, rgba(116, 75, 209, 0.14), transparent 72%),
     linear-gradient(160deg, #f6f4ff 0%, #ece6ff 60%, #f3efff 100%);
   /* Dissolve into whatever the page paints behind it (theme, void wash) */
   -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
@@ -231,9 +231,9 @@ html.theme-dark .kit-hero--network {
 
 html.theme-dark .kit-hero__backdrop {
   background:
-    radial-gradient(58% 90% at 90% 0%, rgba(121, 71, 234, 0.5), transparent 70%),
-    radial-gradient(52% 80% at 4% 100%, rgba(60, 22, 150, 0.55), transparent 72%),
-    radial-gradient(40% 50% at 52% 50%, rgba(107, 52, 232, 0.16), transparent 70%),
+    radial-gradient(58% 90% at 90% 0%, rgba(129, 92, 213, 0.5), transparent 70%),
+    radial-gradient(52% 80% at 4% 100%, rgba(67, 39, 133, 0.55), transparent 72%),
+    radial-gradient(40% 50% at 52% 50%, rgba(116, 75, 209, 0.16), transparent 70%),
     linear-gradient(160deg, #0a0f3a 0%, #070a24 58%, #0b0a2e 100%);
 }
 
@@ -246,11 +246,11 @@ html.theme-dark .kit-hero__backdrop {
 .kit-hero__net--echo {
   opacity: 0.4;
   transform: scale(-1.4, 1.4) translateY(-8%);
-  --band-net: rgba(107, 52, 232, 0.32);
+  --band-net: rgba(116, 75, 209, 0.32);
 }
 
 html.theme-dark .kit-hero__net--echo {
-  --band-net: rgba(150, 120, 255, 0.4);
+  --band-net: rgba(157, 134, 242, 0.4);
 }
 
 .kit-hero__net .bandnet__edge {
@@ -946,7 +946,7 @@ html[dir="rtl"] .kit-meter__fill {
 }
 
 .briefing-accent {
-  background: linear-gradient(90deg, #6b34e8 0%, #2462eb 100%);
+  background: linear-gradient(90deg, #744bd1 0%, #3c6bd3 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -955,7 +955,7 @@ html[dir="rtl"] .kit-meter__fill {
 }
 
 html.theme-dark .briefing-accent {
-  background: linear-gradient(90deg, #c4b5fd 0%, #7fb2ff 100%);
+  background: linear-gradient(90deg, #c4b5fd 0%, #8cb5f2 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -1029,7 +1029,7 @@ a.briefing-contact__value:hover {
 }
 
 .briefing-btn--mail {
-  background: #6b34e8;
+  background: #744bd1;
   color: #ffffff;
 }
 
@@ -1045,7 +1045,7 @@ a.briefing-contact__value:hover {
   border: 1px solid var(--line-strong);
   background: var(--color-elevated);
   color: var(--color-ink);
-  box-shadow: 0 30px 80px -32px rgba(60, 30, 140, 0.4);
+  box-shadow: 0 30px 80px -32px rgba(68, 47, 123, 0.4);
 }
 
 html.theme-dark .briefing-card {
@@ -1162,12 +1162,12 @@ html.theme-dark .briefing-card {
   min-height: 52px;
   border: 0;
   border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, #a78bfa 0%, #6b34e8 55%, #7c1ce0 100%);
+  background: linear-gradient(90deg, #ad97ee 0%, #744bd1 55%, #7d35c7 100%);
   color: #ffffff;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 10px 24px -10px rgba(107, 52, 232, 0.7);
+  box-shadow: 0 10px 24px -10px rgba(116, 75, 209, 0.7);
   transition: filter var(--d-micro) var(--ease-out), transform var(--d-micro) var(--ease-out);
 }
 

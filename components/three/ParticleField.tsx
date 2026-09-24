@@ -11,7 +11,7 @@ import { getSoftDot } from "./textures";
 // it reads as fine graphite rather than neon once the canvas is multiplied.
 const DUST = {
   light: new THREE.Color("#6a5aa8"),
-  dark: new THREE.Color("#8fa2d6"),
+  dark: new THREE.Color("#9ea9c7"),
 };
 
 /**

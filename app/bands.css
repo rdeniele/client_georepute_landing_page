@@ -21,19 +21,19 @@
 
   /* Violet drifting through the white bands, the page is one environment at
      varying density, not white panels alternating with purple ones. */
-  --band-bloom: rgba(121, 71, 234, 0.11);
-  --band-bloom-strong: rgba(107, 52, 232, 0.2);
+  --band-bloom: rgba(129, 92, 213, 0.11);
+  --band-bloom-strong: rgba(116, 75, 209, 0.2);
 
   --band-tint-a: rgba(246, 244, 255, 0.95);
   --band-tint-b: rgba(237, 232, 255, 0.96);
   --band-tint-c: rgba(226, 217, 253, 0.96);
 
   /* Five stops through the violet range: indigo → brand → lifted. */
-  --band-color-a: #3a1896;
-  --band-color-b: #4a22bc;
-  --band-color-c: #5928d4;
-  --band-color-d: #6b34e8;
-  --band-color-e: #7947ea;
+  --band-color-a: #422985;
+  --band-color-b: #5538a6;
+  --band-color-c: #6441bb;
+  --band-color-d: #744bd1;
+  --band-color-e: #815cd5;
 
   --band-net: rgba(255, 255, 255, 0.5);
   --band-net-lit: #ffffff;
@@ -49,18 +49,18 @@ html.theme-dark {
   --band-paper: rgba(12, 17, 52, 0.32);
   --band-paper-soft: rgba(12, 17, 52, 0.12);
 
-  --band-bloom: rgba(167, 139, 250, 0.09);
-  --band-bloom-strong: rgba(139, 92, 246, 0.18);
+  --band-bloom: rgba(173, 151, 238, 0.09);
+  --band-bloom-strong: rgba(146, 109, 229, 0.18);
 
   --band-tint-a: rgba(18, 22, 66, 0.5);
   --band-tint-b: rgba(27, 26, 86, 0.55);
-  --band-tint-c: rgba(40, 30, 112, 0.6);
+  --band-tint-c: rgba(51, 44, 98, 0.6);
 
   --band-color-a: #1a0f5a;
-  --band-color-b: #2c1486;
-  --band-color-c: #421db0;
-  --band-color-d: #5728d0;
-  --band-color-e: #6b34e8;
+  --band-color-b: #352377;
+  --band-color-c: #4c329b;
+  --band-color-d: #6241b7;
+  --band-color-e: #744bd1;
 
   --band-net: rgba(196, 181, 253, 0.42);
   --band-net-lit: #ddd1ff;
@@ -210,13 +210,13 @@ html.theme-dark {
   background:
     radial-gradient(
       74% 66% at 88% 2%,
-      rgba(151, 105, 245, 0.18),
-      rgba(183, 155, 250, 0.1) 40%,
+      rgba(156, 121, 229, 0.18),
+      rgba(187, 166, 239, 0.1) 40%,
       transparent 70%
     ),
     radial-gradient(
       58% 54% at 4% 100%,
-      rgba(107, 52, 232, 0.1),
+      rgba(116, 75, 209, 0.1),
       transparent 66%
     ),
     linear-gradient(
@@ -232,20 +232,20 @@ html.theme-dark {
 /* Six stops rather than a flat fill, so the band moves through indigo, brand
    violet and a lifted violet instead of reading as one printed panel. The
    feathered top and bottom dissolve it into the paper above and below, the
-   join is a gradient, not a line. The lightest stop is capped at #7947EA so
+   join is a gradient, not a line. The lightest stop is capped at #815cd5 so
    white copy clears AA (5.74:1) everywhere on the band. */
 .band__plate--color {
   background:
     radial-gradient(
       64% 56% at 92% 2%,
-      rgba(186, 156, 255, 0.42),
-      rgba(151, 105, 245, 0.18) 46%,
+      rgba(190, 166, 245, 0.42),
+      rgba(156, 121, 229, 0.18) 46%,
       transparent 72%
     ),
     radial-gradient(
       62% 66% at 2% 98%,
       rgba(28, 2, 74, 0.62),
-      rgba(45, 6, 112, 0.28) 46%,
+      rgba(48, 18, 100, 0.28) 46%,
       transparent 72%
     ),
     linear-gradient(
@@ -260,7 +260,7 @@ html.theme-dark {
 
 /* Inside a colour band every component restyles from the token layer, no
    component needs a colour-band variant of its own.
-   Contrast against the gradient's lightest stop (#7947EA, L 0.133):
+   Contrast against the gradient's lightest stop (#815cd5, L 0.133):
    #FFF 5.74:1 · 90% white 4.94:1 · 88% white 4.79:1 · #EDE4FF 4.68:1.
    Every stop darker than that only improves. */
 .band--color {
@@ -271,7 +271,7 @@ html.theme-dark {
   --color-signal: #c4b5fd;
   --color-signal-mist: rgba(255, 255, 255, 0.14);
   --color-signal-veil: rgba(255, 255, 255, 0.08);
-  --color-gap: #ffc978;
+  --color-gap: #f2c686;
   --line: rgba(255, 255, 255, 0.18);
   --line-strong: rgba(255, 255, 255, 0.32);
   --glass: rgba(255, 255, 255, 0.1);
@@ -287,8 +287,8 @@ html.theme-dark {
      violet/navy plate regardless of which theme is active. */
   --color-live: #dbeafe;
   --color-live-lit: #ffffff;
-  --color-live-mist: rgba(96, 165, 250, 0.22);
-  --glow-live: rgba(96, 165, 250, 0.45);
+  --color-live-mist: rgba(112, 167, 234, 0.22);
+  --glow-live: rgba(112, 167, 234, 0.45);
   --color-up: #bbf7d0;
   --color-down: #fecaca;
   color: var(--color-ink);
@@ -299,7 +299,7 @@ html.theme-dark {
 .band--color .btn--primary,
 .band--color .btn--conversion {
   --btn-bg: #ffffff;
-  --btn-fg: #4a22bc;
+  --btn-fg: #5538a6;
   --btn-line: #ffffff;
 }
 .band--color .btn--primary:hover,
@@ -316,15 +316,15 @@ html.theme-dark {
   background:
     radial-gradient(
       60% 54% at 90% 4%,
-      rgba(244, 158, 10, 0.14),
+      rgba(219, 151, 35, 0.14),
       transparent 60%
     ),
     radial-gradient(
       54% 50% at 6% 96%,
-      rgba(121, 71, 234, 0.22),
+      rgba(129, 92, 213, 0.22),
       transparent 66%
     ),
-    linear-gradient(165deg, #070a24 0%, #0c1134 32%, #1c1a5e 62%, #2e1d8c 100%);
+    linear-gradient(165deg, #070a24 0%, #0c1134 32%, #272652 62%, #3a2e7b 100%);
 }
 
 /* ============================================================================
@@ -446,7 +446,7 @@ html.theme-dark {
   aspect-ratio: var(--photo-ratio, 3 / 2);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: linear-gradient(155deg, #2f0774, #55129f);
+  background: linear-gradient(155deg, #321368, #56248d);
   box-shadow: 0 40px 90px -50px rgba(41, 6, 96, 0.65);
   isolation: isolate;
 }
@@ -465,14 +465,14 @@ html.theme-dark {
 .photo--tint-soft .photo__veil {
   background: linear-gradient(
     200deg,
-    rgba(107, 52, 232, 0.14),
+    rgba(116, 75, 209, 0.14),
     rgba(10, 6, 32, 0.24)
   );
 }
 .photo--tint-deep .photo__veil {
   background: linear-gradient(
     200deg,
-    rgba(107, 52, 232, 0.3),
+    rgba(116, 75, 209, 0.3),
     rgba(10, 6, 32, 0.46)
   );
 }
@@ -560,7 +560,7 @@ html.theme-dark .photo__reserved {
   background:
     radial-gradient(
       60% 50% at 50% 30%,
-      rgba(107, 52, 232, 0.18),
+      rgba(116, 75, 209, 0.18),
       transparent 60%
     ),
     var(--color-base);
@@ -770,13 +770,13 @@ html[dir="rtl"] .invis__photo.browsercard {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 .browsercard__light--red {
-  background: #ff5f57;
+  background: #ee6e68;
 }
 .browsercard__light--amber {
-  background: #febc2e;
+  background: #e9b443;
 }
 .browsercard__light--green {
-  background: #28c840;
+  background: #40b051;
 }
 .browsercard__url {
   padding: 6px 16px;
@@ -846,9 +846,9 @@ html[dir="rtl"] .pull {
   inset: 0;
   background: linear-gradient(
     170deg,
-    rgba(69, 8, 159, 0.9),
-    rgba(107, 52, 232, 0.82) 52%,
-    rgba(110, 34, 222, 0.9)
+    rgba(72, 25, 142, 0.9),
+    rgba(116, 75, 209, 0.82) 52%,
+    rgba(115, 59, 197, 0.9)
   );
 }
 

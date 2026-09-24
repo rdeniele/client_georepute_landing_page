@@ -35,11 +35,11 @@
 
 .invis__bracket--dark {
   flex: var(--span, 6);
-  border-top-color: rgba(244, 158, 10, 0.42);
+  border-top-color: rgba(219, 151, 35, 0.42);
 }
 .invis__bracket--dark::before,
 .invis__bracket--dark::after {
-  background: rgba(244, 158, 10, 0.42);
+  background: rgba(219, 151, 35, 0.42);
 }
 .invis__bracket--dark .invis__bracket-label {
   color: var(--color-gap);
@@ -692,11 +692,11 @@
   width: 60%;
   top: 0;
   bottom: 12px;
-  border-right: 1px dashed rgba(244, 158, 10, 0.5);
+  border-right: 1px dashed rgba(219, 151, 35, 0.5);
   background: linear-gradient(
     90deg,
-    rgba(244, 158, 10, 0.03),
-    rgba(244, 158, 10, 0.08)
+    rgba(219, 151, 35, 0.03),
+    rgba(219, 151, 35, 0.08)
   );
   border-radius: var(--radius-md) 0 0 var(--radius-md);
   pointer-events: none;
@@ -853,7 +853,7 @@
     height: 34px;
     bottom: auto;
     border-right: 0;
-    border-bottom: 1px dashed rgba(244, 158, 10, 0.5);
+    border-bottom: 1px dashed rgba(219, 151, 35, 0.5);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
   }
   .blind__region-label {
@@ -1087,7 +1087,7 @@
    rest, in coral rather than the neutral idle grey, so the hub reads as
    "always on" before anyone touches it. */
 .engines__edge.is-primary {
-  stroke: rgba(244, 158, 10, 0.4);
+  stroke: rgba(219, 151, 35, 0.4);
   stroke-opacity: 0.7;
 }
 .engines[data-focused="true"] .engines__edge.is-primary:not(.is-lit) {
@@ -1111,7 +1111,7 @@
    assembled, the same "signal, not glow" grammar as .bandnet__pulse. */
 .engines__signal {
   fill: none;
-  stroke: #f49e0a;
+  stroke: #db9723;
   stroke-width: 1.6;
   stroke-linecap: round;
   opacity: 0;
@@ -1143,14 +1143,14 @@
    the one node the rest of the system visibly depends on. */
 .engines__node.is-hub {
   padding: 10px 20px 10px 14px;
-  border-color: rgba(244, 158, 10, 0.55);
-  background: rgba(244, 158, 10, 0.1);
-  box-shadow: 0 0 0 0 rgba(244, 158, 10, 0.28);
+  border-color: rgba(219, 151, 35, 0.55);
+  background: rgba(219, 151, 35, 0.1);
+  box-shadow: 0 0 0 0 rgba(219, 151, 35, 0.28);
   animation: engines-hub-breathe 3.6s var(--ease-inout) infinite;
 }
 .engines__node.is-hub .engines__node-dot {
-  background: #f49e0a;
-  box-shadow: 0 0 14px 3px rgba(244, 158, 10, 0.55);
+  background: #db9723;
+  box-shadow: 0 0 14px 3px rgba(219, 151, 35, 0.55);
   width: 9px;
   height: 9px;
 }
@@ -1166,10 +1166,10 @@
 @keyframes engines-hub-breathe {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(244, 158, 10, 0.28);
+    box-shadow: 0 0 0 0 rgba(219, 151, 35, 0.28);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(244, 158, 10, 0);
+    box-shadow: 0 0 0 10px rgba(219, 151, 35, 0);
   }
 }
 
@@ -1194,7 +1194,7 @@
   left: 12%;
   width: 160px;
   height: 160px;
-  background: rgba(244, 158, 10, 0.22);
+  background: rgba(219, 151, 35, 0.22);
   animation-duration: 26s;
 }
 .engines__atmosphere span:nth-child(2) {
@@ -1202,7 +1202,7 @@
   right: 16%;
   width: 200px;
   height: 200px;
-  background: rgba(121, 71, 234, 0.14);
+  background: rgba(129, 92, 213, 0.14);
   animation-duration: 30s;
   animation-delay: -8s;
 }
@@ -1211,7 +1211,7 @@
   right: 40%;
   width: 130px;
   height: 130px;
-  background: rgba(96, 165, 250, 0.12);
+  background: rgba(112, 167, 234, 0.12);
   animation-duration: 24s;
   animation-delay: -14s;
 }
@@ -1326,7 +1326,7 @@
   stroke: var(--color-signal-lit);
   stroke-width: 2.5;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.7));
+  filter: drop-shadow(0 0 6px rgba(173, 151, 238, 0.7));
 }
 
 .loop__core {
@@ -1673,7 +1673,7 @@
   stroke: var(--color-signal);
   stroke-width: 6;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 8px rgba(121, 71, 234, 0.55));
+  filter: drop-shadow(0 0 8px rgba(129, 92, 213, 0.55));
   transition: stroke-dashoffset var(--d-section) var(--ease-out);
 }
 
@@ -1697,7 +1697,7 @@
   text-transform: uppercase;
   color: var(--color-gap);
   padding: 4px 10px;
-  border: 1px solid rgba(244, 158, 10, 0.4);
+  border: 1px solid rgba(219, 151, 35, 0.4);
   border-radius: var(--radius-sm);
 }
 

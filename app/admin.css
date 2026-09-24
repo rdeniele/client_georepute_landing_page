@@ -459,8 +459,8 @@
 }
 
 .admin-status--published {
-  background: color-mix(in srgb, var(--color-up, #1a7f4b) 14%, transparent);
-  color: var(--color-up, #1a7f4b);
+  background: color-mix(in srgb, var(--color-up, #29704b) 14%, transparent);
+  color: var(--color-up, #29704b);
 }
 
 .admin-status--draft {

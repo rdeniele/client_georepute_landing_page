@@ -51,8 +51,8 @@
 
    Contrast notes (light): ink #1B2340 ≈ 14.9:1 on base #FFFFFF; ink-dim
    #4C5678 ≈ 6.2:1 on #FFFFFF; ink-faint #64708F ≈ 4.6:1 on #FFFFFF (labels
-   only, large-adjacent mono caps); signal-lit #5B21C7 ≈ 7.6:1 on #FFFFFF,
-   safe for small accent text. Amber #B45309 ≈ 7.0:1 on white.
+   only, large-adjacent mono caps); signal-lit #6238b0 ≈ 7.6:1 on #FFFFFF,
+   safe for small accent text. Amber #a1561c ≈ 7.0:1 on white.
    ========================================================================== */
 
 :root {
@@ -68,30 +68,30 @@
   --color-ink-faint: #5d6288; /* tertiary, labels, inactive nodes */
 
   /* --- Accent: purple = signal / active / GeoRepute ----------------------- */
-  --color-signal-core: #6b34e8; /* brochure brand purple, fills, CTAs */
-  --color-signal: #7947ea; /* borders, strokes, large UI */
-  --color-signal-lit: #5928d4; /* 7.8:1 on white, safe for small accent text */
+  --color-signal-core: #744bd1; /* brochure brand purple, fills, CTAs */
+  --color-signal: #815cd5; /* borders, strokes, large UI */
+  --color-signal-lit: #6441bb; /* 7.8:1 on white, safe for small accent text */
   --color-signal-mist: #ede8ff; /* soft lavender fill */
   --color-signal-veil: #f6f4ff; /* very light lavender tint */
 
   /* --- Accent: amber = blind spot / gap / unseen -------------------------- */
-  --color-gap: #b45309; /* 7.0:1 on white, risk, missing signal */
-  --color-gap-core: #92400e;
+  --color-gap: #a1561c; /* 7.0:1 on white, risk, missing signal */
+  --color-gap-core: #82441e;
 
   /* --- Accent: rose = live / responding-to-you ---------------------------
      Reserved for states the *visitor* causes, never decoration: a
      hovered/focused interactive node, an in-progress scroll
      transform. Purple stays "this is GeoRepute," coral stays "act now",
-     this is the third meaning, "this just reacted to you." #b3185f on white
+     this is the third meaning, "this just reacted to you." #9f2c61 on white
      ≈ 6.3:1, safe for small UI text. */
-  --color-live: #1d4ed8;
-  --color-live-lit: #2462eb;
+  --color-live: #365ac0;
+  --color-live-lit: #3c6bd3;
   --color-live-mist: #eff6ff;
-  --glow-live: rgba(36, 98, 235, 0.3);
+  --glow-live: rgba(60, 107, 211, 0.3);
 
   /* --- Status: brochure green / red = strengthening / weakening --------- */
-  --color-up: #15803d; /* 5.0:1 on white */
-  --color-down: #b91c1c; /* 6.5:1 on white */
+  --color-up: #247141; /* 5.0:1 on white */
+  --color-down: #a43131; /* 6.5:1 on white */
 
   /* --- Surfaces & lines -------------------------------------------------- */
   --line: rgba(12, 17, 52, 0.1);
@@ -99,7 +99,7 @@
   --glass: rgba(255, 255, 255, 0.55);
   --glass-lit: rgba(255, 255, 255, 0.75);
   --surface-glass: rgba(255, 255, 255, 0.72); /* floating panels / graph nodes */
-  --surface-hover: rgba(107, 52, 232, 0.07);
+  --surface-hover: rgba(116, 75, 209, 0.07);
   --canvas-blend: multiply;
   --canvas-opacity: 0.85;
   /* Light mode keeps the bright background; the scrim only veils the frame */
@@ -117,9 +117,9 @@
     rgba(255, 255, 255, 0.6)
   );
 
-  --glow-signal: rgba(107, 52, 232, 0.28);
-  --glow-signal-soft: rgba(121, 71, 234, 0.14);
-  --glow-gap: rgba(180, 83, 9, 0.2);
+  --glow-signal: rgba(116, 75, 209, 0.28);
+  --glow-signal-soft: rgba(129, 92, 213, 0.14);
+  --glow-gap: rgba(161, 86, 28, 0.2);
 
   --nav-floor: rgba(255, 255, 255, 0.88);
   --nav-panel-floor: rgba(255, 255, 255, 0.97);
@@ -143,14 +143,14 @@ html.theme-dark {
   --color-ink-dim: #a9aed0; /* 8.4:1, secondary text */
   --color-ink-faint: #858bb5; /* 5.5:1, tertiary, labels */
 
-  --color-signal-core: #6b34e8;
-  --color-signal: #7947ea; /* borders, strokes, large UI only */
-  --color-signal-lit: #a88bf5; /* 6.7:1 on navy, safe for small accent text */
+  --color-signal-core: #744bd1;
+  --color-signal: #815cd5; /* borders, strokes, large UI only */
+  --color-signal-lit: #ae98e8; /* 6.7:1 on navy, safe for small accent text */
   --color-signal-mist: #ede8ff;
   --color-signal-veil: #f6f4ff;
 
-  --color-gap: #f49e0a; /* brochure amber, 8.5:1 on navy */
-  --color-gap-core: #c27c08;
+  --color-gap: #db9723; /* brochure amber, 8.5:1 on navy */
+  --color-gap-core: #ae771c;
 
   --line: rgba(255, 255, 255, 0.09);
   --line-strong: rgba(255, 255, 255, 0.16);
@@ -175,17 +175,17 @@ html.theme-dark {
     rgba(7, 10, 36, 0.7)
   );
 
-  --glow-signal: rgba(107, 52, 232, 0.38);
-  --glow-signal-soft: rgba(121, 71, 234, 0.2);
-  --glow-gap: rgba(244, 158, 10, 0.22);
+  --glow-signal: rgba(116, 75, 209, 0.38);
+  --glow-signal-soft: rgba(129, 92, 213, 0.2);
+  --glow-gap: rgba(219, 151, 35, 0.22);
 
-  --color-live: #60a5fa;
-  --color-live-lit: #93c5fd;
-  --color-live-mist: rgba(96, 165, 250, 0.14);
-  --glow-live: rgba(96, 165, 250, 0.4);
+  --color-live: #70a7ea;
+  --color-live-lit: #9ec6f2;
+  --color-live-mist: rgba(112, 167, 234, 0.14);
+  --glow-live: rgba(112, 167, 234, 0.4);
 
-  --color-up: #4ade80;
-  --color-down: #f87171;
+  --color-up: #5fc986;
+  --color-down: #e98080;
 
   --nav-floor: rgba(10, 14, 44, 0.95);
   --nav-panel-floor: rgba(10, 14, 44, 0.985);

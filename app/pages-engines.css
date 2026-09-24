@@ -808,9 +808,9 @@
   white-space: nowrap;
 }
 
-.recmap__seg--0 { background: #b91c1c; }
-.recmap__seg--1 { background: #c2410c; }
-.recmap__seg--2 { background: #a16207; }
+.recmap__seg--0 { background: #a43131; }
+.recmap__seg--1 { background: #ad4a21; }
+.recmap__seg--2 { background: #905f18; }
 .recmap__seg--3 { background: #4a4f75; }
 .recmap__seg.is-you { background: var(--color-signal-core); }
 

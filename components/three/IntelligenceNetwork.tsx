@@ -19,13 +19,13 @@ import { getRingDot, getSoftDot } from "./textures";
 // bright analytical background (the canvas itself is multiplied into it).
 const PALETTE = {
   light: {
-    signal: new THREE.Color("#5928d4"),
-    core: new THREE.Color("#6b34e8"),
-    hairline: new THREE.Color("#4a3a7a"),
+    signal: new THREE.Color("#6441bb"),
+    core: new THREE.Color("#744bd1"),
+    hairline: new THREE.Color("#534c68"),
   },
   dark: {
-    signal: new THREE.Color("#a88bf5"),
-    core: new THREE.Color("#7947ea"),
+    signal: new THREE.Color("#ae98e8"),
+    core: new THREE.Color("#815cd5"),
     hairline: new THREE.Color("#46527a"),
   },
 };

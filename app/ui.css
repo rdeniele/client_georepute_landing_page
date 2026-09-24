@@ -24,17 +24,17 @@
   background:
     radial-gradient(
       120% 80% at 50% -10%,
-      rgba(107, 52, 232, 0.13),
+      rgba(116, 75, 209, 0.13),
       transparent 64%
     ),
     radial-gradient(
       86% 74% at 100% 42%,
-      rgba(121, 71, 234, 0.08),
+      rgba(129, 92, 213, 0.08),
       transparent 62%
     ),
     radial-gradient(
       90% 70% at 8% 108%,
-      rgba(121, 71, 234, 0.08),
+      rgba(129, 92, 213, 0.08),
       transparent 62%
     ),
     linear-gradient(180deg, var(--color-base), var(--color-void));
@@ -79,14 +79,14 @@
   opacity: 0.72;
   /* Fallback artwork is theme-aware through these custom properties */
   --net-stroke: #46527a;
-  --net-node: #5928d4;
-  --net-node-soft: #7947ea;
-  --net-core: #6b34e8;
+  --net-node: #6441bb;
+  --net-node-soft: #815cd5;
+  --net-core: #744bd1;
 }
 html.theme-dark .static-network {
   --net-stroke: #46527a;
-  --net-node: #a88bf5;
-  --net-node-soft: #a88bf5;
+  --net-node: #ae98e8;
+  --net-node-soft: #ae98e8;
   --net-core: #c4b5fd;
 }
 
@@ -156,7 +156,7 @@ html.theme-dark .static-network {
   box-shadow: 0 0 0 0 var(--glow-signal);
 }
 .btn--primary:hover {
-  --btn-bg: #7947ea;
+  --btn-bg: #815cd5;
   box-shadow: 0 8px 34px -8px var(--glow-signal);
 }
 
@@ -177,15 +177,15 @@ html.theme-dark .static-network {
   --btn-line: transparent;
   --btn-fg: #ffffff;
   font-weight: 600;
-  box-shadow: 0 8px 32px -8px rgba(107, 52, 232, 0.45);
+  box-shadow: 0 8px 32px -8px rgba(116, 75, 209, 0.45);
   transition:
     transform var(--d-micro) var(--ease-out),
     box-shadow var(--d-state) var(--ease-out),
     background-color var(--d-micro) var(--ease-out);
 }
 .btn--conversion:hover {
-  --btn-bg: #7947ea;
-  box-shadow: 0 12px 40px -8px rgba(107, 52, 232, 0.6);
+  --btn-bg: #815cd5;
+  box-shadow: 0 12px 40px -8px rgba(116, 75, 209, 0.6);
   transform: translateY(-1px);
 }
 .btn--conversion:active {
@@ -516,8 +516,8 @@ html[dir="rtl"] .nav__locale-menu {
   border: 1px solid var(--line);
   background: linear-gradient(
     160deg,
-    rgba(121, 71, 234, 0.16),
-    rgba(107, 52, 232, 0.04)
+    rgba(129, 92, 213, 0.16),
+    rgba(116, 75, 209, 0.04)
   );
   text-decoration: none;
   transition: border-color var(--d-state) var(--ease-out);
@@ -1061,22 +1061,22 @@ html[data-band="color"] .rail__fill {
   background:
     radial-gradient(
       74% 78% at 100% 22%,
-      rgba(107, 52, 232, 0.96) 0%,
-      rgba(105, 22, 232, 0.9) 22%,
-      rgba(121, 71, 234, 0.66) 42%,
-      rgba(151, 105, 245, 0.34) 58%,
+      rgba(116, 75, 209, 0.96) 0%,
+      rgba(110, 47, 207, 0.9) 22%,
+      rgba(129, 92, 213, 0.66) 42%,
+      rgba(156, 121, 229, 0.34) 58%,
       rgba(196, 181, 253, 0.13) 72%,
       transparent 84%
     ),
     radial-gradient(
       54% 62% at 84% 100%,
-      rgba(58, 8, 133, 0.62) 0%,
-      rgba(107, 52, 232, 0.24) 44%,
+      rgba(61, 22, 119, 0.62) 0%,
+      rgba(116, 75, 209, 0.24) 44%,
       transparent 70%
     ),
     radial-gradient(
       40% 44% at 58% 12%,
-      rgba(167, 139, 250, 0.26),
+      rgba(173, 151, 238, 0.26),
       transparent 72%
     );
 }
@@ -1120,14 +1120,14 @@ html[data-band="color"] .rail__fill {
   animation: hero-in 620ms var(--ease-out) forwards;
   animation-delay: calc(var(--i) * 95ms + 120ms);
   will-change: opacity, transform;
-  background-color: #6b34e8;
+  background-color: #744bd1;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 /* Violet image field with a navy readout overlay. */
 .hero__plate .photo__frame {
-  background: #6b34e8;
+  background: #744bd1;
 }
 .hero__plate .photo__veil {
   display: none;
@@ -1535,9 +1535,9 @@ html[dir="rtl"] .hero__word {
     background:
       radial-gradient(
         120% 92% at 62% 100%,
-        rgba(107, 52, 232, 0.94) 0%,
-        rgba(121, 71, 234, 0.7) 30%,
-        rgba(151, 105, 245, 0.36) 52%,
+        rgba(116, 75, 209, 0.94) 0%,
+        rgba(129, 92, 213, 0.7) 30%,
+        rgba(156, 121, 229, 0.36) 52%,
         rgba(196, 181, 253, 0.14) 70%,
         transparent 84%
       );
@@ -1593,17 +1593,17 @@ html[dir="rtl"] .hero__word {
     background:
       radial-gradient(
         74% 78% at 0% 22%,
-        rgba(107, 52, 232, 0.96) 0%,
-        rgba(105, 22, 232, 0.9) 22%,
-        rgba(121, 71, 234, 0.66) 42%,
-        rgba(151, 105, 245, 0.34) 58%,
+        rgba(116, 75, 209, 0.96) 0%,
+        rgba(110, 47, 207, 0.9) 22%,
+        rgba(129, 92, 213, 0.66) 42%,
+        rgba(156, 121, 229, 0.34) 58%,
         rgba(196, 181, 253, 0.13) 72%,
         transparent 84%
       ),
       radial-gradient(
         54% 62% at 16% 100%,
-        rgba(58, 8, 133, 0.62) 0%,
-        rgba(107, 52, 232, 0.24) 44%,
+        rgba(61, 22, 119, 0.62) 0%,
+        rgba(116, 75, 209, 0.24) 44%,
         transparent 70%
       );
   }
@@ -1704,13 +1704,13 @@ html[dir="rtl"] .hero__word {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 .shotcard__light--red {
-  background: #ff5f57;
+  background: #ee6e68;
 }
 .shotcard__light--amber {
-  background: #febc2e;
+  background: #e9b443;
 }
 .shotcard__light--green {
-  background: #28c840;
+  background: #40b051;
 }
 .shotcard__url {
   padding: 5px 14px;

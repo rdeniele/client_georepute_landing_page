@@ -65,7 +65,7 @@ html.theme-dark .subpage--warroom {
 }
 
 html.theme-dark .wr-pill {
-  background: rgba(167, 139, 250, 0.1);
+  background: rgba(173, 151, 238, 0.1);
 }
 
 .wr-pill--up {
@@ -271,14 +271,14 @@ html.theme-dark .wr-pill {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+  background: #5fc986;
+  box-shadow: 0 0 0 0 rgba(95, 201, 134, 0.6);
   animation: wr-pulse 1.8s var(--ease-out) infinite;
 }
 
 @keyframes wr-pulse {
-  70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  70% { box-shadow: 0 0 0 7px rgba(95, 201, 134, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(95, 201, 134, 0); }
 }
 
 .wr-panel__body {
@@ -989,7 +989,7 @@ html[dir="rtl"] .wr-chain li + li::before {
   padding: 12px 18px;
   border-radius: var(--radius-md);
   background: #fff;
-  color: #9a3412;
+  color: #893d23;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 500;
@@ -1039,7 +1039,7 @@ html[dir="rtl"] .wr-step + .wr-step::before {
   gap: 8px;
   padding: 12px 14px;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
-  background: #4a22bc;
+  background: #5538a6;
   color: #fff;
   font-size: 0.86rem;
   font-weight: 600;

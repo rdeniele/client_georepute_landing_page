@@ -2032,10 +2032,10 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
 }
 
 .nar-own__seg--business { background: var(--color-signal-core); }
-.nar-own__seg--competitors { background: #b91c1c; }
+.nar-own__seg--competitors { background: #a43131; }
 .nar-own__seg--shared { background: #4a4f75; }
 .nar-own__seg--unclaimed {
-  background: repeating-linear-gradient(135deg, #15803d 0 8px, #166534 8px 16px);
+  background: repeating-linear-gradient(135deg, #247141 0 8px, #225937 8px 16px);
 }
 
 .nar-own__legend {
@@ -2067,9 +2067,9 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
 }
 
 .nar-own__key--business i { background: var(--color-signal-core); }
-.nar-own__key--competitors i { background: #b91c1c; }
+.nar-own__key--competitors i { background: #a43131; }
 .nar-own__key--shared i { background: #4a4f75; }
-.nar-own__key--unclaimed i { background: #15803d; }
+.nar-own__key--unclaimed i { background: #247141; }
 
 .nar-own__lang {
   display: grid;
@@ -2440,7 +2440,7 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
 }
 
 .rc-query__go:hover {
-  background: #7947ea;
+  background: #815cd5;
 }
 
 .rc-hero .kit-hero__actions {
