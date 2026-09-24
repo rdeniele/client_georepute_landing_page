@@ -201,6 +201,8 @@ export type Copy = {
     emailUs: string;
     whatsapp: string;
     disclaimer: string;
+    iconCredit: string;
+    trademarks: string;
     demoNote: string;
     rights: string;
   };
@@ -443,6 +445,8 @@ const en: Copy = {
     emailUs: "Email us",
     whatsapp: "WhatsApp",
     disclaimer: "Directional modelling. Commercial figures are estimates for prioritisation, not audited financial statements. Every model exposes its assumptions and data boundaries.",
+    iconCredit: "Interface icons: Phosphor Icons (MIT license).",
+    trademarks: "Google, ChatGPT, Gemini, Claude, Perplexity, Copilot and Grok are trademarks of their respective owners. Their names and simplified marks appear only to identify the systems GeoRepute measures and do not imply affiliation or endorsement.",
     demoNote: "Demonstration environment · Seeded data",
     rights: "All rights reserved.",
   },
@@ -694,6 +698,8 @@ const he: Copy = {
     emailUs: "שלחו לנו אימייל",
     whatsapp: "וואטסאפ",
     disclaimer: "מודלים כיווניים. הנתונים המסחריים הם הערכות לצורך תעדוף, ולא דוחות כספיים מבוקרים. כל מודל חושף את ההנחות ואת גבולות הנתונים שלו.",
+    iconCredit: "אייקוני ממשק: Phosphor Icons (רישיון MIT).",
+    trademarks: "Google, ChatGPT, Gemini, Claude, Perplexity, Copilot ו-Grok הם סימנים מסחריים של בעליהם. שמותיהם וסימנים מפושטים שלהם מופיעים רק כדי לזהות את המערכות ש-GeoRepute מודדת, ואינם מעידים על שיוך או אישור.",
     demoNote: "סביבת הדגמה · נתוני דוגמה",
     rights: "כל הזכויות שמורות.",
   },
@@ -945,6 +951,8 @@ const ar: Copy = {
     emailUs: "راسلونا",
     whatsapp: "واتساب",
     disclaimer: "نمذجة استرشادية. الأرقام التجارية تقديرات لأغراض تحديد الأولويات، وليست بيانات مالية مدققة. يعرض كل نموذج افتراضاته وحدود بياناته.",
+    iconCredit: "أيقونات الواجهة: Phosphor Icons (رخصة MIT).",
+    trademarks: "Google وChatGPT وGemini وClaude وPerplexity وCopilot وGrok علامات تجارية لأصحابها. تظهر أسماؤها وعلاماتها المبسّطة فقط لتحديد الأنظمة التي تقيسها GeoRepute، ولا تعني أي انتماء أو تأييد.",
     demoNote: "بيئة تجريبية · بيانات أولية",
     rights: "جميع الحقوق محفوظة.",
   },
@@ -1196,6 +1204,8 @@ const ru: Copy = {
     emailUs: "Написать нам",
     whatsapp: "WhatsApp",
     disclaimer: "Ориентировочное моделирование. Коммерческие показатели являются оценками для расстановки приоритетов, а не аудированной финансовой отчётностью. Каждая модель раскрывает свои допущения и границы данных.",
+    iconCredit: "Иконки интерфейса: Phosphor Icons (лицензия MIT).",
+    trademarks: "Google, ChatGPT, Gemini, Claude, Perplexity, Copilot и Grok являются товарными знаками их владельцев. Их названия и упрощённые знаки показаны только для обозначения систем, которые измеряет GeoRepute, и не означают аффилированности или одобрения.",
     demoNote: "Демонстрационная среда · Тестовые данные",
     rights: "Все права защищены.",
   },
@@ -1447,6 +1457,8 @@ const fr: Copy = {
     emailUs: "Nous écrire",
     whatsapp: "WhatsApp",
     disclaimer: "Modélisation indicative. Les chiffres commerciaux sont des estimations destinées à hiérarchiser les priorités, et non des états financiers audités. Chaque modèle expose ses hypothèses et les limites de ses données.",
+    iconCredit: "Icônes d'interface : Phosphor Icons (licence MIT).",
+    trademarks: "Google, ChatGPT, Gemini, Claude, Perplexity, Copilot et Grok sont des marques de leurs propriétaires respectifs. Leurs noms et leurs marques simplifiées n'apparaissent que pour identifier les systèmes mesurés par GeoRepute et n'impliquent aucune affiliation ni approbation.",
     demoNote: "Environnement de démonstration · Données d'exemple",
     rights: "Tous droits réservés.",
   },
@@ -1698,6 +1710,8 @@ const es: Copy = {
     emailUs: "Escríbanos",
     whatsapp: "WhatsApp",
     disclaimer: "Modelización orientativa. Las cifras comerciales son estimaciones para priorizar, no estados financieros auditados. Cada modelo expone sus supuestos y los límites de sus datos.",
+    iconCredit: "Iconos de interfaz: Phosphor Icons (licencia MIT).",
+    trademarks: "Google, ChatGPT, Gemini, Claude, Perplexity, Copilot y Grok son marcas de sus respectivos propietarios. Sus nombres y marcas simplificadas aparecen solo para identificar los sistemas que mide GeoRepute y no implican afiliación ni respaldo.",
     demoNote: "Entorno de demostración · Datos de ejemplo",
     rights: "Todos los derechos reservados.",
   },
@@ -1949,6 +1963,8 @@ const pt: Copy = {
     emailUs: "Escreva para nós",
     whatsapp: "WhatsApp",
     disclaimer: "Modelagem orientativa. Os números comerciais são estimativas para definir prioridades, não demonstrações financeiras auditadas. Cada modelo expõe suas premissas e os limites dos seus dados.",
+    iconCredit: "Ícones de interface: Phosphor Icons (licença MIT).",
+    trademarks: "Google, ChatGPT, Gemini, Claude, Perplexity, Copilot e Grok são marcas de seus respectivos proprietários. Seus nomes e marcas simplificadas aparecem apenas para identificar os sistemas que a GeoRepute mede e não implicam afiliação ou endosso.",
     demoNote: "Ambiente de demonstração · Dados de exemplo",
     rights: "Todos os direitos reservados.",
   },

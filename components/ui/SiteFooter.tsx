@@ -126,6 +126,11 @@ export function SiteFooter({ locale = "en" }: { locale?: string }) {
 
         <div className="foot__bottom">
           <p className="foot__disclaimer">{c.disclaimer}</p>
+          {/* Credits and trademark notice. The footer's own logo is GeoRepute's mark; there is no photography on the
+              site yet (photo slots render placeholder plates), so no photo credit belongs here until real photos ship. */}
+          <p className="foot__credits">
+            {c.trademarks} {c.iconCredit}
+          </p>
           <div className="foot__bar">
             <span>
               &copy; {new Date().getFullYear()} {f.brand}. {c.rights}

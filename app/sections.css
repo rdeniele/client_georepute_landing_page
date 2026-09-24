@@ -2068,6 +2068,14 @@
   color: var(--color-ink-faint);
 }
 
+.foot__credits {
+  margin: 0;
+  max-width: 88ch;
+  font-size: var(--text-mono-xs);
+  line-height: 1.6;
+  color: var(--color-ink-faint);
+}
+
 .foot__bar {
   display: flex;
   flex-wrap: wrap;
