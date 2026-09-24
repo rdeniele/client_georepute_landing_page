@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "blog:check": "node --env-file-if-exists=.env.local --import tsx scripts/blog-generation-check.ts",
+    "translate:check": "node --env-file-if-exists=.env.local --import tsx scripts/blog-translation-check.ts",
+    "security:check": "node --import tsx scripts/security-check.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@blocknote/core": "^0.54.2",
     "@blocknote/mantine": "^0.54.2",
     "@blocknote/react": "^0.54.2",
@@ -37,6 +41,7 @@
     "@types/three": "^0.185.4",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }

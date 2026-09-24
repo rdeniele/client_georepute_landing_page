@@ -108,6 +108,26 @@ export async function getPostById(supabase: Client, id: string): Promise<Post | 
   return data as unknown as Post | null;
 }
 
+/**
+ * The other-language version of a post: same slug, different locale (the
+ * `(locale, slug)` uniqueness from SUPABASE_SETUP.md Step 11 is what links
+ * translations). Admin only: it also finds drafts.
+ */
+export async function findPostBySlugAndLocale(
+  supabase: Client,
+  slug: string,
+  locale: PostLocale,
+): Promise<{ id: string; status: string } | null> {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id, status")
+    .eq("slug", slug)
+    .eq("locale", locale)
+    .maybeSingle();
+  if (error) raise("look up translation", error);
+  return data as { id: string; status: string } | null;
+}
+
 function normalizeTags(tags: string): string[] {
   return tags
     .split(",")

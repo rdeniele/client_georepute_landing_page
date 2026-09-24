@@ -1,11 +1,13 @@
 "use client";
 
-import { useActionState, useState, type ChangeEvent } from "react";
+import { useActionState, useMemo, useState, type ChangeEvent } from "react";
 import dynamic from "next/dynamic";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { deleteBlogImage, pathFromPublicUrl, uploadBlogImage } from "@/lib/services/storage";
 import { slugify } from "@/lib/utils/slug";
 import { formatBytes } from "@/lib/utils/format";
+import { DraftGenerator } from "./DraftGenerator";
+import type { GeneratedDraft } from "@/lib/blog/generation";
 import type { ContentBlock, PostFormValues } from "@/types/posts";
 import type { PostFormState } from "@/lib/actions/posts";
 
@@ -42,6 +44,8 @@ export function PostForm({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [optimizedStat, setOptimizedStat] = useState<{ from: number; to: number } | null>(null);
+  // Bumped when a generated draft replaces the content, so BlockNote remounts with the new blocks.
+  const [editorKey, setEditorKey] = useState(0);
 
   function set<K extends keyof PostFormValues>(key: K, value: PostFormValues[K]) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -78,6 +82,29 @@ export function PostForm({
     set("content_blocks", blocks);
   }
 
+  /** Fills the form from a generated draft. Status stays "draft": saving and publishing remain explicit steps. */
+  function applyDraft(draft: GeneratedDraft) {
+    setValues((current) => ({
+      ...current,
+      title: draft.title,
+      // Never rewrite the slug of a post that already has one (it may be live and linked).
+      slug: slugTouched && current.slug ? current.slug : draft.slug || current.slug,
+      excerpt: draft.excerpt,
+      category: draft.category,
+      tags: draft.tags,
+      locale: draft.language === "he" ? "he" : "en",
+      content_blocks: draft.blocks as ContentBlock[],
+    }));
+    setEditorKey((k) => k + 1);
+  }
+
+  // Serialised once per document change (it feeds the hidden field and the overwrite check), not on every keystroke elsewhere in the form.
+  const contentJson = useMemo(() => JSON.stringify(values.content_blocks), [values.content_blocks]);
+  const hasContent =
+    Boolean(values.title.trim()) ||
+    values.content_blocks.some((b) => Boolean(b.content) && JSON.stringify(b.content) !== "[]");
+  const dir = values.locale === "he" ? "rtl" : "ltr";
+
   return (
     <form action={formAction}>
       {state.error ? (
@@ -86,11 +113,14 @@ export function PostForm({
         </div>
       ) : null}
 
+      <DraftGenerator languages={["en", "he"]} defaultLanguage={values.locale} hasContent={hasContent} onDraft={applyDraft} />
+
       <div className="admin-field">
         <label htmlFor="title">Title</label>
         <input
           id="title"
           name="title"
+          dir={dir}
           type="text"
           required
           value={values.title}
@@ -123,6 +153,7 @@ export function PostForm({
         <textarea
           id="excerpt"
           name="excerpt"
+          dir={dir}
           rows={3}
           value={values.excerpt}
           onChange={(event) => set("excerpt", event.target.value)}
@@ -200,8 +231,8 @@ export function PostForm({
 
       <div className="admin-field">
         <label>Content</label>
-        <BlockEditor initialBlocks={values.content_blocks} onChange={handleContentChange} />
-        <input type="hidden" name="content_blocks" value={JSON.stringify(values.content_blocks)} />
+        <BlockEditor key={editorKey} initialBlocks={values.content_blocks} onChange={handleContentChange} dir={dir} />
+        <input type="hidden" name="content_blocks" value={contentJson} />
       </div>
 
       <div className="admin-form__actions">

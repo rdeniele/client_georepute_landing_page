@@ -5,6 +5,10 @@ import { EMPTY_POST_FORM } from "@/types/posts";
 
 export const metadata: Metadata = { title: "New Post | GeoRepute Admin" };
 
+// The "Generate a draft with Claude" server action runs under this route's limit.
+// A long Hebrew article can take a minute or more; the Claude client times out at 110s.
+export const maxDuration = 300;
+
 export default function NewBlogPostPage() {
   return (
     <>

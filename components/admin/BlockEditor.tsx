@@ -48,9 +48,12 @@ const blogEditorTheme = {
 export function BlockEditor({
   initialBlocks,
   onChange,
+  dir = "ltr",
 }: {
   initialBlocks: ContentBlock[];
   onChange: (blocks: ContentBlock[]) => void;
+  /** Text direction of the post's language, so Hebrew is written and read right to left. */
+  dir?: "ltr" | "rtl";
 }) {
   const editor = useCreateBlockNote({
     schema: blogEditorSchema,
@@ -63,7 +66,7 @@ export function BlockEditor({
   });
 
   return (
-    <div className="admin-editor">
+    <div className="admin-editor" dir={dir}>
       <BlockNoteView
         editor={editor}
         theme={blogEditorTheme}

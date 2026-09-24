@@ -10,3 +10,6 @@ next-env.d.ts
 .vercel
 *.tsbuildinfo
 .freebuff/
+
+# blog generation check output (real model drafts, for review only)
+scripts/.output/

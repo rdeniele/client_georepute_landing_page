@@ -498,3 +498,121 @@
   color: var(--color-ink-dim);
   font-size: var(--text-body-sm);
 }
+
+/* --- "Generate a draft with Claude" panel ------------------------------ */
+.admin-generator {
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--color-raised);
+}
+
+.admin-generator__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 18px;
+  background: none;
+  border: 0;
+  color: var(--color-signal-lit);
+  font: inherit;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+}
+
+.admin-generator__body {
+  padding: 4px 18px 18px;
+  border-top: 1px solid var(--line);
+}
+
+.admin-generator__body .admin-field:first-of-type {
+  margin-top: 14px;
+}
+
+/* --- "Translate this post" panel ---------------------------------------- */
+.admin-translate {
+  margin-bottom: 24px;
+}
+
+.admin-translate__pill {
+  margin-inline-start: auto;
+  padding: 2px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--text-mono-xs);
+  font-weight: 500;
+  color: var(--color-ink-dim);
+}
+
+.admin-translate__result {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.admin-translate__preview {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--color-elevated);
+}
+
+.admin-translate__preview p {
+  margin: 6px 0 0;
+  color: var(--color-ink-dim);
+}
+
+.admin-translate__list {
+  margin: 8px 0;
+  padding-inline-start: 1.2em;
+  color: var(--color-ink-dim);
+}
+
+.admin-translate__issues {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-translate__issue {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-inline-start-width: 3px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-sm);
+}
+
+.admin-translate__issue--critical {
+  border-inline-start-color: var(--color-down);
+}
+
+.admin-translate__issue--major {
+  border-inline-start-color: var(--color-gap);
+}
+
+.admin-translate__issue--minor {
+  border-inline-start-color: var(--color-live);
+}
+
+.admin-translate__sev {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-faint);
+}
+
+.admin-translate__snip {
+  margin-top: 4px;
+  color: var(--color-ink-dim);
+}
+
+.admin-translate__ack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
