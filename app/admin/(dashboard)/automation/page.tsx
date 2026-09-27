@@ -50,6 +50,9 @@ export default async function AutomationOverviewPage() {
   const workload = describeWorkload(settings);
   const langs = resolveLanguages(settings);
   const tick = settings.lastTickSummary;
+  // Both a rejected/missing key and a billing problem pause calls the same way a rate limit does (lib/blog/automation/worker.ts
+  // SYSTEMIC codes), but "Claude asked us to slow down" would be a wrong explanation for either of those.
+  const configIssue = Boolean(tick?.error && /rejected|not configured|billing|workspace/i.test(tick.error));
   const minutesSinceTick = settings.lastTickAt ? Math.round((now - new Date(settings.lastTickAt).getTime()) / 60000) : null;
   const aiConfigured = Boolean(process.env.ANTHROPIC_API_KEY?.trim());
   const schedulerConfigured = Boolean(process.env.CRON_SECRET?.trim()) && isServiceClientConfigured();
@@ -91,7 +94,15 @@ export default async function AutomationOverviewPage() {
                 </>
               )}
             </p>
-            {backingOff ? <p className="auto-meta">Claude asked us to slow down. Calls resume at {formatDateTime(settings.backoffUntil, settings.timezone)}.</p> : null}
+            {backingOff ? (
+              <p className="auto-meta">
+                {/* The same short pause covers both "Claude asked us to slow down" (a real rate limit) and "the key/billing is
+                    broken" (no point retrying every few seconds either way) — tick.error below always has the specific reason,
+                    so this only needs to avoid claiming the wrong one of those two. */}
+                {configIssue ? "Claude API calls are paused" : "Claude asked us to slow down"}. {configIssue ? "Resuming" : "Calls resume"} at{" "}
+                {formatDateTime(settings.backoffUntil, settings.timezone)}.
+              </p>
+            ) : null}
           </div>
           <AutomationControls enabled={settings.enabled} paused={settings.generationPaused} waiting={backingOff} />
         </div>

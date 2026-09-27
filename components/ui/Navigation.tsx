@@ -22,9 +22,32 @@ import { ThemeToggle } from "./ThemeToggle";
  */
 export function Navigation() {
   const pathname = usePathname();
-  const locale = normalizeLocale(pathname.split("/")[1]);
+  // /blog and /blog/[slug] are not under a /{locale}/ path (see lib/utils/postLocale.ts):
+  // they carry their language as a `?lang=` query param instead (English has none). The
+  // path-prefix scheme below does not apply there, so both which language is "current" and
+  // what a language link should point to are read from the query on those routes.
+  const isBlogRoute = pathname === "/blog" || pathname.startsWith("/blog/");
+  // usePathname() never includes the query string, and this runs during SSR (no `window`
+  // yet), so the query is read after mount and defaults to "no query" until then — the
+  // dropdown is closed at that point, so nothing user-visible depends on the gap.
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    if (isBlogRoute) setSearch(window.location.search);
+  }, [isBlogRoute, pathname]);
+  const locale = isBlogRoute ? normalizeLocale(new URLSearchParams(search).get("lang") ?? undefined) : normalizeLocale(pathname.split("/")[1]);
   const localizedNav = localizeNav(locale);
   const localeCopy = getLocaleCopy(locale);
+
+  function localeHref(code: string): string {
+    if (isBlogRoute) {
+      const params = new URLSearchParams(search);
+      if (code === "en") params.delete("lang");
+      else params.set("lang", code);
+      const qs = params.toString();
+      return `${pathname}${qs ? `?${qs}` : ""}`;
+    }
+    return pathname.replace(/^\/(?:en|he|ar|ru|fr|es|pt)(?=\/|$)/, `/${code}`);
+  }
   const [lifted, setLifted] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
@@ -197,7 +220,7 @@ export function Navigation() {
             </summary>
             <div className="nav__locale-menu" role="menu" aria-label={localeCopy.nav.language || "Language"}>
               {LOCALES.map((code) => {
-                const href = pathname.replace(/^\/(?:en|he|ar|ru|fr|es|pt)(?=\/|$)/, `/${code}`);
+                const href = localeHref(code);
                 return (
                   <a key={code} href={href} role="menuitem" aria-current={code === locale ? "true" : undefined}>
                     <span>{localeNames[code]}</span>

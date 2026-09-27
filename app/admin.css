@@ -111,7 +111,12 @@
 }
 
 .admin-btn--primary:hover {
-  background: var(--color-signal-lit);
+  /* Not --color-signal-lit: that variable flips to a *light* lavender in dark
+     mode (it's meant for small accent text on a dark surface), so using it as
+     a solid fill would put white button text on a near-white background.
+     Brightening the fixed signal-core color instead works identically, and
+     legibly, in both themes. */
+  filter: brightness(1.12);
 }
 
 .admin-btn--ghost {
@@ -828,17 +833,25 @@
   background: color-mix(in srgb, var(--color-gap) 12%, transparent);
 }
 
+/* Not --color-signal-veil/-mist for the background: those two are the exact
+   same very-light lavender in dark mode as in light mode, so paired with
+   --color-signal-lit text (which flips to *light* lavender in dark mode) the
+   chip becomes near-invisible there. A translucent mix of the fixed
+   signal-core color (same in both themes) renders as a light purple wash over
+   the light-mode card and a dark purple wash over the dark-mode card, so the
+   theme-adaptive --color-signal-lit text stays legible on top either way —
+   the same pattern the other status chips below already use. */
 .auto-chip--ready,
 .auto-chip--generated {
   color: var(--color-signal-lit);
   border-color: color-mix(in srgb, var(--color-signal) 45%, transparent);
-  background: var(--color-signal-veil);
+  background: color-mix(in srgb, var(--color-signal-core) 12%, transparent);
 }
 
 .auto-chip--scheduled {
   color: var(--color-signal-lit);
   border-color: var(--color-signal);
-  background: var(--color-signal-mist);
+  background: color-mix(in srgb, var(--color-signal-core) 18%, transparent);
 }
 
 .auto-chip--published {
@@ -958,7 +971,11 @@
 }
 
 .auto-topic > summary:hover {
-  background: var(--color-signal-veil);
+  /* A purple-tinted --color-raised, not the fixed --color-signal-veil: veil
+     stays near-white in dark mode too, which would put dark mode's near-white
+     ink text on a near-white row. Tinting the theme's own raised surface
+     keeps the hover legible (and still purple-flavored) in both themes. */
+  background: color-mix(in srgb, var(--color-signal-core) 10%, var(--color-raised));
 }
 
 .auto-topic__caret {
@@ -1128,7 +1145,9 @@
 .auto-dropzone:hover,
 .auto-dropzone:focus-within {
   border-color: var(--color-signal-core);
-  background: var(--color-signal-veil);
+  /* See the note on .auto-topic > summary:hover above: veil/mist don't adapt
+     to dark mode, a tinted --color-raised does. */
+  background: color-mix(in srgb, var(--color-signal-core) 10%, var(--color-raised));
 }
 
 .auto-dropzone input {
@@ -1168,7 +1187,8 @@
 
 .auto-choice:has(input:checked) {
   border-color: var(--color-signal-core);
-  background: var(--color-signal-veil);
+  /* See the note on .auto-topic > summary:hover above. */
+  background: color-mix(in srgb, var(--color-signal-core) 10%, var(--color-raised));
 }
 
 .auto-choice input {
@@ -1238,7 +1258,8 @@
 .auto-summary {
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--color-signal-veil);
+  /* See the note on .auto-topic > summary:hover above. */
+  background: color-mix(in srgb, var(--color-signal-core) 10%, var(--color-raised));
   border: 1px solid color-mix(in srgb, var(--color-signal) 35%, transparent);
   font-size: var(--text-body-sm);
   line-height: 1.6;
