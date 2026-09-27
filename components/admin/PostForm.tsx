@@ -7,7 +7,9 @@ import { deleteBlogImage, pathFromPublicUrl, uploadBlogImage } from "@/lib/servi
 import { slugify } from "@/lib/utils/slug";
 import { formatBytes } from "@/lib/utils/format";
 import { DraftGenerator } from "./DraftGenerator";
-import type { GeneratedDraft } from "@/lib/blog/generation";
+import { FaqEditor } from "./FaqEditor";
+import { BLOG_LANGUAGES, type GeneratedDraft } from "@/lib/blog/generation";
+import { POST_LOCALES, blogPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { ContentBlock, PostFormValues } from "@/types/posts";
 import type { PostFormState } from "@/lib/actions/posts";
 
@@ -92,7 +94,7 @@ export function PostForm({
       excerpt: draft.excerpt,
       category: draft.category,
       tags: draft.tags,
-      locale: draft.language === "he" ? "he" : "en",
+      locale: toPostLocale(draft.language),
       content_blocks: draft.blocks as ContentBlock[],
     }));
     setEditorKey((k) => k + 1);
@@ -103,7 +105,7 @@ export function PostForm({
   const hasContent =
     Boolean(values.title.trim()) ||
     values.content_blocks.some((b) => Boolean(b.content) && JSON.stringify(b.content) !== "[]");
-  const dir = values.locale === "he" ? "rtl" : "ltr";
+  const dir = BLOG_LANGUAGES[values.locale].dir;
 
   return (
     <form action={formAction}>
@@ -113,7 +115,7 @@ export function PostForm({
         </div>
       ) : null}
 
-      <DraftGenerator languages={["en", "he"]} defaultLanguage={values.locale} hasContent={hasContent} onDraft={applyDraft} />
+      <DraftGenerator languages={POST_LOCALES} defaultLanguage={values.locale} hasContent={hasContent} onDraft={applyDraft} />
 
       <div className="admin-field">
         <label htmlFor="title">Title</label>
@@ -160,6 +162,24 @@ export function PostForm({
         />
         <span className="admin-field__hint">Short summary shown on the blog listing and in search results.</span>
       </div>
+
+      <fieldset className="admin-field" style={{ border: 0, padding: 0 }}>
+        <legend className="admin-section-title">Search engines</legend>
+        <div className="admin-field">
+          <label htmlFor="meta_title">Meta title</label>
+          <input id="meta_title" name="meta_title" dir={dir} type="text" value={values.meta_title} onChange={(event) => set("meta_title", event.target.value)} />
+          <span className={`auto-count ${values.meta_title.length > 60 ? "auto-count--over" : ""}`}>{values.meta_title.length} / 60 characters. Empty uses the title.</span>
+        </div>
+        <div className="admin-field">
+          <label htmlFor="meta_description">Meta description</label>
+          <textarea id="meta_description" name="meta_description" dir={dir} rows={2} value={values.meta_description} onChange={(event) => set("meta_description", event.target.value)} style={{ minHeight: 0 }} />
+          <span className={`auto-count ${values.meta_description.length > 160 ? "auto-count--over" : ""}`}>{values.meta_description.length} / 160 characters. Empty uses the excerpt.</span>
+        </div>
+        <div className="admin-field">
+          <label htmlFor="keywords">Keywords</label>
+          <input id="keywords" name="keywords" dir={dir} type="text" placeholder="comma, separated" value={values.keywords} onChange={(event) => set("keywords", event.target.value)} />
+        </div>
+      </fieldset>
 
       <div className="admin-field">
         <label htmlFor="featured-image-file">Featured image</label>
@@ -222,10 +242,13 @@ export function PostForm({
             value={values.locale}
             onChange={(event) => set("locale", event.target.value as PostFormValues["locale"])}
           >
-            <option value="en">English</option>
-            <option value="he">עברית (Hebrew)</option>
+            {POST_LOCALES.map((l) => (
+              <option key={l} value={l}>
+                {BLOG_LANGUAGES[l].native === BLOG_LANGUAGES[l].name ? BLOG_LANGUAGES[l].name : `${BLOG_LANGUAGES[l].native} (${BLOG_LANGUAGES[l].name})`}
+              </option>
+            ))}
           </select>
-          <span className="admin-field__hint">Which locale this post is published under. Public URL: /blog/{values.slug || "…"}{values.locale === "he" ? "?lang=he" : ""}</span>
+          <span className="admin-field__hint">Which locale this post is published under. Public URL: {blogPath(values.locale, values.slug || "…")}</span>
         </div>
       </div>
 
@@ -233,6 +256,13 @@ export function PostForm({
         <label>Content</label>
         <BlockEditor key={editorKey} initialBlocks={values.content_blocks} onChange={handleContentChange} dir={dir} />
         <input type="hidden" name="content_blocks" value={contentJson} />
+      </div>
+
+      <div className="admin-field">
+        <label>FAQ</label>
+        <FaqEditor value={values.faq} onChange={(faq) => set("faq", faq)} dir={dir} />
+        <input type="hidden" name="faq" value={JSON.stringify(values.faq)} />
+        <span className="admin-field__hint">Shown under the article and marked up as a FAQ for search engines. Incomplete pairs are ignored.</span>
       </div>
 
       <div className="admin-form__actions">

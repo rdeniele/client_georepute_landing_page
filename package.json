@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "blog:check": "node --env-file-if-exists=.env.local --import tsx scripts/blog-generation-check.ts",
     "translate:check": "node --env-file-if-exists=.env.local --import tsx scripts/blog-translation-check.ts",
-    "security:check": "node --import tsx scripts/security-check.ts"
+    "security:check": "node --import tsx scripts/security-check.ts",
+    "automation:check": "node --import tsx scripts/blog-automation-check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
@@ -28,6 +29,7 @@
     "nodemailer": "^10.0.10",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "read-excel-file": "^9.3.10",
     "resend": "^6.28.1",
     "server-only": "^0.0.1",
     "three": "^0.185.1"

@@ -5,8 +5,9 @@ import { CalendarBlank, Clock, UserCircle } from "@phosphor-icons/react/ssr";
 import { Crumbs, CtaBand, PageHero } from "@/components/subpages/kit";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getPublishedPostBySlug } from "@/lib/services/posts";
+import { getPublishedAlternates, getPublishedPostBySlug } from "@/lib/services/posts";
 import { formatDate } from "@/lib/utils/format";
+import { blogPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 
@@ -21,12 +22,28 @@ function readingMinutes(text: string): number {
 }
 
 function toLocale(lang?: string): PostLocale {
-  return lang === "he" ? "he" : "en";
+  return toPostLocale(lang);
 }
 
 async function loadPost(slug: string, locale: PostLocale) {
   const supabase = await createSupabaseServerClient();
   return getPublishedPostBySlug(supabase, slug, locale);
+}
+
+/** hreflang for the other published language versions of this article. Missing alternates never break the page. */
+async function loadAlternates(post: NonNullable<Awaited<ReturnType<typeof loadPost>>>): Promise<Record<string, string> | undefined> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const versions = await getPublishedAlternates(supabase, post);
+    if (versions.length < 2) return undefined;
+    const languages: Record<string, string> = {};
+    for (const v of versions) languages[v.locale] = blogPath(v.locale, v.slug);
+    const fallback = versions.find((v) => v.locale === "en") ?? versions[0];
+    languages["x-default"] = blogPath(fallback.locale, fallback.slug);
+    return languages;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function generateMetadata({
@@ -47,17 +64,21 @@ export async function generateMetadata({
   }
   if (!post) return { title: "Post not found | GeoRepute" };
 
-  const description = post.excerpt ?? post.content.slice(0, 160);
+  // The SEO fields written for this language (automation) win; posts written by hand fall back to the title and excerpt.
+  const description = post.meta_description || post.excerpt || post.content.slice(0, 160);
+  const languages = await loadAlternates(post);
 
   return {
-    title: `${post.title} | GeoRepute Blog`,
+    title: post.meta_title || `${post.title} | GeoRepute Blog`,
     description,
-    alternates: { canonical: `/blog/${post.slug}` },
+    keywords: post.keywords?.length ? post.keywords : undefined,
+    alternates: { canonical: blogPath(post.locale, post.slug), ...(languages ? { languages } : {}) },
     openGraph: {
       type: "article",
-      title: post.title,
+      locale: post.locale,
+      title: post.meta_title || post.title,
       description,
-      url: `/blog/${post.slug}`,
+      url: blogPath(post.locale, post.slug),
       images: post.featured_image ? [{ url: post.featured_image }] : undefined,
       publishedTime: post.published_at ?? undefined,
     },
@@ -128,8 +149,19 @@ export default async function BlogPostPage({
     datePublished: post.published_at ?? undefined,
     dateModified: post.updated_at,
     author: post.author?.full_name ? { "@type": "Person", name: post.author.full_name } : undefined,
-    mainEntityOfPage: `/blog/${post.slug}`,
+    mainEntityOfPage: blogPath(post.locale, post.slug),
+    inLanguage: post.locale,
+    keywords: post.keywords?.length ? post.keywords.join(", ") : undefined,
   };
+  const faq = (post.faq ?? []).filter((f) => f?.question && f?.answer);
+  const faqLd = faq.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        inLanguage: post.locale,
+        mainEntity: faq.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
+      }
+    : null;
 
   return (
     <SiteShell locale={locale}>
@@ -138,12 +170,13 @@ export default async function BlogPostPage({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
         />
+        {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqLd) }} /> : null}
         <PageHero
           id="post"
           layout="stack"
           backdrop="network"
           className="blog-hero--post"
-          crumbs={<Crumbs locale={locale} trail={[{ label: c.crumb, href: locale === "he" ? "/blog?lang=he" : "/blog" }, { label: post.title }]} />}
+          crumbs={<Crumbs locale={locale} trail={[{ label: c.crumb, href: blogPath(locale) }, { label: post.title }]} />}
           eyebrow={post.category ?? c.insightFallback}
           title={post.title}
           lead={post.excerpt ?? undefined}
@@ -185,6 +218,17 @@ export default async function BlogPostPage({
                 ) : (
                   post.content.split(/\n{2,}/).map((paragraph, i) => <p key={i}>{paragraph}</p>)
                 )}
+                {faq.length > 0 ? (
+                  <section aria-labelledby="post-faq">
+                    <h2 id="post-faq">{c.faqTitle}</h2>
+                    {faq.map((f, i) => (
+                      <div key={i}>
+                        <h3>{f.question}</h3>
+                        <p>{f.answer}</p>
+                      </div>
+                    ))}
+                  </section>
+                ) : null}
               </div>
 
               {post.tags.length > 0 ? (
@@ -203,7 +247,7 @@ export default async function BlogPostPage({
         <CtaBand
           title={c.ctaTitle}
           primary={{ label: c.startAnalysis, href: "https://www.georepute.ai/signup" }}
-          secondary={{ label: c.backToBlog, href: locale === "he" ? "/blog?lang=he" : "/blog" }}
+          secondary={{ label: c.backToBlog, href: blogPath(locale) }}
           locale={locale}
         />
       </div>

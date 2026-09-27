@@ -12,7 +12,8 @@ import {
   updatePost,
 } from "@/lib/services/posts";
 import { deleteBlogImage, pathFromPublicUrl } from "@/lib/services/storage";
-import type { ContentBlock, PostFormValues, PostLocale, PostStatus } from "@/types/posts";
+import { toPostLocale } from "@/lib/utils/postLocale";
+import type { ContentBlock, FaqItem, PostFormValues, PostLocale, PostStatus } from "@/types/posts";
 
 export type PostFormState = { error: string | null };
 
@@ -27,8 +28,16 @@ function readContentBlocks(formData: FormData): ContentBlock[] {
 }
 
 function readLocale(formData: FormData): PostLocale {
-  const raw = String(formData.get("locale") ?? "en");
-  return raw === "he" ? "he" : "en";
+  return toPostLocale(String(formData.get("locale") ?? "en"));
+}
+
+function readFaq(formData: FormData): FaqItem[] {
+  try {
+    const parsed = JSON.parse(String(formData.get("faq") ?? "[]"));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 function readFormValues(formData: FormData): PostFormValues {
@@ -42,6 +51,10 @@ function readFormValues(formData: FormData): PostFormValues {
     tags: String(formData.get("tags") ?? ""),
     status: (formData.get("status") as PostStatus) ?? "draft",
     locale: readLocale(formData),
+    meta_title: String(formData.get("meta_title") ?? "").trim(),
+    meta_description: String(formData.get("meta_description") ?? "").trim(),
+    keywords: String(formData.get("keywords") ?? ""),
+    faq: readFaq(formData),
   };
 }
 

@@ -29,6 +29,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
           <a href="/admin">Dashboard</a>
           <a href="/admin/blogs">Posts</a>
           <a href="/admin/blogs/new">New Post</a>
+          <a href="/admin/automation">AI Automation</a>
         </nav>
         <SignOutButton />
       </header>

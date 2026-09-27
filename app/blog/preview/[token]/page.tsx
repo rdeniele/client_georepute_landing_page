@@ -6,6 +6,7 @@ import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPostByPreviewToken } from "@/lib/services/posts";
 import { formatDate } from "@/lib/utils/format";
+import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 
 type Params = { token: string };
 
@@ -103,6 +104,19 @@ export default async function BlogPreviewPage({ params }: { params: Promise<Para
                 ) : (
                   post.content.split(/\n{2,}/).map((paragraph, i) => <p key={i}>{paragraph}</p>)
                 )}
+                {(post.faq ?? []).filter((f) => f?.question && f?.answer).length > 0 ? (
+                  <section aria-labelledby="post-faq">
+                    <h2 id="post-faq">{getBlogChromeCopy(post.locale).faqTitle}</h2>
+                    {(post.faq ?? [])
+                      .filter((f) => f?.question && f?.answer)
+                      .map((f, i) => (
+                        <div key={i}>
+                          <h3>{f.question}</h3>
+                          <p>{f.answer}</p>
+                        </div>
+                      ))}
+                  </section>
+                ) : null}
               </div>
 
               {post.tags.length > 0 ? (

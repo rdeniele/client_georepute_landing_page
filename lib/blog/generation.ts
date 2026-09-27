@@ -19,26 +19,60 @@
  *    admin actions.
  */
 import type Anthropic from "@anthropic-ai/sdk";
+import { LOCALES, localeDirections, localeNames, type Locale } from "@/lib/i18n";
 
 /* -------------------------------------------------------------------------- */
 /* Configuration                                                              */
 /* -------------------------------------------------------------------------- */
 
-export type BlogLanguage = "en" | "he" | "ar" | "ru" | "fr" | "es" | "pt";
+/**
+ * A blog language is any language the site itself is localized in: the list comes from `LOCALES` in
+ * lib/i18n.ts, so adding a language to the site makes it available to the blog, the translator and the
+ * automation without touching this file (unless it uses a script not listed in SCRIPT_BY_LANGUAGE).
+ */
+export type BlogLanguage = Locale;
 export type BlogLength = "short" | "medium" | "long";
 
-export const BLOG_LANGUAGES: Record<
-  BlogLanguage,
-  { name: string; native: string; dir: "ltr" | "rtl"; script: "latin" | "hebrew" | "arabic" | "cyrillic" }
-> = {
-  en: { name: "English", native: "English", dir: "ltr", script: "latin" },
-  he: { name: "Hebrew", native: "עברית", dir: "rtl", script: "hebrew" },
-  ar: { name: "Arabic", native: "العربية", dir: "rtl", script: "arabic" },
-  ru: { name: "Russian", native: "Русский", dir: "ltr", script: "cyrillic" },
-  fr: { name: "French", native: "Français", dir: "ltr", script: "latin" },
-  es: { name: "Spanish", native: "Español", dir: "ltr", script: "latin" },
-  pt: { name: "Portuguese", native: "Português", dir: "ltr", script: "latin" },
+export type BlogScript = "latin" | "hebrew" | "arabic" | "cyrillic" | "other";
+
+/** Writing system per language code. A language that is missing here is treated as Latin script. */
+const SCRIPT_BY_LANGUAGE: Record<string, BlogScript> = {
+  he: "hebrew",
+  yi: "hebrew",
+  ar: "arabic",
+  fa: "arabic",
+  ur: "arabic",
+  ru: "cyrillic",
+  uk: "cyrillic",
+  bg: "cyrillic",
+  sr: "cyrillic",
+  el: "other",
+  hi: "other",
+  th: "other",
+  ja: "other",
+  ko: "other",
+  zh: "other",
 };
+
+function englishName(code: string, fallback: string): string {
+  try {
+    return new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export const BLOG_LANGUAGES = Object.fromEntries(
+  LOCALES.map((code) => [
+    code,
+    {
+      name: englishName(code, localeNames[code]),
+      native: localeNames[code],
+      dir: localeDirections[code],
+      script: SCRIPT_BY_LANGUAGE[code] ?? "latin",
+    },
+  ]),
+) as Record<BlogLanguage, { name: string; native: string; dir: "ltr" | "rtl"; script: BlogScript }>;
 
 /** Target word counts. `maxTokens` leaves room for adaptive thinking plus non-Latin scripts, which tokenize heavier. */
 export const BLOG_LENGTHS: Record<BlogLength, { words: number; maxTokens: number; label: string }> = {
@@ -242,7 +276,8 @@ export function parseInline(raw: string, allowedLinks: ReadonlySet<string>): Inl
     push(text.slice(last, m.index));
     if (m[1] !== undefined) {
       const href = m[2].replace(/[.,;:!?]+$/, "");
-      if (allowedLinks.has(href) && /^https?:\/\//i.test(href)) {
+      // Absolute http(s) URLs and site-relative paths ("/en/platform") are the only link shapes ever accepted.
+      if (allowedLinks.has(href) && /^(?:https?:\/\/|\/(?!\/))/i.test(href)) {
         nodes.push({ type: "link", href, content: [{ type: "text", text: m[1], styles: {} }] });
       } else {
         push(m[1]);
@@ -263,7 +298,7 @@ export function plainLength(raw: string): number {
   return cleanText(raw).replace(/\*\*?|\[([^\]]*)\]\([^)]*\)/g, "$1").length;
 }
 
-function countWords(text: string): number {
+export function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
@@ -278,7 +313,7 @@ const SCRIPT_RANGES = {
   latin: /[A-Za-zÀ-ɏ]/g,
 };
 
-const STOPWORDS: Record<"en" | "fr" | "es" | "pt", string[]> = {
+export const STOPWORDS: Record<"en" | "fr" | "es" | "pt", string[]> = {
   en: ["the", "and", "of", "to", "in", "is", "that", "for", "with", "your", "are", "it", "on", "as", "this"],
   fr: ["le", "la", "les", "des", "et", "est", "pour", "dans", "une", "un", "que", "vous", "sur", "avec", "du"],
   es: ["el", "la", "los", "las", "y", "es", "para", "con", "una", "un", "que", "en", "por", "del", "su"],
@@ -287,7 +322,9 @@ const STOPWORDS: Record<"en" | "fr" | "es" | "pt", string[]> = {
 
 /** Returns null when the text is in the requested language, otherwise a short reason. */
 export function languageProblem(text: string, language: BlogLanguage): string | null {
-  const { script } = BLOG_LANGUAGES[language];
+  const script = BLOG_LANGUAGES[language]?.script;
+  // Scripts we cannot measure (and languages added to the site later that use one): trust the model, do not guess.
+  if (!script || script === "other") return null;
   const counts = Object.fromEntries(
     Object.entries(SCRIPT_RANGES).map(([k, re]) => [k, (text.match(re) ?? []).length]),
   ) as Record<keyof typeof SCRIPT_RANGES, number>;
@@ -302,6 +339,9 @@ export function languageProblem(text: string, language: BlogLanguage): string | 
   const foreign = (counts.hebrew + counts.arabic + counts.cyrillic) / letters;
   if (foreign > 0.03) return "it contains text in another script";
 
+  // No stopword list for this Latin-script language (for example one added to the site later): the script check above is all we can verify.
+  if (!(language in STOPWORDS)) return null;
+
   const words = text.toLowerCase().split(/[^a-zÀ-ɏ]+/).filter(Boolean);
   const score = (lang: keyof typeof STOPWORDS) => words.filter((w) => STOPWORDS[lang].includes(w)).length;
   const scores = (Object.keys(STOPWORDS) as (keyof typeof STOPWORDS)[]).map((l) => [l, score(l)] as const);
@@ -314,7 +354,7 @@ export function languageProblem(text: string, language: BlogLanguage): string | 
 /* Validation + conversion to editor blocks                                   */
 /* -------------------------------------------------------------------------- */
 
-type RawBlock = { type?: unknown; level?: unknown; text?: unknown; items?: unknown };
+export type RawBlock = { type?: unknown; level?: unknown; text?: unknown; items?: unknown };
 type RawDraft = {
   title?: unknown;
   slug?: unknown;
@@ -324,17 +364,17 @@ type RawDraft = {
   blocks?: unknown;
 };
 
-function fail(reason: string): never {
+export function fail(reason: string): never {
   throw new GenerationError("invalid_output", `The draft was not usable: ${reason}.`);
 }
 
-function str(v: unknown, what: string): string {
+export function str(v: unknown, what: string): string {
   if (typeof v !== "string") fail(`${what} is missing`);
   return v;
 }
 
 /** Turns the model's flat block list into BlockNote blocks, dropping anything unsafe or empty. */
-function toEditorBlocks(raw: RawBlock[], allowed: ReadonlySet<string>): DraftBlock[] {
+export function toEditorBlocks(raw: RawBlock[], allowed: ReadonlySet<string>): DraftBlock[] {
   const out: DraftBlock[] = [];
   for (const b of raw) {
     const type = b.type;
@@ -356,7 +396,7 @@ function toEditorBlocks(raw: RawBlock[], allowed: ReadonlySet<string>): DraftBlo
   return out;
 }
 
-function blockText(blocks: DraftBlock[]): string {
+export function blockText(blocks: DraftBlock[]): string {
   const walk = (c: unknown): string =>
     Array.isArray(c)
       ? c.map((n: { text?: string; content?: unknown }) => (typeof n.text === "string" ? n.text : walk(n.content))).join("")
@@ -364,7 +404,7 @@ function blockText(blocks: DraftBlock[]): string {
   return blocks.map((b) => walk(b.content)).join("\n");
 }
 
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+){0,9}$/;
+export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+){0,9}$/;
 
 export function slugFrom(value: string): string {
   return value
@@ -517,7 +557,7 @@ export type GenerateOptions = {
   sdk: typeof Anthropic;
 };
 
-function readJson(message: Anthropic.Message): unknown {
+export function readJson(message: Anthropic.Message): unknown {
   if (message.stop_reason === "refusal") {
     throw new GenerationError("refused", "Claude declined to write this topic. Rephrase the brief and try again.");
   }

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/types/database.types";
-import type { Post, PostFormValues, PostLocale, PostWithAuthor } from "@/types/posts";
+import type { FaqItem, Post, PostFormValues, PostLocale, PostWithAuthor } from "@/types/posts";
 import { slugify } from "@/lib/utils/slug";
 import { blocksToPlainText } from "@/lib/utils/blocks";
 
@@ -30,24 +30,67 @@ export type PostListOptions = {
   offset?: number;
   /** Defaults to "en" — matches the site's default locale. */
   locale?: PostLocale;
+  /** Only posts in this category. */
+  category?: string;
 };
 
 /** Public listing feed: published posts only, newest first, scoped to one locale. Safe to call with the anon key. */
 export async function getPublishedPosts(
   supabase: Client,
-  { limit = 20, offset = 0, locale = "en" }: PostListOptions = {},
+  { limit = 20, offset = 0, locale = "en", category }: PostListOptions = {},
 ): Promise<PostWithAuthor[]> {
-  const { data, error } = await supabase
+  let query = supabase
     .from("posts")
     .select(AUTHOR_SELECT)
     .eq("status", "published")
     .eq("locale", locale)
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .lte("published_at", new Date().toISOString());
+  if (category) query = query.eq("category", category);
+  const { data, error } = await query.order("published_at", { ascending: false }).range(offset, offset + limit - 1);
 
   if (error) raise("load published posts", error);
   return (data ?? []) as unknown as PostWithAuthor[];
+}
+
+/**
+ * Every published post of one language, for the sitemap. PostgREST returns at most 1,000 rows per request, so this
+ * reads in pages: a blog that grows by dozens of posts a day must not silently drop its oldest posts from search.
+ */
+export async function getPublishedForSitemap(
+  supabase: Client,
+  locale: PostLocale,
+  maxPages = 20,
+): Promise<{ slug: string; updated_at: string; published_at: string | null }[]> {
+  const size = 1000;
+  const out: { slug: string; updated_at: string; published_at: string | null }[] = [];
+  for (let page = 0; page < maxPages; page++) {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("slug, updated_at, published_at")
+      .eq("status", "published")
+      .eq("locale", locale)
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false })
+      .range(page * size, page * size + size - 1);
+    if (error) raise("load posts for the sitemap", error);
+    out.push(...(data ?? []));
+    if ((data ?? []).length < size) break;
+  }
+  return out;
+}
+
+/** The categories in use among published posts in one language, for the blog's filter pills. Safe to call with the anon key. */
+export async function getPublishedCategories(supabase: Client, locale: PostLocale = "en"): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("category")
+    .eq("status", "published")
+    .eq("locale", locale)
+    .lte("published_at", new Date().toISOString())
+    .not("category", "is", null)
+    .limit(1000);
+  if (error) raise("load categories", error);
+  return [...new Set((data ?? []).map((r) => r.category).filter((c): c is string => Boolean(c)))].sort((a, b) => a.localeCompare(b));
 }
 
 /**
@@ -78,16 +121,18 @@ export async function getPublishedPostBySlug(
   if (error) raise("load post", error);
   if (data) return data as unknown as PostWithAuthor;
 
+  // Translations share a slug, so more than one row can match. Prefer English, otherwise the most recently published.
   const fallback = await supabase
     .from("posts")
     .select(AUTHOR_SELECT)
     .eq("slug", slug)
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
-    .maybeSingle();
+    .order("published_at", { ascending: false });
 
   if (fallback.error) raise("load post", fallback.error);
-  return fallback.data as unknown as PostWithAuthor | null;
+  const rows = (fallback.data ?? []) as unknown as PostWithAuthor[];
+  return rows.find((row) => row.locale === "en") ?? rows[0] ?? null;
 }
 
 /** Admin list: every post regardless of status, most recently updated first. Requires an admin session — RLS enforces this. */
@@ -101,11 +146,114 @@ export async function getAllPosts(supabase: Client): Promise<PostWithAuthor[]> {
   return (data ?? []) as unknown as PostWithAuthor[];
 }
 
+export const ADMIN_POSTS_PAGE_SIZE = 50;
+
+export type AdminPostFilter = { page?: number; status?: "draft" | "published"; locale?: PostLocale; q?: string };
+
+/**
+ * Admin list, one page at a time with a total. The automation can produce hundreds of posts a week, so the list
+ * must page (PostgREST also silently caps a single response at 1,000 rows). Requires an admin session (RLS).
+ */
+export async function getPostsPage(
+  supabase: Client,
+  { page = 1, status, locale, q }: AdminPostFilter = {},
+): Promise<{ rows: PostWithAuthor[]; total: number }> {
+  const from = (Math.max(1, page) - 1) * ADMIN_POSTS_PAGE_SIZE;
+  let query = supabase.from("posts").select(AUTHOR_SELECT, { count: "exact" });
+  if (status) query = query.eq("status", status);
+  if (locale) query = query.eq("locale", locale);
+  const term = (q ?? "").replace(/[%_,()\\]/g, " ").trim();
+  if (term) query = query.ilike("title", `%${term}%`);
+  const { data, error, count } = await query.order("updated_at", { ascending: false }).range(from, from + ADMIN_POSTS_PAGE_SIZE - 1);
+  if (error) raise("load posts", error);
+  return { rows: (data ?? []) as unknown as PostWithAuthor[], total: count ?? 0 };
+}
+
+/** Exact totals for the admin dashboard, without loading a single post. */
+export async function getPostCounts(supabase: Client): Promise<{ total: number; published: number; drafts: number }> {
+  const count = async (status?: "draft" | "published") => {
+    let q = supabase.from("posts").select("id", { count: "exact", head: true });
+    if (status) q = q.eq("status", status);
+    const { count: n, error } = await q;
+    if (error) raise("count posts", error);
+    return n ?? 0;
+  };
+  const [total, published, drafts] = await Promise.all([count(), count("published"), count("draft")]);
+  return { total, published, drafts };
+}
+
 /** Admin editor: a single post by id regardless of status. Requires an admin session. */
 export async function getPostById(supabase: Client, id: string): Promise<Post | null> {
   const { data, error } = await supabase.from("posts").select("*").eq("id", id).maybeSingle();
   if (error) raise("load post", error);
   return data as unknown as Post | null;
+}
+
+/**
+ * Every language version of a post (same slug), used by the admin to see which translations exist. Admin only: it also finds drafts.
+ */
+export async function findTranslationsBySlug(
+  supabase: Client,
+  slug: string,
+): Promise<{ id: string; status: string; locale: PostLocale }[]> {
+  const { data, error } = await supabase.from("posts").select("id, status, locale").eq("slug", slug);
+  if (error) raise("look up translations", error);
+  return (data ?? []) as { id: string; status: string; locale: PostLocale }[];
+}
+
+/**
+ * The other language versions of a post, admin side (drafts included). Versions are linked two ways: the same slug
+ * (posts translated by hand) or the same `translation_group` (posts written by the AI automation, which gives each
+ * language its own slug). A post that has neither simply has no related versions.
+ */
+export async function findRelatedPosts(
+  supabase: Client,
+  post: Pick<Post, "id" | "slug" | "translation_group">,
+): Promise<{ id: string; status: string; locale: PostLocale }[]> {
+  const found = new Map<string, { id: string; status: string; locale: PostLocale }>();
+  const bySlug = await supabase.from("posts").select("id, status, locale").eq("slug", post.slug);
+  if (bySlug.error) raise("look up translations", bySlug.error);
+  for (const row of (bySlug.data ?? []) as { id: string; status: string; locale: PostLocale }[]) found.set(row.id, row);
+  if (post.translation_group) {
+    const byGroup = await supabase.from("posts").select("id, status, locale").eq("translation_group", post.translation_group);
+    if (byGroup.error) raise("look up translations", byGroup.error);
+    for (const row of (byGroup.data ?? []) as { id: string; status: string; locale: PostLocale }[]) found.set(row.id, row);
+  }
+  found.delete(post.id);
+  return [...found.values()];
+}
+
+/** The version of a post in `locale`, by group or by slug. Admin only: it also finds drafts. */
+export async function findRelatedInLocale(
+  supabase: Client,
+  post: Pick<Post, "id" | "slug" | "translation_group">,
+  locale: PostLocale,
+): Promise<{ id: string; status: string } | null> {
+  const related = await findRelatedPosts(supabase, post);
+  return related.find((r) => r.locale === locale) ?? null;
+}
+
+/**
+ * Published versions of a post in other languages, for hreflang alternates. Safe to call with the anon key:
+ * RLS only ever returns posts that are live.
+ */
+export async function getPublishedAlternates(
+  supabase: Client,
+  post: Pick<Post, "id" | "slug" | "locale" | "translation_group">,
+): Promise<{ locale: PostLocale; slug: string }[]> {
+  const now = new Date().toISOString();
+  const live = () => supabase.from("posts").select("locale, slug").eq("status", "published").lte("published_at", now);
+  const out = new Map<PostLocale, string>();
+  const bySlug = await live().eq("slug", post.slug);
+  if (bySlug.error) raise("load alternate languages", bySlug.error);
+  for (const r of (bySlug.data ?? []) as { locale: PostLocale; slug: string }[]) out.set(r.locale, r.slug);
+  if (post.translation_group) {
+    const byGroup = await live().eq("translation_group", post.translation_group);
+    if (byGroup.error) raise("load alternate languages", byGroup.error);
+    for (const r of (byGroup.data ?? []) as { locale: PostLocale; slug: string }[]) out.set(r.locale, r.slug);
+  }
+  out.set(post.locale, post.slug);
+  return [...out.entries()].map(([locale, slug]) => ({ locale, slug }));
 }
 
 /**
@@ -135,6 +283,14 @@ function normalizeTags(tags: string): string[] {
     .filter(Boolean);
 }
 
+/** Drops incomplete pairs so the public page never renders (or marks up for search engines) a question with no answer. */
+export function normalizeFaq(faq: PostFormValues["faq"] | null | undefined): FaqItem[] {
+  return (faq ?? [])
+    .map((item) => ({ question: String(item?.question ?? "").trim(), answer: String(item?.answer ?? "").trim() }))
+    .filter((item) => item.question && item.answer)
+    .slice(0, 20);
+}
+
 function toInsert(values: PostFormValues, authorId: string | null) {
   return {
     title: values.title.trim(),
@@ -152,6 +308,10 @@ function toInsert(values: PostFormValues, authorId: string | null) {
     tags: normalizeTags(values.tags),
     status: values.status,
     locale: values.locale,
+    meta_title: values.meta_title.trim() || null,
+    meta_description: values.meta_description.trim() || null,
+    keywords: normalizeTags(values.keywords),
+    faq: normalizeFaq(values.faq) as unknown as Json,
     author_id: authorId,
   };
 }

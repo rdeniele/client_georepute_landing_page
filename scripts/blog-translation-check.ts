@@ -17,10 +17,12 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import type { ContentBlock } from "@/types/blocks";
-import { GenerationError } from "@/lib/blog/generation";
+import { BLOG_LANGUAGES, GenerationError, type BlogLanguage } from "@/lib/blog/generation";
 import { buildGlossary } from "@/lib/blog/glossary";
+import { POST_LOCALES, blogPath, isPostLocale, toPostLocale } from "@/lib/utils/postLocale";
 import {
   MAX_TRANSLATION_WORDS,
+  pairTerms,
   applyTranslation,
   checkTranslation,
   collectUnits,
@@ -285,8 +287,178 @@ async function offline() {
   check("the reviewer is told to be independent", clean.log[1].params.system.includes("You did not write this translation"));
 
   console.log("\nGlossary");
-  check("the glossary is derived from the site's own Hebrew nav", glossary.some((g) => g.en === "Decision Reconstruction" && g.he === "שחזור החלטה" && g.strict));
-  check("site-writing rules for Hebrew only apply English to Hebrew", glossary.filter((g) => g.en === "AI" || g.en === "artificial intelligence").every((g) => g.dir === "en-he"));
+  const entry = (en: string) => glossary.find((g) => g.terms.en === en);
+  const dr = entry("Decision Reconstruction");
+  check("the glossary is derived from the site's own nav in every language", Boolean(dr) && dr!.strict && dr!.terms.he === "שחזור החלטה" && POST_LOCALES.every((l) => Boolean(dr!.terms[l])));
+  check("site-writing rules for Hebrew only apply English to Hebrew", glossary.filter((g) => g.terms.en === "AI" || g.terms.en === "artificial intelligence").every((g) => g.from?.join() === "en" && g.to?.join() === "he"));
+  check("a rule that applies to one direction is skipped in the others", pairTerms(entry("AI")!, "he", "en")[0] === null && pairTerms(entry("AI")!, "en", "fr")[0] === null && pairTerms(entry("AI")!, "en", "he")[0] === "AI");
+  check("a name that is identical in every language is not a translation rule", !glossary.some((g) => g.terms.en === "Blog"));
+
+
+  console.log("\nEvery language pair");
+  const L = "https://www.georepute.ai/en/methodology";
+  const lAllowed = new Set([L]);
+  type Row = [string, string, number?];
+  const mini = (units: Row[]): TranslatableBlock[] => units.map(([t, m, lv]) => ({ type: t, ...(lv ? { props: { level: lv } } : {}), content: markupToInline(m, lAllowed).nodes, children: [] }));
+  type Mini = { title: string; excerpt: string; category: string; tags: string[]; units: string[] };
+  const MINI: Record<BlogLanguage, Mini> = {
+    en: {
+      title: "Why consistency beats volume in AI answers",
+      excerpt: "AI engines trust businesses that describe themselves the same way everywhere. Here is how to check yours in one afternoon.",
+      category: "AI visibility",
+      tags: ["AI visibility", "reputation"],
+      units: [
+        "When 3 different AI engines answer the same question, they rely on the sources they can verify. In our sample of 124 answers, **consistent profiles** were named far more often.",
+        "Check your own profiles",
+        `Compare how Google, ChatGPT and your own website describe the business. Fix the biggest gap first and read our [method](${L}) for the details.`,
+      ],
+    },
+    he: {
+      title: "למה עקביות מנצחת נפח בתשובות של בינה מלאכותית",
+      excerpt: "מנועי בינה מלאכותית סומכים על עסקים שמתארים את עצמם באותה צורה בכל מקום. כך בודקים את שלכם בצהריים אחד.",
+      category: "נראות בבינה מלאכותית",
+      tags: ["נראות בבינה מלאכותית", "מוניטין"],
+      units: [
+        "כש-3 מנועי בינה מלאכותית שונים עונים על אותה שאלה, הם נשענים על המקורות שהם יכולים לאמת. בדגימה שלנו של 124 תשובות, **פרופילים עקביים** הוזכרו הרבה יותר.",
+        "בדקו את הפרופילים שלכם",
+        `השוו איך Google, ChatGPT והאתר שלכם מתארים את העסק. תקנו קודם את הפער הגדול ביותר וקראו את [השיטה שלנו](${L}) לפרטים.`,
+      ],
+    },
+    ar: {
+      title: "لماذا يتفوق الاتساق على الحجم في إجابات الذكاء الاصطناعي",
+      excerpt: "تثق محركات الذكاء الاصطناعي بالشركات التي تصف نفسها بالطريقة نفسها في كل مكان. إليكم كيف تتحققون من شركتكم في عصر يوم واحد.",
+      category: "الظهور في الذكاء الاصطناعي",
+      tags: ["الظهور في الذكاء الاصطناعي", "السمعة"],
+      units: [
+        "عندما تجيب 3 محركات ذكاء اصطناعي مختلفة عن السؤال نفسه، فإنها تعتمد على المصادر التي تستطيع التحقق منها. في عيّنتنا المؤلفة من 124 إجابة، ذُكرت **الملفات المتسقة** أكثر بكثير.",
+        "راجعوا ملفاتكم بأنفسكم",
+        `قارنوا كيف يصف Google وChatGPT وموقعكم الخاص الشركة. أصلحوا أكبر فجوة أولًا واقرؤوا [منهجيتنا](${L}) لمعرفة التفاصيل.`,
+      ],
+    },
+    ru: {
+      title: "Почему последовательность важнее объёма в ответах ИИ",
+      excerpt: "Движки ИИ доверяют компаниям, которые одинаково описывают себя везде. Вот как проверить свою компанию за один день.",
+      category: "Видимость в ИИ",
+      tags: ["Видимость в ИИ", "репутация"],
+      units: [
+        "Когда 3 разных движка ИИ отвечают на один и тот же вопрос, они опираются на источники, которые могут проверить. В нашей выборке из 124 ответов **согласованные профили** упоминались гораздо чаще.",
+        "Проверьте свои профили",
+        `Сравните, как Google, ChatGPT и ваш собственный сайт описывают компанию. Сначала устраните самый большой разрыв и прочитайте наш [метод](${L}) с подробностями.`,
+      ],
+    },
+    fr: {
+      title: "Pourquoi la cohérence l'emporte sur le volume dans les réponses de l'IA",
+      excerpt: "Les moteurs d'IA font confiance aux entreprises qui se décrivent de la même manière partout. Voici comment vérifier la vôtre en un après-midi.",
+      category: "Visibilité IA",
+      tags: ["Visibilité IA", "réputation"],
+      units: [
+        "Lorsque 3 moteurs d'IA différents répondent à la même question, ils s'appuient sur les sources qu'ils peuvent vérifier. Dans notre échantillon de 124 réponses, les **profils cohérents** ont été cités bien plus souvent.",
+        "Vérifiez vos propres profils",
+        `Comparez la façon dont Google, ChatGPT et votre propre site décrivent l'entreprise. Corrigez d'abord l'écart le plus important et lisez notre [méthode](${L}) pour les détails.`,
+      ],
+    },
+    es: {
+      title: "Por qué la coherencia supera al volumen en las respuestas de la IA",
+      excerpt: "Los motores de IA confían en las empresas que se describen de la misma manera en todas partes. Así puedes comprobar la tuya en una tarde.",
+      category: "Visibilidad en IA",
+      tags: ["Visibilidad en IA", "reputación"],
+      units: [
+        "Cuando 3 motores de IA distintos responden a la misma pregunta, se basan en las fuentes que pueden verificar. En nuestra muestra de 124 respuestas, los **perfiles coherentes** se mencionaron mucho más a menudo.",
+        "Revisa tus propios perfiles",
+        `Compara cómo describen el negocio Google, ChatGPT y tu propio sitio web. Corrige primero la mayor diferencia y lee nuestro [método](${L}) para ver los detalles.`,
+      ],
+    },
+    pt: {
+      title: "Por que a consistência vale mais do que o volume nas respostas da IA",
+      excerpt: "Os mecanismos de IA confiam em empresas que se descrevem da mesma forma em todos os lugares. Veja como verificar a sua em uma tarde.",
+      category: "Visibilidade em IA",
+      tags: ["Visibilidade em IA", "reputação"],
+      units: [
+        "Quando 3 mecanismos de IA diferentes respondem à mesma pergunta, eles se baseiam nas fontes que conseguem verificar. Em nossa amostra de 124 respostas, os **perfis consistentes** foram citados com muito mais frequência.",
+        "Confira os seus próprios perfis",
+        `Compare como o Google, o ChatGPT e o seu próprio site descrevem a empresa. Corrija primeiro a maior lacuna e leia o nosso [método](${L}) para ver os detalhes.`,
+      ],
+    },
+  };
+  const shape: [string, number?][] = [["paragraph"], ["heading", 2], ["paragraph"]];
+  const rows = (lang: BlogLanguage, edit: (m: string, i: number) => string = (m) => m): Row[] => MINI[lang].units.map((m, i) => [shape[i][0], edit(m, i), shape[i][1]]);
+  const miniPost = (lang: BlogLanguage, blocks?: TranslatableBlock[]): SourcePost => ({
+    title: MINI[lang].title,
+    excerpt: MINI[lang].excerpt,
+    category: MINI[lang].category,
+    tags: MINI[lang].tags,
+    blocks: blocks ?? mini(rows(lang)),
+  });
+  const mctx = (from: BlogLanguage, to: BlogLanguage): CheckContext => ({ from, to, glossary });
+  const serious = (issues: ReturnType<typeof kinds>) => issues.filter((i) => i.severity !== "minor");
+  const langs = POST_LOCALES as readonly BlogLanguage[];
+  const pairsList = langs.flatMap((from) => langs.filter((to) => to !== from).map((to) => [from, to] as [BlogLanguage, BlogLanguage]));
+
+  const notClean = pairsList.map(([from, to]) => [from, to, serious(kinds(miniPost(to), miniPost(from), mctx(from, to)))] as const).filter(([, , f]) => f.length);
+  check(`a faithful translation passes all ${pairsList.length} language pairs`, notClean.length === 0, notClean.map(([f, t, x]) => `${f}->${t}: ${x.map((i) => `${i.kind}: ${i.note}`).join("; ")}`).join(" | "));
+
+  const numMiss = pairsList.filter(([from, to]) => !has(kinds(miniPost(to, mini(rows(to, (m) => m.replace("124", "142")))), miniPost(from), mctx(from, to)), "critical", "number"));
+  check("a changed number is caught in every language pair", numMiss.length === 0, numMiss.join(" | "));
+  const linkMiss = pairsList.filter(([from, to]) => !has(kinds(miniPost(to, mini(rows(to, (m) => m.replace(/\[([^\]]+)\]\([^)]*\)/, "$1")))), miniPost(from), mctx(from, to)), "critical", "link"));
+  check("a removed link is caught in every language pair", linkMiss.length === 0, linkMiss.join(" | "));
+
+  // The translation is the untouched source text, as if the model had skipped it.
+  const leftMiss = ([["he", "ar"], ["ar", "he"], ["ru", "he"], ["he", "ru"], ["ru", "ar"], ["ar", "ru"], ["he", "fr"], ["ar", "es"], ["ru", "pt"], ["fr", "es"], ["es", "pt"], ["pt", "fr"], ["fr", "en"], ["en", "ru"], ["en", "ar"], ["en", "fr"]] as [BlogLanguage, BlogLanguage][]).filter(([from, to]) => {
+    const skipped = miniPost(to, mini(rows(from)));
+    return !kinds(skipped, miniPost(from), mctx(from, to)).some((i) => i.severity !== "minor" && (i.kind === "untranslated" || i.kind === "language"));
+  });
+  check("text left in the source language is caught, across scripts and between Latin-script languages", leftMiss.length === 0, leftMiss.join(" | "));
+
+  const esAsFr = { ...miniPost("fr", mini(rows("es"))), title: MINI.es.title, excerpt: MINI.es.excerpt };
+  check("Spanish passed off as French is caught (language)", has(kinds(esAsFr, miniPost("en"), mctx("en", "fr")), "critical", "language"));
+  const heAsAr = { ...miniPost("ar", mini(rows("he"))), title: MINI.he.title, excerpt: MINI.he.excerpt };
+  check("Hebrew passed off as Arabic is caught (language)", has(kinds(heAsAr, miniPost("he"), mctx("he", "ar")), "critical", "language"));
+  const ruAsHe = { ...miniPost("he", mini(rows("ru"))), title: MINI.ru.title, excerpt: MINI.ru.excerpt };
+  check("Russian passed off as Hebrew is caught (language)", has(kinds(ruAsHe, miniPost("ru"), mctx("ru", "he")), "critical", "language"));
+
+  // Site terminology in every direction, taken from the site's own nav.
+  const term = entry("Decision Reconstruction")!;
+  const withTerm = (lang: BlogLanguage, extra: string): SourcePost => miniPost(lang, mini([["paragraph", `${MINI[lang].units[0]} ${extra}`]]));
+  const termBad = pairsList.filter(([from, to]) => {
+    const src = withTerm(from, term.terms[from]!);
+    const hit = kinds(withTerm(to, term.terms[to]!), src, mctx(from, to)).filter((i) => i.kind === "terminology");
+    const miss = kinds(withTerm(to, "and so on"), src, mctx(from, to)).filter((i) => i.kind === "terminology" && i.severity === "major");
+    return hit.length > 0 || miss.length === 0;
+  });
+  check("the site's own term for a feature is enforced in every direction", termBad.length === 0, termBad.join(" | "));
+  const sac = entry("Strategic Action Center")!;
+  const curly = kinds(withTerm("fr", sac.terms.fr!.replace("’", "'")), withTerm("en", "Strategic Action Center"), mctx("en", "fr")).filter((i) => i.kind === "terminology");
+  check("curly and straight apostrophes count as the same in a French site term", curly.length === 0, JSON.stringify(curly));
+
+  // Scripted end-to-end runs for a sample of pairs, including several that never touch English.
+  for (const [from, to] of [["fr", "es"], ["en", "ar"], ["ru", "he"], ["pt", "en"], ["ar", "fr"]] as [BlogLanguage, BlogLanguage][]) {
+    const fake = scripted({
+      translate: [{ title: MINI[to].title, excerpt: MINI[to].excerpt, category: MINI[to].category, tags: MINI[to].tags, units: MINI[to].units.map((text, i) => ({ i, text })) }],
+      review: [{ issues: [] }],
+    });
+    const res = await translatePost(fake.client, miniPost(from), { ...opts, from, to });
+    check(`${from} -> ${to} is verified end to end (scripted model)`, res.report.status === "verified" && res.report.calls === 2, JSON.stringify(res.report.issues));
+    const both = (text: string) => text.includes(BLOG_LANGUAGES[from].name) && text.includes(BLOG_LANGUAGES[to].name);
+    const sys = fake.log[0].params.system;
+    check(`${from} -> ${to}: both prompts name the two languages and use that pair's site terms`, both(sys) && both(fake.log[1].params.system) && sys.includes(`${term.terms[from]} => ${term.terms[to]}`));
+    check(`${from} -> ${to}: the terms are never fed backwards`, !sys.includes(`${term.terms[to]} => ${term.terms[from]}`));
+  }
+  await translatePost(scripted({}).client, miniPost("he"), { ...opts, from: "he", to: "he" }).then(
+    () => check("the same language on both sides is refused", false),
+    (e) => check("the same language on both sides is refused", e instanceof GenerationError && e.code === "invalid_input"),
+  );
+  const enHe = scripted({ translate: [{ ...MINI.he, units: MINI.he.units.map((text, i) => ({ i, text })) }], review: [{ issues: [] }] });
+  await translatePost(enHe.client, miniPost("en"), { ...opts, from: "en", to: "he" });
+  check("the Hebrew-only AI rule is given to the model when translating English into Hebrew", enHe.log[0].params.system.includes("AI => בינה מלאכותית"));
+  const frEs = scripted({ translate: [{ ...MINI.es, units: MINI.es.units.map((text, i) => ({ i, text })) }], review: [{ issues: [] }] });
+  await translatePost(frEs.client, miniPost("fr"), { ...opts, from: "fr", to: "es" });
+  check("and it is not given for other pairs", !frEs.log[0].params.system.includes("בינה מלאכותית"));
+
+  console.log("\nBlog language plumbing");
+  check("all seven site languages are valid post languages", langs.length === 7 && langs.every((l) => isPostLocale(l) && Boolean(BLOG_LANGUAGES[l])));
+  check("an unknown or missing language falls back to English", toPostLocale("de") === "en" && toPostLocale(undefined) === "en" && toPostLocale("fr") === "fr");
+  check("public paths carry ?lang= for every language except English", blogPath("en", "a") === "/blog/a" && blogPath("ar", "a") === "/blog/a?lang=ar" && blogPath("pt") === "/blog?lang=pt" && blogPath("ru", undefined, { category: "X" }) === "/blog?lang=ru&category=X");
+  check("Hebrew and Arabic are right to left, the others left to right", (["he", "ar"] as const).every((l) => BLOG_LANGUAGES[l].dir === "rtl") && (["en", "ru", "fr", "es", "pt"] as const).every((l) => BLOG_LANGUAGES[l].dir === "ltr"));
 
   console.log("\nRendering the translated blocks through the public renderer");
   const html = renderToStaticMarkup(createElement(BlockRenderer, { blocks: heCandidate().blocks as ContentBlock[] }));
@@ -313,7 +485,7 @@ async function live() {
     timeout: 110_000,
     maxRetries: 1,
   });
-  console.log(`\nLive round trip with ${model}: English to Hebrew, then Hebrew back to English`);
+  console.log(`\nLive round trip with ${model}: English to Hebrew and back, then English to French to Arabic to Russian to English`);
   mkdirSync("scripts/.output", { recursive: true });
   const report: unknown[] = [];
 
@@ -334,6 +506,24 @@ async function live() {
   const back = checkTranslation(source, { ...toEn.translated }, { from: "en", to: "en", glossary: [] }).issues.filter((i) => i.kind === "number" || i.kind === "link" || i.kind === "structure");
   check("the round trip keeps every number, link and block", back.length === 0, JSON.stringify(back));
   report.push({ direction: "he-en", result: toEn });
+
+  // The site speaks seven languages, so also chain through languages that are neither English nor Hebrew:
+  // English to French, French to Arabic, Arabic to Russian, Russian back to English. Every hop starts from the previous output.
+  const chain: BlogLanguage[] = ["fr", "ar", "ru", "en"];
+  let current: SourcePost = source;
+  let currentLang: BlogLanguage = "en";
+  for (const next of chain) {
+    const hop = await translatePost(client, current, { ...opts, from: currentLang, to: next, model });
+    console.log(`  ${currentLang} -> ${next}: ${hop.report.status}, ${hop.report.calls} calls, ${hop.report.seconds}s, fixed ${hop.report.fixed}`);
+    console.log(`    title: ${hop.translated.title}`);
+    hop.report.issues.forEach((i) => console.log(`    [${i.severity}] ${i.field}: ${i.note}`));
+    check(`${currentLang} -> ${next}: no unresolved serious problems`, hop.report.status === "verified");
+    report.push({ direction: `${currentLang}-${next}`, result: hop });
+    current = { ...hop.translated };
+    currentLang = next;
+  }
+  const loop = checkTranslation(source, { ...current }, { from: "en", to: "en", glossary: [] }).issues.filter((i) => i.kind === "number" || i.kind === "link" || i.kind === "structure");
+  check("four hops through four scripts keep every number, link and block", loop.length === 0, JSON.stringify(loop));
 
   const file = `scripts/.output/translation-check-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
   writeFileSync(file, JSON.stringify(report, null, 2), "utf-8");

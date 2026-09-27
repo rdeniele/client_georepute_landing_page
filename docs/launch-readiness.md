@@ -44,15 +44,15 @@ The model returns structured JSON, never HTML or Markdown. Our code converts it 
 
 `npm run blog:check` also runs live generations when `ANTHROPIC_API_KEY` is set: English (short, medium), Hebrew (short, medium) and French (medium); `-- --full` adds long articles, Spanish, Arabic and Russian. Drafts are written to `scripts/.output/` for human review.
 
-## Blog translation (English <-> Hebrew)
+## Blog translation (any of the 7 languages to any other)
 
-Admin > edit a saved post > **Translate this post**. Translating never saves anything: the admin sees a report, then chooses to save the result as an **unpublished draft** with the same slug in the other language (posts are linked by slug, per the `(locale, slug)` uniqueness). The featured image is deliberately not copied, because deleting either post would delete the shared image.
+Admin > edit a saved post > **Translate this post into another language**, then pick the target from English, Hebrew, Arabic, Russian, French, Spanish or Portuguese (any source language to any other, including pairs that never touch English, for example French to Arabic). The blog itself (list, post pages, sitemap, canonical URLs, RTL for Hebrew and Arabic) now handles all seven languages. **Requires the SQL in `SUPABASE_SETUP.md` Step 12** (widens the `locale` check constraint) before any post can be saved in Arabic, Russian, French, Spanish or Portuguese. Translating never saves anything: the admin sees a report, then chooses to save the result as an **unpublished draft** with the same slug in the chosen language (posts are linked by slug, per the `(locale, slug)` uniqueness). The featured image is deliberately not copied, because deleting either post would delete the shared image.
 
 Accuracy is protected in layers (`lib/blog/translation.ts`):
 
 1. **Block by block.** The post is split into units (each heading, paragraph, quote and list item). The model must return every unit exactly once, so nothing can be silently dropped, merged or reordered.
 2. **Protected formatting.** Bold, italic, underline, strike, code and links travel as a small markup that our own parser turns back into editor blocks. A link URL cannot change; no HTML reaches the editor.
-3. **Deterministic checks, no model involved:** same block structure and types; numbers, percentages and currency identical; links identical; brand names kept (GeoRepute, Google, ChatGPT and so on); the site's own terminology used (derived from the site's Hebrew nav in `lib/blog/glossary.ts`, so it cannot drift from `lib/i18n.ts`); no text left in the source language; length in proportion; target script.
+3. **Deterministic checks, no model involved:** same block structure and types; numbers, percentages and currency identical; links identical; brand names kept (GeoRepute, Google, ChatGPT and so on); the site's own terminology used in the target language (derived from the site's nav in all seven languages in `lib/blog/glossary.ts`, so it cannot drift from `lib/i18n.ts`; the Hebrew-only "write בינה מלאכותית, never AI" rule applies only from English to Hebrew); no text left in the source language; length in proportion; target script.
 4. **Independent review.** A second call sees source and translation side by side as a bilingual editor and reports mistranslations, omissions, additions, negation and tone problems.
 5. **Automatic revision.** Any critical or major finding triggers one correction pass, then everything is checked again. Whatever remains is shown in the report, never hidden, and saving then requires the admin to confirm they will review it.
 
@@ -60,7 +60,7 @@ The save step re-runs the deterministic checks on the server, so a tampered brow
 
 **What this cannot promise.** No automated system guarantees an accurate translation. The layers above reliably catch numbers, links, dropped or invented blocks, dropped brand names, wrong site terminology, untranslated text and wrong language. They can still miss a subtle nuance, tone or idiom error, which is why the result is always an unpublished draft and a person must read it before it goes live.
 
-Tests: `npm run translate:check -- --offline` (58 checks: markup round trip, a hand-checked Hebrew translation that must pass, 15 kinds of deliberate corruption that must each be caught, the full translate/review/revise loop against a scripted model, rendering). `npm run translate:check` also runs a live English -> Hebrew -> English round trip when `ANTHROPIC_API_KEY` is set. The live run is **not yet done** (no key), so real translation quality is unverified.
+Tests: `npm run translate:check -- --offline` (91 checks: markup round trip, a hand-checked Hebrew translation that must pass, 15 kinds of deliberate corruption that must each be caught, the translate/review/revise loop against a scripted model, and all 42 language pairs: a faithful translation must pass each pair and a changed number, removed link, text left in the source language, wrong language and missing site term must be caught in each). `npm run translate:check` also runs live translations when `ANTHROPIC_API_KEY` is set. Live result on 2026-09-24 with `claude-opus-5`: English to Hebrew and back, and English to French to Arabic to Russian to English, all six hops came back **verified** (two of them needed one automatic correction), with every number, link and block intact across four scripts. A read of the French, Arabic and Russian output found it natural. The Arabic addresses the reader in the singular; the Hebrew uses the plural. Both are acceptable, a person should still read each draft.
 
 Config: `ANTHROPIC_API_KEY` (shared with generation) and optional `ANTHROPIC_TRANSLATION_MODEL` (defaults to the blog model, `claude-opus-5`).
 
@@ -93,12 +93,12 @@ Checked the team's two checklists against the code (the five items marked as fai
 - *Verify webhook signatures*: nothing to verify; the app has no webhook endpoints.
 - *Validate file uploads*: type and size are checked in the browser only (uploads go straight to Supabase Storage), so real enforcement must be the bucket's own size and MIME limits. Check those in Supabase.
 - *Verify email addresses*: the meeting form checks format only, it does not confirm the visitor owns the address.
-- *Paginate large lists*: bounded but not paginated. The public blog index caps at 100 posts with no pager and the admin post list is unbounded.
+- *Paginate large lists*: done with the AI automation (2026-09-26). The public blog index pages at 24 posts per language, the admin post list pages at 50 with status, language and title filters, the dashboard uses count queries, and the sitemap reads every published post in pages of 1,000.
 - *Lighthouse audit, CDN, caching, load balancer*: not run or host-level. Run Lighthouse against the deployed site.
 
 ## Not done: needs an owner decision or access
 
-1. **Live Claude testing.** No `ANTHROPIC_API_KEY` exists in the project or this environment, so no real generation or translation has been run. Add the key to `.env.local`, run `npm run blog:check` and `npm run translate:check`, and read the output in `scripts/.output/`. Every quality claim about Hebrew and other languages is unverified until then.
+1. **Run the Step 12 SQL** in `SUPABASE_SETUP.md` on the live Supabase project (widens the post `locale` constraint to all seven languages). It cannot be run from here. Until it is, saving a post or translation in Arabic, Russian, French, Spanish or Portuguese fails, English and Hebrew are unaffected. Also test the admin generator and translator panels once with a real login.
 2. **Production configuration.** No Vercel project is linked and there is no CLI here, so production was not touched. Before go-live set in the host's environment:
    - `NEXT_PUBLIC_SITE_URL=https://www.georepute.ai` (canonical, hreflang, sitemap and robots all read it; local `.env.local` has `http://localhost:3000`)
    - `ANTHROPIC_API_KEY` (server only), optional `ANTHROPIC_BLOG_MODEL`
@@ -109,3 +109,16 @@ Checked the team's two checklists against the code (the five items marked as fai
 5. **Icon quality.** The only brand mark in the repo is 96x96 (`public/brand/logo-g-mark.png`), so the app icons and social image are upscaled and soft. Supply a large or vector mark.
 6. **Terms of Service.** There is no terms page, and the footer links only to the Privacy Policy. Add one if the business needs it.
 7. **Blog languages.** Posts only support `en` and `he` (database check constraint). The generator supports all 7 site languages, but the editor offers en/he only. Adding more needs a migration.
+
+## AI content automation (2026-09-26)
+
+Upload a list of topics, set posts per day and languages, and Claude writes, localizes, validates, schedules and publishes them.
+Full guide: `docs/blog-automation.md`. Summary of what an owner has to do:
+
+1. Run **Step 13** of `SUPABASE_SETUP.md` (new tables and post SEO fields).
+2. Set `SUPABASE_SERVICE_ROLE_KEY` and `CRON_SECRET` on the host (server only) and schedule `GET /api/cron/blog-automation` every 5 minutes (Supabase pg_cron, Vercel Cron on Pro, or any pinger; Step 13 has the exact setup).
+3. In **Admin > AI Automation**: Settings, Add topics, Start Automation. Try a handful of topics with **Run now** before uploading hundreds.
+
+Verified: `npm run automation:check` (188 offline checks: scheduling across time zones and DST, planning, both language modes, retries, back-off, the publish gate, review, pause and resume, one-language regeneration, topic import, localization), the existing `blog:check`, `translate:check` and `security:check` suites, `npm run build`, and the admin screens in a browser with sample data (a real 500-row .xlsx parsed and previewed correctly).
+
+**Not verified here** (needs the owner's keys and database): the new SQL against the live Supabase project, real Claude calls (`npm run automation:check -- --live` does one real article and two localizations), and the scheduler route running on the host.

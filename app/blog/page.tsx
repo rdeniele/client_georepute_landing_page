@@ -3,25 +3,33 @@ import { SiteShell } from "@/components/layout/SiteShell";
 import { Crumbs, CtaBand, PageHero, SectionIntro } from "@/components/subpages/kit";
 import { PostCard } from "@/components/blog/PostCard";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getPublishedPosts } from "@/lib/services/posts";
+import { getPublishedCategories, getPublishedPosts } from "@/lib/services/posts";
+import { POST_LOCALES, blogPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 
-export const metadata: Metadata = {
-  title: "Blog | GeoRepute",
-  description:
-    "Notes on AI visibility, competitive intelligence and how strategic business decisions actually get made, from the GeoRepute team.",
-  alternates: { canonical: "/blog" },
-};
+type BlogSearchParams = { lang?: string; category?: string; page?: string };
 
-type BlogSearchParams = { lang?: string; category?: string };
+/** Posts per page. Enough for a busy schedule to stay browsable: the index pages instead of silently dropping older posts. */
+const PAGE_SIZE = 24;
 
-function categoryHref(locale: PostLocale, category?: string) {
-  const params = new URLSearchParams();
-  if (locale === "he") params.set("lang", "he");
-  if (category) params.set("category", category);
-  const qs = params.toString();
-  return qs ? `/blog?${qs}` : "/blog";
+const pageNumber = (raw?: string) => Math.max(1, Math.min(500, Number.parseInt(raw ?? "1", 10) || 1));
+
+function categoryHref(locale: PostLocale, category?: string, page = 1) {
+  return blogPath(locale, undefined, { category, page: page > 1 ? String(page) : undefined });
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<BlogSearchParams> }): Promise<Metadata> {
+  const { lang, category, page } = await searchParams;
+  const locale = toPostLocale(lang);
+  const c = getBlogChromeCopy(locale);
+  // Each language is its own index page, so it is its own canonical page and lists the others as alternates.
+  const languages = Object.fromEntries(POST_LOCALES.map((l) => [l, blogPath(l)]));
+  return {
+    title: c.metaTitle,
+    description: c.metaDescription,
+    alternates: { canonical: categoryHref(locale, category, pageNumber(page)), languages: { ...languages, "x-default": blogPath("en") } },
+  };
 }
 
 export default async function BlogIndexPage({
@@ -29,28 +37,28 @@ export default async function BlogIndexPage({
 }: {
   searchParams: Promise<BlogSearchParams>;
 }) {
-  const { lang, category } = await searchParams;
-  const locale: PostLocale = lang === "he" ? "he" : "en";
+  const { lang, category, page: rawPage } = await searchParams;
+  const locale: PostLocale = toPostLocale(lang);
+  const page = pageNumber(rawPage);
   const c = getBlogChromeCopy(locale);
 
   const supabase = await createSupabaseServerClient();
 
   let posts: Awaited<ReturnType<typeof getPublishedPosts>> = [];
+  let categories: string[] = [];
   let loadFailed = false;
   try {
-    // Fetched unfiltered by category (locale-filtered only) so the category
-    // pills below can be derived from the full set, then narrowed in-memory —
-    // this is a small marketing blog, not worth a second round trip per filter.
-    posts = await getPublishedPosts(supabase, { locale, limit: 100 });
+    // One extra row tells us whether a next page exists without a second count query.
+    [posts, categories] = await Promise.all([
+      getPublishedPosts(supabase, { locale, category: category || undefined, limit: PAGE_SIZE + 1, offset: (page - 1) * PAGE_SIZE }),
+      getPublishedCategories(supabase, locale),
+    ]);
   } catch {
     loadFailed = true;
   }
 
-  const categories = Array.from(
-    new Set(posts.map((post) => post.category).filter((value): value is string => Boolean(value))),
-  ).sort((a, b) => a.localeCompare(b));
-
-  const visiblePosts = category ? posts.filter((post) => post.category === category) : posts;
+  const hasNext = posts.length > PAGE_SIZE;
+  const visiblePosts = posts.slice(0, PAGE_SIZE);
 
   return (
     <SiteShell locale={locale}>
@@ -105,6 +113,21 @@ export default async function BlogIndexPage({
                 ))}
               </div>
             )}
+
+            {page > 1 || hasNext ? (
+              <nav className="blog-tags blog-filters" aria-label="Pages" style={{ marginTop: 32 }}>
+                {page > 1 ? (
+                  <a className="kit-pill" href={categoryHref(locale, category, page - 1)} rel="prev">
+                    {c.newerPosts}
+                  </a>
+                ) : null}
+                {hasNext ? (
+                  <a className="kit-pill" href={categoryHref(locale, category, page + 1)} rel="next">
+                    {c.olderPosts}
+                  </a>
+                ) : null}
+              </nav>
+            ) : null}
           </div>
         </section>
 

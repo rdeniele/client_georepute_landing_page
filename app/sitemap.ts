@@ -2,11 +2,12 @@ import type { MetadataRoute } from "next";
 import { LOCALES } from "@/lib/i18n";
 import { SUBPAGE_ROUTE_SLUGS } from "@/app/[locale]/[...slug]/page";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getPublishedPosts } from "@/lib/services/posts";
+import { getPublishedForSitemap } from "@/lib/services/posts";
+import { POST_LOCALES, blogPath } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 
 /** Blog only supports these two locales for now (see types/posts.ts). */
-const BLOG_LOCALES: PostLocale[] = ["en", "he"];
+const BLOG_LOCALES: readonly PostLocale[] = POST_LOCALES;
 
 function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://www.georepute.ai";
@@ -38,17 +39,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Every published post, across every locale the blog supports. The URL
   // scheme is `/blog/{slug}` for the default locale (en) and
-  // `/blog/{slug}?lang=he` otherwise — see app/blog/[slug]/page.tsx, which
+  // `/blog/{slug}?lang=xx` otherwise — see app/blog/[slug]/page.tsx, which
   // reads `?lang=` and falls back across locales if it's missing/wrong.
   try {
     const supabase = await createSupabaseServerClient();
     const postsByLocale = await Promise.all(
-      BLOG_LOCALES.map((locale) => getPublishedPosts(supabase, { locale, limit: 1000 })),
+      BLOG_LOCALES.map((locale) => getPublishedForSitemap(supabase, locale)),
     );
 
     for (const [i, locale] of BLOG_LOCALES.entries()) {
       for (const post of postsByLocale[i]) {
-        const url = locale === "en" ? `${base}/blog/${post.slug}` : `${base}/blog/${post.slug}?lang=${locale}`;
+        const url = `${base}${blogPath(locale, post.slug)}`;
         entries.push({
           url,
           lastModified: post.updated_at ?? post.published_at ?? undefined,

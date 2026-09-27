@@ -12,12 +12,12 @@ import {
   type TranslationReport,
 } from "@/lib/blog/translation";
 import { Anthropic, getAnthropicClient, getTranslationModel } from "@/lib/services/claude";
-import { createPost, findPostBySlugAndLocale, getPostById } from "@/lib/services/posts";
+import { createPost, findRelatedInLocale, getPostById } from "@/lib/services/posts";
 import { withinBudget } from "@/lib/services/rateLimit";
 import { textToBlocks } from "@/lib/utils/blocks";
+import { isPostLocale } from "@/lib/utils/postLocale";
 import type { ContentBlock, Post, PostLocale } from "@/types/posts";
 
-const LOCALES: PostLocale[] = ["en", "he"];
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_WINDOW = 8;
 // A translated post is a few hundred KB at the very most; anything bigger is not a post.
@@ -40,25 +40,21 @@ function toSource(post: Post): SourcePost {
   };
 }
 
-function isLocale(v: unknown): v is PostLocale {
-  return typeof v === "string" && (LOCALES as string[]).includes(v);
-}
-
 /**
- * Translates a saved post into the other language and returns the result plus
+ * Translates a saved post into any of the site's other languages and returns the result plus
  * a verification report. Nothing is saved here: the admin reviews the report,
  * then calls createTranslationAction to store it as an unpublished draft.
  */
 export async function translatePostAction(sourceId: string, target: PostLocale): Promise<TranslatePostResult> {
   try {
     const { supabase, profile } = await requireAdmin();
-    if (!isLocale(target)) throw new GenerationError("invalid_input", "Choose English or Hebrew.");
+    if (!isPostLocale(target)) throw new GenerationError("invalid_input", "Choose a language to translate into.");
 
     const post = await getPostById(supabase, String(sourceId));
     if (!post) throw new GenerationError("invalid_input", "That post no longer exists.");
     if (post.locale === target) throw new GenerationError("invalid_input", "The post is already in that language.");
 
-    const existing = await findPostBySlugAndLocale(supabase, post.slug, target);
+    const existing = await findRelatedInLocale(supabase, post, target);
     if (existing) {
       return { ok: false, code: "exists", existingId: existing.id, error: "This post already has a translation in that language. Open it to edit it." };
     }
@@ -95,7 +91,7 @@ export async function translatePostAction(sourceId: string, target: PostLocale):
 
 /**
  * Stores a reviewed translation as an unpublished draft with the same slug in
- * the other language. The submitted content is re-checked against the source
+ * another language. The submitted content is re-checked against the source
  * here: the browser is not trusted, so structure, numbers, links and names are
  * verified again before anything is written.
  */
@@ -110,7 +106,7 @@ export async function createTranslationAction(input: {
   try {
     const { supabase, profile } = await requireAdmin();
     const { sourceId, target, translated } = input;
-    if (!isLocale(target)) return { ok: false, error: "Choose English or Hebrew." };
+    if (!isPostLocale(target)) return { ok: false, error: "Choose a language to translate into." };
     if (
       !translated ||
       typeof translated.title !== "string" ||
@@ -126,7 +122,7 @@ export async function createTranslationAction(input: {
     const post = await getPostById(supabase, String(sourceId));
     if (!post) return { ok: false, error: "That post no longer exists." };
     if (post.locale === target) return { ok: false, error: "The post is already in that language." };
-    if (await findPostBySlugAndLocale(supabase, post.slug, target)) {
+    if (await findRelatedInLocale(supabase, post, target)) {
       return { ok: false, error: "A translation already exists in that language." };
     }
 
@@ -153,6 +149,10 @@ export async function createTranslationAction(input: {
         tags: translated.tags.join(", "),
         status: "draft",
         locale: target,
+        meta_title: "",
+        meta_description: "",
+        keywords: "",
+        faq: [],
       },
       profile.id,
     );

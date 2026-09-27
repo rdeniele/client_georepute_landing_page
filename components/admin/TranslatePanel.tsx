@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createTranslationAction, translatePostAction, type TranslatePostResult } from "@/lib/actions/blogTranslation";
 import { BLOG_LANGUAGES } from "@/lib/blog/generation";
+import { POST_LOCALES } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 
 type Result = Extract<TranslatePostResult, { ok: true }>;
@@ -16,9 +17,10 @@ function fieldLabel(field: string): string {
 }
 
 /**
- * "Translate this post" on the edit page. Translating never saves anything: the
- * admin sees what was checked and what (if anything) is still flagged, then
- * chooses to store the result as an unpublished draft in the other language.
+ * "Translate this post" on the edit page. Any of the site's languages can be the
+ * target. Translating never saves anything: the admin sees what was checked and
+ * what (if anything) is still flagged, then chooses to store the result as an
+ * unpublished draft in the chosen language.
  */
 export function TranslatePanel({
   postId,
@@ -27,10 +29,14 @@ export function TranslatePanel({
 }: {
   postId: string;
   sourceLocale: PostLocale;
-  existing: { id: string; status: string } | null;
+  /** Translations that already exist for this post (same slug, other languages). */
+  existing: { id: string; status: string; locale: PostLocale }[];
 }) {
   const router = useRouter();
-  const target: PostLocale = sourceLocale === "he" ? "en" : "he";
+  const targets = POST_LOCALES.filter((l) => l !== sourceLocale);
+  const existingByLocale = new Map(existing.map((e) => [e.locale, e]));
+  // Start on a language that has no translation yet, so the common case is one click.
+  const [target, setTarget] = useState<PostLocale>(targets.find((l) => !existingByLocale.has(l)) ?? targets[0]);
   const targetName = BLOG_LANGUAGES[target].name;
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -54,6 +60,14 @@ export function TranslatePanel({
       if (timer.current) clearInterval(timer.current);
     };
   }, [working]);
+
+  function chooseTarget(next: PostLocale) {
+    setTarget(next);
+    setResult(null);
+    setError(null);
+    setExistingId(null);
+    setAck(false);
+  }
 
   function translate() {
     setError(null);
@@ -85,7 +99,7 @@ export function TranslatePanel({
     });
   }
 
-  const linkedId = existing?.id ?? existingId;
+  const linkedId = existingByLocale.get(target)?.id ?? existingId;
   const report = result?.report;
   const needsReview = report?.status === "needs_review";
   const dir = BLOG_LANGUAGES[target].dir;
@@ -93,12 +107,24 @@ export function TranslatePanel({
   return (
     <div className="admin-generator admin-translate">
       <button type="button" className="admin-generator__toggle" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <span aria-hidden="true">{open ? "−" : "+"}</span> Translate this post to {targetName}
-        {linkedId ? <span className="admin-translate__pill">translation exists</span> : null}
+        <span aria-hidden="true">{open ? "−" : "+"}</span> Translate this post into another language
+        {existing.length ? <span className="admin-translate__pill">{existing.length === 1 ? "1 translation exists" : `${existing.length} translations exist`}</span> : null}
       </button>
 
       {open ? (
         <div className="admin-generator__body">
+          <div className="admin-field admin-translate__target">
+            <label htmlFor="translate-target">Translate into</label>
+            <select id="translate-target" value={target} onChange={(e) => chooseTarget(e.target.value as PostLocale)} disabled={working || saving}>
+              {targets.map((l) => (
+                <option key={l} value={l}>
+                  {BLOG_LANGUAGES[l].native === BLOG_LANGUAGES[l].name ? BLOG_LANGUAGES[l].name : `${BLOG_LANGUAGES[l].native} (${BLOG_LANGUAGES[l].name})`}
+                  {existingByLocale.has(l) ? " (exists)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {linkedId ? (
             <p className="admin-field__hint">
               A {targetName} version of this post already exists.{" "}

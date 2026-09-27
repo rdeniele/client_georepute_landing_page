@@ -30,9 +30,12 @@ NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-public-key>
 ```
 
-Do **not** put the `service_role` key anywhere in this project. Nothing in
-this codebase uses it — every operation, including admin writes, goes through
-the signed-in admin's own session and is authorized by RLS (Steps 4–6).
+Do **not** put the `service_role` key in a `NEXT_PUBLIC_` variable, ever. The
+CMS itself never uses it: every operation, including admin writes, goes through
+the signed-in admin's own session and is authorized by RLS (Steps 4–6). The one
+exception is the optional AI content automation (Step 13), whose background
+scheduler has no signed-in admin; it reads `SUPABASE_SERVICE_ROLE_KEY` in a
+single server-only file.
 
 Restart `npm run dev` after adding these — Next only reads `.env.local` at
 startup.
@@ -402,7 +405,7 @@ Step 5.
 ## Step 11 — Post locale (migration)
 
 Adds a `locale` column so a post belongs to a specific language (currently
-`en` or `he`, matching the two locales the blog supports). The `slug`
+`en` or `he` at this step; Step 12 widens it to all seven site languages). The `slug`
 uniqueness constraint moves from "unique across all posts" to "unique per
 locale" — `/blog/my-post` can now exist once in English and once in Hebrew
 without colliding. Run once in **SQL Editor**:
@@ -425,6 +428,206 @@ No RLS changes needed — it's covered by the existing `posts` policies from
 Step 5. The table is empty at the time of writing, so this migration is safe
 to run with no data backfill; if posts already exist when you run this, every
 existing row defaults to `locale = 'en'`.
+
+---
+
+## Step 12 — All seven blog languages (migration)
+
+The blog and the Claude translator work in all seven site languages (English,
+Hebrew, Arabic, Russian, French, Spanish, Portuguese). Step 11 limited the
+`locale` column to `en` and `he`, so **run this once in the SQL Editor before
+saving a post or translation in any other language**. Without it, saving an
+Arabic, Russian, French, Spanish or Portuguese post fails with a check
+constraint error. It is safe to re-run and changes no existing rows.
+
+```sql
+alter table public.posts drop constraint if exists posts_locale_check;
+alter table public.posts
+  add constraint posts_locale_check check (locale in ('en', 'he', 'ar', 'ru', 'fr', 'es', 'pt'));
+```
+
+No RLS or index changes are needed. The `(locale, slug)` unique index from Step 11
+already allows the same slug once per language.
+
+---
+
+## Step 13 — AI content automation (migration)
+
+Adds everything the **AI Content Automation** section of the CMS (`/admin/automation`) needs: SEO fields
+and a translation link on `posts`, and three admin-only tables for the topic queue. It is safe to re-run.
+Run it once in the **SQL Editor** (after Steps 3-12):
+
+```sql
+-- 13a. posts: per-language SEO fields, FAQ, and a link between the language versions of one article.
+alter table public.posts
+  add column if not exists meta_title text,
+  add column if not exists meta_description text,
+  add column if not exists keywords text[] not null default '{}',
+  add column if not exists faq jsonb,
+  add column if not exists translation_group uuid;
+
+create index if not exists posts_translation_group_idx
+  on public.posts (translation_group) where translation_group is not null;
+
+-- Languages are no longer a fixed list in the database: the site's own language list (lib/i18n.ts) is the
+-- source of truth, so adding a language to the site needs no SQL. Any language code is accepted here.
+alter table public.posts drop constraint if exists posts_locale_check;
+alter table public.posts
+  add constraint posts_locale_check check (locale ~ '^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$');
+
+-- 13b. Settings: exactly one row (id = 1), edited from Automation > Settings.
+create table if not exists public.blog_automation_settings (
+  id smallint primary key default 1 check (id = 1),
+  enabled boolean not null default false,
+  generation_paused boolean not null default false,
+  auto_publish boolean not null default false,
+  require_review boolean not null default true,
+  articles_per_day integer not null default 1 check (articles_per_day between 1 and 100),
+  language_mode text not null default 'all_languages' check (language_mode in ('all_languages', 'rotate')),
+  source_locale text not null default 'en',
+  languages text[],                                  -- null = every language the site supports
+  start_date date,
+  publish_time time not null default '09:00',
+  timezone text not null default 'UTC',
+  spread_minutes integer not null default 15 check (spread_minutes between 0 and 240),
+  lookahead_days integer not null default 3 check (lookahead_days between 1 and 30),
+  max_attempts integer not null default 3 check (max_attempts between 1 and 8),
+  concurrency integer not null default 2 check (concurrency between 1 and 4),
+  content_config jsonb not null default '{}'::jsonb,  -- tone, SEO rules, CTA, prompt, models, ...
+  backoff_until timestamptz,                         -- runtime state: set while Claude is rate limiting
+  plan_lock_until timestamptz,                       -- runtime state: short lock while days are planned
+  last_tick_at timestamptz,                          -- runtime state: last time the scheduler ran
+  last_tick_summary jsonb,
+  updated_at timestamptz not null default now()
+);
+insert into public.blog_automation_settings (id) values (1) on conflict (id) do nothing;
+
+-- 13c. Topic queue: one row per topic.
+create table if not exists public.blog_topics (
+  id uuid primary key default gen_random_uuid(),
+  topic text not null,
+  primary_keyword text,
+  secondary_keywords text[] not null default '{}',
+  category text,
+  search_intent text,
+  notes text,
+  status text not null default 'queued' check (status in ('draft', 'queued', 'completed', 'skipped')),
+  position bigint generated by default as identity,   -- queue order, lowest first
+  scheduled_date date,                                -- the publish day the planner gave it
+  source_locale text,                                 -- language the article is first written in
+  plan_locales text[] not null default '{}',
+  translation_group uuid not null default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists blog_topics_queue_idx on public.blog_topics (status, scheduled_date, position);
+create index if not exists blog_topics_date_idx on public.blog_topics (scheduled_date) where scheduled_date is not null;
+
+-- 13d. One row per topic and language: the unit the scheduler generates, retries and publishes.
+create table if not exists public.blog_variants (
+  id uuid primary key default gen_random_uuid(),
+  topic_id uuid not null references public.blog_topics (id) on delete cascade,
+  locale text not null check (locale ~ '^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$'),
+  is_source boolean not null default false,           -- the canonical article the others are adapted from
+  status text not null default 'queued' check (status in
+    ('queued', 'generating', 'localizing', 'needs_review', 'ready', 'scheduled', 'published', 'failed', 'skipped')),
+  attempts integer not null default 0,                -- failed attempts so far
+  last_error text,
+  error_code text,
+  next_attempt_at timestamptz,
+  locked_until timestamptz,                           -- lease held while a job runs
+  post_id uuid references public.posts (id) on delete set null,
+  scheduled_at timestamptz,
+  generated_at timestamptz,
+  published_at timestamptz,
+  validation jsonb,                                   -- publish-gate findings
+  meta jsonb,                                         -- model, tokens, image concept, approval, ...
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (topic_id, locale)
+);
+create index if not exists blog_variants_status_idx on public.blog_variants (status, scheduled_at);
+create index if not exists blog_variants_topic_idx on public.blog_variants (topic_id);
+create index if not exists blog_variants_post_idx on public.blog_variants (post_id) where post_id is not null;
+
+drop trigger if exists blog_automation_settings_set_updated_at on public.blog_automation_settings;
+create trigger blog_automation_settings_set_updated_at before update on public.blog_automation_settings
+  for each row execute function public.set_updated_at();
+drop trigger if exists blog_topics_set_updated_at on public.blog_topics;
+create trigger blog_topics_set_updated_at before update on public.blog_topics
+  for each row execute function public.set_updated_at();
+drop trigger if exists blog_variants_set_updated_at on public.blog_variants;
+create trigger blog_variants_set_updated_at before update on public.blog_variants
+  for each row execute function public.set_updated_at();
+
+-- 13e. Row Level Security: admins only. There is deliberately no policy for `anon`, so visitors can
+-- neither read nor change any of this. (The scheduler's service-role key bypasses RLS by design.)
+alter table public.blog_automation_settings enable row level security;
+alter table public.blog_topics enable row level security;
+alter table public.blog_variants enable row level security;
+
+create policy "Admins manage automation settings" on public.blog_automation_settings
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage blog topics" on public.blog_topics
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage blog variants" on public.blog_variants
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+```
+
+Public reading of posts is unchanged: a post is visible only when `status = 'published'` and its
+`published_at` has arrived (Step 5). The automation writes new articles as **drafts** and only the
+publisher step (which re-validates first) flips them to published.
+
+### Environment variables
+
+Add these to `.env.local` and to the production host (Vercel > Settings > Environment Variables). None
+of them may have a `NEXT_PUBLIC_` prefix:
+
+| Variable | What it is |
+|---|---|
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase > Project Settings > API Keys > `service_role`. Used **only** by the scheduler route, which has no signed-in admin (`lib/supabase/admin.ts`). Everything an admin does in the CMS still runs through their own session and RLS. |
+| `CRON_SECRET` | A long random string (`openssl rand -hex 32`). The scheduler route refuses any request that does not send `Authorization: Bearer <CRON_SECRET>`. |
+| `ANTHROPIC_API_KEY` | Already required for blog generation and translation. |
+
+### Running the scheduler
+
+The automation is driven by `GET /api/cron/blog-automation`. Each call does one bounded slice of work (plan
+days, write articles, adapt them into other languages, publish what is due) in under about 4.5 minutes and
+returns a JSON summary, so it never depends on a browser being open. Something must call it every
+**5 minutes**. Pick one:
+
+**Option A: Supabase pg_cron (recommended, free, any hosting).** In the SQL Editor:
+
+```sql
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+
+select cron.schedule(
+  'georepute-blog-automation',
+  '*/5 * * * *',
+  $$ select net.http_get(
+       url := 'https://www.georepute.ai/api/cron/blog-automation',
+       headers := jsonb_build_object('Authorization', 'Bearer PASTE_CRON_SECRET_HERE'),
+       timeout_milliseconds := 300000
+     ); $$
+);
+-- To stop it later:  select cron.unschedule('georepute-blog-automation');
+```
+
+**Option B: Vercel Cron (needs a Pro plan for anything more often than daily).** Add a `vercel.json`:
+
+```json
+{ "crons": [{ "path": "/api/cron/blog-automation", "schedule": "*/5 * * * *" }] }
+```
+
+Vercel sends `Authorization: Bearer <CRON_SECRET>` by itself when `CRON_SECRET` is set. Do not commit this file
+on the Hobby plan: a schedule more frequent than once a day fails the deployment.
+
+**Option C: any HTTP pinger** (GitHub Actions `schedule`, cron-job.org, a server crontab) that sends the same
+`Authorization` header every 5 minutes.
+
+Check that it works: open **Automation** in the CMS. The status card shows when the scheduler last ran and
+what it did; "Run now" runs one tick from the CMS immediately, without the scheduler (useful to test).
 
 ---
 

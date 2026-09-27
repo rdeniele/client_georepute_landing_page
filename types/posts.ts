@@ -6,8 +6,11 @@ export type { PostStatus };
 export type { PostLocale };
 export type { ContentBlock };
 
-type PostRow = Omit<Database["public"]["Tables"]["posts"]["Row"], "content_blocks"> & {
+export type FaqItem = { question: string; answer: string };
+
+type PostRow = Omit<Database["public"]["Tables"]["posts"]["Row"], "content_blocks" | "faq"> & {
   content_blocks: ContentBlock[] | null;
+  faq: FaqItem[] | null;
 };
 
 export type Post = PostRow;
@@ -32,6 +35,10 @@ export type PostFormValues = {
   tags: string; // comma-separated in the form, split into an array before writing
   status: PostStatus;
   locale: PostLocale;
+  meta_title: string;
+  meta_description: string;
+  keywords: string; // comma-separated, like tags
+  faq: FaqItem[];
 };
 
 export const EMPTY_POST_FORM: PostFormValues = {
@@ -44,6 +51,10 @@ export const EMPTY_POST_FORM: PostFormValues = {
   tags: "",
   status: "draft",
   locale: "en",
+  meta_title: "",
+  meta_description: "",
+  keywords: "",
+  faq: [],
 };
 
 export function postToFormValues(post: Post): PostFormValues {
@@ -60,5 +71,9 @@ export function postToFormValues(post: Post): PostFormValues {
     tags: post.tags.join(", "),
     status: post.status,
     locale: post.locale,
+    meta_title: post.meta_title ?? "",
+    meta_description: post.meta_description ?? "",
+    keywords: (post.keywords ?? []).join(", "),
+    faq: post.faq ?? [],
   };
 }

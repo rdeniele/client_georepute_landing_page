@@ -15,7 +15,7 @@ export function DraftGenerator({
   hasContent,
   onDraft,
 }: {
-  languages: BlogLanguage[];
+  languages: readonly BlogLanguage[];
   defaultLanguage: BlogLanguage;
   /** True when the form already has a title or body, so applying a draft would overwrite work. */
   hasContent: boolean;

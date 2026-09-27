@@ -1,5 +1,6 @@
 import Image from "next/image";
 import logo from "@/public/brand/logo-g-mark.png";
+import { blogPath } from "@/lib/utils/postLocale";
 import type { PostWithAuthor } from "@/types/posts";
 import { formatDate } from "@/lib/utils/format";
 import { getFirstContentImage } from "@/lib/utils/blocks";
@@ -12,7 +13,7 @@ export function PostCard({ post }: { post: PostWithAuthor }) {
   // Carries the post's own locale in the URL (rather than relying on the
   // post page's cross-locale fallback) so the link, canonical tag and
   // rendered language agree from the first request.
-  const href = post.locale === "he" ? `/blog/${post.slug}?lang=he` : `/blog/${post.slug}`;
+  const href = blogPath(post.locale, post.slug);
 
   return (
     <a className="kit-card blog-card" href={href}>
