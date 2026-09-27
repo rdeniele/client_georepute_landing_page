@@ -1048,6 +1048,10 @@ a.briefing-contact__value:hover {
   box-shadow: 0 30px 80px -32px rgba(68, 47, 123, 0.4);
 }
 
+.briefing-card + .briefing-card {
+  margin-top: clamp(20px, 3vw, 28px);
+}
+
 html.theme-dark .briefing-card {
   box-shadow: 0 40px 100px -32px rgba(0, 0, 0, 0.65);
 }

@@ -81,17 +81,16 @@ export default async function BriefingPage({ params }: { params: Promise<{ local
             </>
           }
           aside={
-            calendlyUrl ? (
-              <div className="briefing-card">
-                <h2 className="briefing-card__title">{c.booking.title}</h2>
-                <p className="briefing-card__hint">{c.booking.hint}</p>
-                <CalendlyEmbed url={calendlyUrl} locale={locale} />
-              </div>
-            ) : (
-              // Only reachable if CALENDLY_URL is set to something invalid — the
-              // built-in default above is always a valid calendly.com link.
+            <>
+              {calendlyUrl ? (
+                <div className="briefing-card">
+                  <h2 className="briefing-card__title">{c.booking.title}</h2>
+                  <p className="briefing-card__hint">{c.booking.hint}</p>
+                  <CalendlyEmbed url={calendlyUrl} locale={locale} />
+                </div>
+              ) : null}
               <MeetingRequestForm locale={locale} />
-            )
+            </>
           }
         />
       </div>

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { Band } from "@/components/ui/Band";
 import { SiteFooter } from "@/components/ui/SiteFooter";
 import { PlatformGlyph, type PlatformId } from "@/components/ui/PlatformGlyph";
-import { nav } from "@/lib/content";
+import { lhref, MEETING_HREF } from "@/components/subpages/kit";
 import { normalizeLocale } from "@/lib/i18n";
 import { getWarRoomCopy, readings as r, type Trend } from "@/lib/warRoom";
 
@@ -78,7 +78,7 @@ function radarPoints(values: readonly number[], cx: number, cy: number, radius: 
 export function WarRoomPage({ locale = "en" }: { locale?: string }) {
   const loc = normalizeLocale(locale);
   const c = getWarRoomCopy(loc);
-  const contactHref = nav.cta.href;
+  const contactHref = lhref(MEETING_HREF, loc);
 
   return (
     <div className="subpage subpage--warroom">
