@@ -2029,6 +2029,20 @@
   color: var(--color-ink-faint);
 }
 
+.foot__head-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.foot__chev {
+  display: none;
+  flex: none;
+  color: var(--color-ink-faint);
+  transition: transform var(--d-micro) ease;
+}
+
 .foot__col ul {
   margin: 0;
   padding: 0;
@@ -2126,9 +2140,99 @@
   }
 }
 
-@media (max-width: 480px) {
+/* Below tablet width the five-column grid collapses into a single-column
+   accordion: each section starts closed so the footer reads as one scannable
+   list of headings instead of a wall of links, and opens on tap. The
+   checkbox/label pair drives it with no JS; larger screens above never see
+   the collapsed state because `.foot__acc-toggle` and `.foot__chev` only
+   take effect inside this query. */
+@media (max-width: 640px) {
+  .foot {
+    padding-block: clamp(32px, 8vw, 44px) 24px;
+  }
+
+  .foot__shell {
+    gap: 32px;
+  }
+
+  .foot__intro {
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .foot__brand {
+    align-self: center;
+  }
+
   .foot__cols {
     grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .foot__col {
+    border-top: 1px solid var(--line);
+    padding-block: 4px;
+  }
+
+  .foot__col:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .foot__head {
+    margin: 0;
+  }
+
+  .foot__head-label {
+    min-height: 44px;
+    padding-block: 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .foot__acc-toggle:focus-visible + .foot__head .foot__head-label {
+    outline: 2px solid var(--color-signal-lit);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .foot__chev {
+    display: inline-flex;
+  }
+
+  .foot__acc-toggle:checked + .foot__head .foot__chev {
+    transform: rotate(180deg);
+  }
+
+  .foot__col ul {
+    display: none;
+    padding-bottom: 18px;
+  }
+
+  .foot__acc-toggle:checked + .foot__head + ul {
+    display: flex;
+  }
+
+  .foot__col ul li a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+
+  .foot__bottom {
+    gap: 10px;
+    text-align: center;
+  }
+
+  .foot__disclaimer,
+  .foot__credits {
+    max-width: none;
+  }
+
+  .foot__bar {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
   }
 }
 

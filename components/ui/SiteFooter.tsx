@@ -88,9 +88,19 @@ export function SiteFooter({ locale = "en" }: { locale?: string }) {
         </div>
 
         <nav className="foot__cols" aria-label={f.brand}>
-          {columns.map((col) => (
+          {columns.map((col, i) => (
             <div className="foot__col" key={col.title}>
-              <h2 className="foot__head">{col.title}</h2>
+              {/* Checkbox-driven accordion: collapsed on mobile (see @media in sections.css),
+                  always expanded on larger screens where the checkbox has no visible effect. */}
+              <input type="checkbox" id={`foot-acc-${i}`} className="foot__acc-toggle sr-only" />
+              <h2 className="foot__head">
+                <label htmlFor={`foot-acc-${i}`} className="foot__head-label">
+                  {col.title}
+                  <svg className="foot__chev" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+                    <path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </label>
+              </h2>
               <ul>
                 {col.links.map((l) => (
                   <li key={l.href}>
@@ -108,7 +118,15 @@ export function SiteFooter({ locale = "en" }: { locale?: string }) {
           ))}
 
           <div className="foot__col foot__col--eco">
-            <h2 className="foot__head">{c.ecosystem}</h2>
+            <input type="checkbox" id="foot-acc-eco" className="foot__acc-toggle sr-only" />
+            <h2 className="foot__head">
+              <label htmlFor="foot-acc-eco" className="foot__head-label">
+                {c.ecosystem}
+                <svg className="foot__chev" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+                  <path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </label>
+            </h2>
             <ul>
               {ECOSYSTEM.map((e) => (
                 <li key={e.href}>
