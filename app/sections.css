@@ -1907,6 +1907,12 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
+  /* .section's own padding-block (app/globals.css) adds bottom breathing
+     room for a section that ends in ordinary content. This one ends in the
+     footer, which already sets its own padding and margin-top, so the extra
+     bottom padding here only left a band of the violet gradient plate
+     showing below the footer with nothing in it. */
+  padding-bottom: 0;
 }
 
 .final__shell {
