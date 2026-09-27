@@ -20,7 +20,14 @@ function localNowValue(): string {
  * otherwise the preferred time is emailed to the team, who confirm it by
  * reply and send the link themselves.
  */
-export function MeetingRequestForm({ locale = "en" }: { locale?: string }) {
+export function MeetingRequestForm({
+  locale = "en",
+  bare = false,
+}: {
+  locale?: string;
+  /** Skips the outer `.briefing-card` wrapper for use inside another card, e.g. a tab panel. */
+  bare?: boolean;
+}) {
   const c = getBriefingCopy(locale).form;
   const [state, formAction, pending] = useActionState(submitMeetingRequestAction, initialState);
   const [scheduleMeet, setScheduleMeet] = useState(false);
@@ -37,39 +44,38 @@ export function MeetingRequestForm({ locale = "en" }: { locale?: string }) {
 
   if (state.status === "success") {
     const { meet, confirmationSent } = state;
-    return (
-      <div className="briefing-card">
-        <div className="kit-form-success" role="status">
-          <p className="t-h4">{c.successTitle}</p>
-          {meet?.link ? (
-            <>
-              <p className="t-body">{c.successWithMeet(meet.slotLabel)}</p>
-              <p className="t-body">
-                <a href={meet.link} target="_blank" rel="noopener noreferrer">
-                  {meet.link}
-                </a>
-              </p>
-              <p className="t-body">{confirmationSent ? c.successConfirmationSent : c.successConfirmationNotSent}</p>
-            </>
-          ) : (
-            <>
-              <p className="t-body">
-                {!meet
-                  ? c.successNoMeet
-                  : meet.automatic
-                    ? c.successMeetPendingAutomatic(meet.slotLabel)
-                    : c.successMeetPendingManual(meet.slotLabel)}
-              </p>
-              <p className="t-body">{confirmationSent ? c.successConfirmationSentGeneral : c.successConfirmationNotSentGeneral}</p>
-            </>
-          )}
-        </div>
+    const success = (
+      <div className="kit-form-success" role="status">
+        <p className="t-h4">{c.successTitle}</p>
+        {meet?.link ? (
+          <>
+            <p className="t-body">{c.successWithMeet(meet.slotLabel)}</p>
+            <p className="t-body">
+              <a href={meet.link} target="_blank" rel="noopener noreferrer">
+                {meet.link}
+              </a>
+            </p>
+            <p className="t-body">{confirmationSent ? c.successConfirmationSent : c.successConfirmationNotSent}</p>
+          </>
+        ) : (
+          <>
+            <p className="t-body">
+              {!meet
+                ? c.successNoMeet
+                : meet.automatic
+                  ? c.successMeetPendingAutomatic(meet.slotLabel)
+                  : c.successMeetPendingManual(meet.slotLabel)}
+            </p>
+            <p className="t-body">{confirmationSent ? c.successConfirmationSentGeneral : c.successConfirmationNotSentGeneral}</p>
+          </>
+        )}
       </div>
     );
+    return bare ? success : <div className="briefing-card">{success}</div>;
   }
 
-  return (
-    <div className="briefing-card">
+  const body = (
+    <>
       <h2 className="briefing-card__title">{c.title}</h2>
       <p className="briefing-card__hint">{c.hint}</p>
       <form action={formAction} className="kit-form">
@@ -171,6 +177,8 @@ export function MeetingRequestForm({ locale = "en" }: { locale?: string }) {
           {pending ? c.sending : c.submit}
         </button>
       </form>
-    </div>
+    </>
   );
+
+  return bare ? body : <div className="briefing-card">{body}</div>;
 }

@@ -1048,16 +1048,54 @@ a.briefing-contact__value:hover {
   box-shadow: 0 30px 80px -32px rgba(68, 47, 123, 0.4);
 }
 
-.briefing-card + .briefing-card {
-  margin-top: clamp(20px, 3vw, 28px);
-}
-
 html.theme-dark .briefing-card {
   box-shadow: 0 40px 100px -32px rgba(0, 0, 0, 0.65);
 }
 
 .briefing-card a {
   color: var(--color-signal-lit);
+}
+
+/* Calendly and the message form share this one card behind two tabs instead
+   of stacking as two separate cards (see BriefingTabs.tsx). */
+.briefing-tabs__list {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 24px;
+  border-radius: var(--radius-full);
+  background: var(--color-base);
+  border: 1px solid var(--line);
+}
+
+.briefing-tabs__tab {
+  flex: 1;
+  min-height: 44px;
+  padding-inline: 16px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-ink-dim);
+  font-family: inherit;
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--d-micro) ease, color var(--d-micro) ease, box-shadow var(--d-micro) ease;
+}
+
+.briefing-tabs__tab:hover {
+  color: var(--color-ink);
+}
+
+.briefing-tabs__tab:focus-visible {
+  outline: 2px solid var(--color-signal-lit);
+  outline-offset: 2px;
+}
+
+.briefing-tabs__tab.is-active {
+  background: var(--color-elevated);
+  color: var(--color-ink);
+  box-shadow: 0 6px 16px -8px rgba(68, 47, 123, 0.4);
 }
 
 /* The scheduler is a light-scheme document. A dark-scheme page around it makes

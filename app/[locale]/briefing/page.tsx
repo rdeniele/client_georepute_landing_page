@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Envelope, MapPin, Phone, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import { Crumbs, PageHero } from "@/components/subpages/kit";
-import { MeetingRequestForm } from "@/components/forms/MeetingRequestForm";
-import { CalendlyEmbed } from "@/components/forms/CalendlyEmbed";
+import { BriefingTabs } from "@/components/forms/BriefingTabs";
 import { CONTACT } from "@/lib/contact";
 import { getBriefingCopy } from "@/lib/subpages/briefing";
 import { getCalendlyUrl } from "@/lib/services/calendly";
@@ -80,18 +79,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ local
               </a>
             </>
           }
-          aside={
-            <>
-              {calendlyUrl ? (
-                <div className="briefing-card">
-                  <h2 className="briefing-card__title">{c.booking.title}</h2>
-                  <p className="briefing-card__hint">{c.booking.hint}</p>
-                  <CalendlyEmbed url={calendlyUrl} locale={locale} />
-                </div>
-              ) : null}
-              <MeetingRequestForm locale={locale} />
-            </>
-          }
+          aside={<BriefingTabs locale={locale} calendlyUrl={calendlyUrl} booking={c.booking} tabs={c.tabs} />}
         />
       </div>
     </SiteShell>

@@ -20,6 +20,7 @@ export type BriefingCopy = {
   emailUs: string;
   chatWhatsapp: string;
   booking: { title: string; hint: string };
+  tabs: { calendly: string; form: string };
   form: {
     title: string;
     hint: string;
@@ -64,6 +65,7 @@ const en: BriefingCopy = {
   emailUs: "Email us",
   chatWhatsapp: "Chat on WhatsApp",
   booking: { title: "Book a time", hint: "Pick a slot that works for you, we'll send the calendar invite and meeting link." },
+  tabs: { calendly: "Book a time", form: "Send a message" },
   form: {
     title: "Request a meeting",
     hint: "Fields marked with an asterisk (*) are mandatory.",
@@ -110,6 +112,7 @@ const he: BriefingCopy = {
   emailUs: "כתבו לנו",
   chatWhatsapp: "שיחה בוואטסאפ",
   booking: { title: "קביעת מועד", hint: "בחרו זמן מתאים, ונשלח לכם הזמנה ליומן וקישור לפגישה." },
+  tabs: { calendly: "קביעת מועד", form: "שליחת הודעה" },
   form: {
     title: "בקשת פגישה",
     hint: "שדות המסומנים בכוכבית (*) הם שדות חובה.",
