@@ -4,23 +4,17 @@ import { useEffect, useState } from "react";
 import { debugLog } from "@/lib/debugLog";
 
 /**
- * A last-resort, one-tap recovery affordance for a real, confirmed browser
- * compositor bug: diagnostic logging (see DebugHUD) proved that on some
- * browsers, coming back to a hidden tab that was running the persistent
- * WebGL scene can leave the page's heavier layers (the canvas,
- * `backdrop-filter`, `will-change` elements) never repainted, even though
- * our own state is provably correct underneath (the DOM has the real
- * content, nothing threw, the canvas re-rendered with the right props) and
- * even after forcing a synchronous reflow (see lib/useForceRepaint.ts).
- * A full reload is the one thing that has reliably fixed it every time it
- * was reported. There is no way to detect the failure itself from inside
- * the page (nothing throws, nothing measures "did the compositor actually
- * flush pixels"), so this shows a small, plain, low-effort-to-paint button
- * a few seconds after the tab becomes visible again, instead of silently
- * reloading for every visitor on every tab switch. Deliberately styled as
- * simply as DebugHUD (a flat, solid element, no blur/blend/animation) so it
- * has the best chance of actually painting even when the rest of the page
- * won't: nothing here is what's suspected to be misbehaving.
+ * A last-resort, one-tap recovery affordance for the "page looks broken
+ * after switching tabs and back" reports on mobile: diagnostic logging (see
+ * DebugHUD) showed our own React/WebGL/scroll state was correct every time
+ * this was checked, yet the page still looked wrong, and a full reload was
+ * the one thing that reliably fixed it. There is no way to detect the
+ * failure itself from inside the page (nothing throws), so this shows a
+ * small, plain, low-effort-to-paint button a few seconds after the tab
+ * becomes visible again, instead of silently reloading for every visitor on
+ * every tab switch. Deliberately styled as simply as DebugHUD (a flat,
+ * solid element, no blur/blend/animation) so it has the best chance of
+ * actually being usable even if something about the surrounding page isn't.
  */
 const SHOW_AFTER_MS = 2200;
 const AUTO_HIDE_MS = 12000;
