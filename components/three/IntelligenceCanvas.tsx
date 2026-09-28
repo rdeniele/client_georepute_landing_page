@@ -22,6 +22,16 @@ export function IntelligenceCanvas() {
   const [tier, setTier] = useState<DeviceTier | null>(null);
   const [dprScale, setDprScale] = useState(1);
   const [visible, setVisible] = useState(true);
+  // Backgrounding a tab for a while is a common trigger for the GPU driver to
+  // drop the WebGL context to reclaim memory. Left unhandled, the next frame
+  // three.js tries to draw throws, and with no boundary above this that used
+  // to take the whole page down to a blank screen on return. `lost` swaps to
+  // the static, non-WebGL fallback the instant that happens; `canvasKey`
+  // forces a full remount if the browser hands the context back, since every
+  // buffer and texture on the old one is gone and nothing here re-uploads
+  // them in place.
+  const [lost, setLost] = useState(false);
+  const [canvasKey, setCanvasKey] = useState(0);
 
   useEffect(() => {
     setTier(detectTier());
@@ -38,7 +48,7 @@ export function IntelligenceCanvas() {
   // on machines that would only get the fallback anyway.
   if (tier === null) return <div className="scene-layer" aria-hidden="true" />;
 
-  if (tier === "none") {
+  if (tier === "none" || lost) {
     return (
       <div className="scene-layer" aria-hidden="true">
         <StaticNetwork />
@@ -55,6 +65,7 @@ export function IntelligenceCanvas() {
   return (
     <div className="scene-layer" aria-hidden="true">
       <Canvas
+        key={canvasKey}
         frameloop={visible ? "always" : "never"}
         dpr={dpr}
         camera={{ fov: 46, near: 0.1, far: 90, position: [0, 1.6, 24] }}
@@ -65,6 +76,21 @@ export function IntelligenceCanvas() {
           stencil: false,
           depth: true,
           preserveDrawingBuffer: true,
+        }}
+        onCreated={({ gl }) => {
+          const canvas = gl.domElement;
+          const onLost = (e: Event) => {
+            // Required so the browser will attempt to hand the context back;
+            // without it the loss is permanent for that canvas element.
+            e.preventDefault();
+            setLost(true);
+          };
+          const onRestored = () => {
+            setLost(false);
+            setCanvasKey((k) => k + 1);
+          };
+          canvas.addEventListener("webglcontextlost", onLost, false);
+          canvas.addEventListener("webglcontextrestored", onRestored, false);
         }}
       >
         <PerformanceMonitor
