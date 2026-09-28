@@ -9,7 +9,6 @@ import { LocaleAttributes } from "@/components/ui/LocaleAttributes";
 import { IntelligenceCanvas } from "@/components/three/IntelligenceCanvas";
 import { IntroModal } from "@/components/intro/IntroModal";
 import { TryModal } from "@/components/try/TryModal";
-import { TapToRefresh } from "@/components/ui/TapToRefresh";
 
 export function SiteShell({
   children,
@@ -37,7 +36,6 @@ export function SiteShell({
       </main>
       <IntroModal locale={locale} />
       <TryModal locale={locale} />
-      <TapToRefresh />
     </ScrollProvider>
   );
 }

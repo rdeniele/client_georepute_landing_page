@@ -1971,6 +1971,29 @@
   border-top: 1px solid var(--line);
   padding-block: clamp(36px, 5vw, 56px) 28px;
   margin-top: clamp(56px, 8vh, 96px);
+  /* The footer lives inside FinalCta's <section class="band band--color">
+     (see components/sections/FinalCta.tsx), which forces white ink/line
+     tokens so copy reads against its purple gradient (app/bands.css). Those
+     custom properties cascade to every descendant by default, including the
+     footer sitting on its own opaque var(--color-void) floor below that
+     gradient. In dark mode --color-void is navy, so white-on-navy still
+     happened to read fine; in light mode it's white, so the inherited white
+     ink became invisible white-on-white. Re-declare the tokens the footer
+     actually uses back to their normal, theme-aware values here so it reads
+     correctly regardless of which section it's physically nested in.
+     :root's values below match the light-mode defaults in app/globals.css. */
+  --color-ink: #0c1134;
+  --color-ink-dim: #4a4f75;
+  --color-ink-faint: #5d6288;
+  --color-signal-lit: #6441bb;
+  --line: rgba(12, 17, 52, 0.1);
+}
+html.theme-dark .foot {
+  --color-ink: #f6f4ff;
+  --color-ink-dim: #a9aed0;
+  --color-ink-faint: #858bb5;
+  --color-signal-lit: #ae98e8;
+  --line: rgba(255, 255, 255, 0.09);
 }
 
 .foot__shell {
