@@ -9,6 +9,7 @@ import { IntelligenceNetwork } from "./IntelligenceNetwork";
 import { ParticleField } from "./ParticleField";
 import { CameraRig } from "./CameraRig";
 import { StaticNetwork } from "./StaticNetwork";
+import { debugLog } from "@/lib/debugLog";
 
 /**
  * Host for the persistent scene.
@@ -34,9 +35,14 @@ export function IntelligenceCanvas() {
   const [canvasKey, setCanvasKey] = useState(0);
 
   useEffect(() => {
-    setTier(detectTier());
+    const detected = detectTier();
+    debugLog(`canvas: tier=${detected}`);
+    setTier(detected);
 
-    const onVisibility = () => setVisible(!document.hidden);
+    const onVisibility = () => {
+      debugLog(`canvas: visibilitychange hidden=${document.hidden}`);
+      setVisible(!document.hidden);
+    };
     document.addEventListener("visibilitychange", onVisibility);
 
     // The browser's back/forward cache is a *different* lifecycle path than
@@ -49,6 +55,7 @@ export function IntelligenceCanvas() {
     // happened; force a full remount so three.js starts a clean context and
     // draws a real first frame instead of whatever the GPU kept, or didn't.
     const onPageShow = (e: PageTransitionEvent) => {
+      debugLog(`canvas: pageshow persisted=${e.persisted}`);
       if (e.persisted) setCanvasKey((k) => k + 1);
     };
     window.addEventListener("pageshow", onPageShow);
@@ -59,6 +66,13 @@ export function IntelligenceCanvas() {
       disposeTextures();
     };
   }, []);
+
+  // Logs which branch below is actually on screen, since that's the direct
+  // visual state a screenshot shows: the empty loading placeholder, the
+  // static fallback, or the live canvas.
+  useEffect(() => {
+    debugLog(`canvas: render tier=${tier} lost=${lost} visible=${visible} canvasKey=${canvasKey}`);
+  }, [tier, lost, visible, canvasKey]);
 
   // Nothing renders until the tier is known, so no WebGL context is created
   // on machines that would only get the fallback anyway.
@@ -99,9 +113,11 @@ export function IntelligenceCanvas() {
             // Required so the browser will attempt to hand the context back;
             // without it the loss is permanent for that canvas element.
             e.preventDefault();
+            debugLog("canvas: webglcontextlost");
             setLost(true);
           };
           const onRestored = () => {
+            debugLog("canvas: webglcontextrestored");
             setLost(false);
             setCanvasKey((k) => k + 1);
           };

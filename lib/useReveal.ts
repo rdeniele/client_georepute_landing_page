@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { debugLog } from "./debugLog";
 
 /**
  * Drives the page's shared entrance vocabulary.
@@ -61,12 +62,18 @@ export function useReveal() {
 
     const onVisible = () => {
       if (document.hidden || !pending.size) return;
+      let caught = 0;
       for (const el of [...pending]) {
         const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) reveal(el);
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          reveal(el);
+          caught++;
+        }
       }
+      if (caught) debugLog(`useReveal: caught ${caught} stuck element(s) on visibilitychange`);
     };
     document.addEventListener("visibilitychange", onVisible);
+    debugLog(`useReveal: observing ${nodes.length} node(s)`);
 
     return () => {
       io.disconnect();

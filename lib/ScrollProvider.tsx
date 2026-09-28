@@ -5,6 +5,7 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scene } from "./sceneStore";
+import { debugLog } from "./debugLog";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,7 +89,9 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
 
     // The entry introduction pauses smooth scrolling while it owns the screen
     const onLock = (e: Event) => {
-      if ((e as CustomEvent<boolean>).detail) lenis?.stop();
+      const lock = (e as CustomEvent<boolean>).detail;
+      debugLog(`scroll: scroll-lock detail=${lock}`);
+      if (lock) lenis?.stop();
       else lenis?.start();
     };
     window.addEventListener("georepute:scroll-lock", onLock);
@@ -103,11 +106,13 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     // cached measurements can be stale against whatever the layout settled
     // on while frozen. Recompute both the instant the page is live again.
     const onPageShow = (e: PageTransitionEvent) => {
+      debugLog(`scroll: pageshow persisted=${e.persisted}`);
       if (!e.persisted) return;
       lenis?.resize();
       ScrollTrigger.refresh();
     };
     window.addEventListener("pageshow", onPageShow);
+    debugLog(`scroll: ScrollProvider mounted, lenis=${lenis ? "on" : "reduced-motion off"}`);
 
     return () => {
       window.removeEventListener("pointermove", onPointer);
