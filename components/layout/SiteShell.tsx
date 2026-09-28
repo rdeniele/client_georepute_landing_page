@@ -2,6 +2,7 @@
 
 import { ScrollProvider } from "@/lib/ScrollProvider";
 import { useReveal } from "@/lib/useReveal";
+import { useForceRepaint } from "@/lib/useForceRepaint";
 import { useSectionBeats } from "@/lib/sectionBeats";
 import { Navigation } from "@/components/ui/Navigation";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
@@ -21,6 +22,7 @@ export function SiteShell({
   locale?: string;
 }) {
   useReveal();
+  useForceRepaint();
   // The camera timeline is keyed to this page's own section ids (#top,
   // #invisible, #signals...), only meaningful on the home page.
   useSectionBeats(home);
