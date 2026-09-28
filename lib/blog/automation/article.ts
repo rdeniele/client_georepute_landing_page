@@ -30,7 +30,7 @@ import {
 } from "@/lib/blog/generation";
 import type { FaqItem } from "@/types/posts";
 import { ARTICLE_JSON_SCHEMA, allowedLinks, buildArticlePrompt, type ArticleRequest } from "./prompt";
-import { findPlaceholders } from "./validate";
+import { findPlaceholders, findRepeatedWords } from "./validate";
 
 export type GeneratedArticle = {
   title: string;
@@ -150,6 +150,14 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
   if (/[—―]/.test(all)) fail("it still contains em dashes");
   const placeholders = findPlaceholders(all);
   if (placeholders.length) fail(`it contains ${placeholders.join(", ")}`);
+
+  // A built-in proofreading pass: unusable output is rewritten automatically (via the retry-with-feedback
+  // loop below) rather than shipped and fixed later. A repeated word is never intentional in any language.
+  // Repeated sentences and AI-filler phrasing are also checked, but only as part of the publish gate
+  // (lib/blog/automation/validate.ts): a single stock sentence echoed once in a long article, or a phrase
+  // this list does not yet cover, should surface for a human to judge rather than burn a generation retry.
+  const repeatedWords = findRepeatedWords(all);
+  if (repeatedWords.length) fail(`it repeats a word back to back: ${repeatedWords.join(", ")}`);
 
   const blocks: DraftBlock[] = [
     ...body,

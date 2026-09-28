@@ -89,6 +89,11 @@ At topic level the queue also shows *Generated* (canonical article done, transla
   title, slug, meta title, meta description, content, heading structure, required sections, FAQ when required, target language,
   no placeholder text or AI-refusal text or raw JSON, all links allowed (internal links must be on the allowed list, in the
   post's own language). A failure means **Needs review**, never a live post.
+- **Built-in proofreading.** A word repeated back to back (any language) blocks publishing outright. A whole sentence repeated
+  in the body, and English AI-filler clichés ("in today's fast-paced world", "unlock the power of", "dive into", and the like),
+  are flagged as warnings for the editor to judge. At generation time, a repeated word is also rejected before it is ever
+  stored: the model gets the reason as feedback and rewrites that attempt automatically (see `validateArticle` in
+  `lib/blog/automation/article.ts`).
 - **Public pages** use the language's own meta title and description, add keywords, an FAQ section with FAQPage structured data,
   and hreflang links between the language versions (linked through `translation_group`, so each language can have its own slug).
   The blog index is paginated (24 per page) and has per-language canonical URLs.

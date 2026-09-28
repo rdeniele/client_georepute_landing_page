@@ -56,6 +56,61 @@ export function findPlaceholders(text: string): string[] {
   return [...PLACEHOLDERS, ...GENERATION_ARTIFACTS].filter(([re]) => re.test(text)).map(([, label]) => label);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Content-quality pass                                                      */
+/* -------------------------------------------------------------------------- */
+
+// English clichés and generic AI filler called out by the editorial team. Detection stays
+// script-agnostic elsewhere (repeated words/sentences), because a fixed phrase list cannot
+// cover every language the site publishes in; a human editor is still the backstop for those.
+const AI_FILLER_PHRASES: [RegExp, string][] = [
+  [/in today'?s (?:fast-paced|ever-evolving|ever-changing|rapidly evolving|digital)\s+(?:world|landscape|age)/i, "in today's fast-paced world"],
+  [/in (?:the|this) (?:ever-evolving|fast-paced|rapidly changing|digital)\s+(?:landscape|world)/i, "ever-evolving landscape"],
+  [/unlock the power of/i, "unlock the power of"],
+  [/it is important to note that/i, "it is important to note that"],
+  [/it'?s worth noting that/i, "it's worth noting that"],
+  [/dive into/i, "dive into"],
+  [/delve into/i, "delve into"],
+  [/game[- ]changer/i, "game-changer"],
+  [/in conclusion,/i, "in conclusion,"],
+  [/navigate the complex(?:ities)? of/i, "navigate the complexities of"],
+  [/at the end of the day/i, "at the end of the day"],
+  [/in this article,? we will/i, "in this article, we will"],
+  [/whether you'?re .{1,40} or .{1,40},/i, "whether you're X or Y,"],
+];
+
+export function findAiFiller(text: string): string[] {
+  return [...new Set(AI_FILLER_PHRASES.filter(([re]) => re.test(text)).map(([, label]) => label))];
+}
+
+// Matches an immediately repeated word ("the the", "מאוד מאוד") across Latin, Hebrew, Arabic and
+// Cyrillic scripts. A real bug in any language: no writer repeats the same word twice in a row.
+const REPEATED_WORD = /\b([a-zA-ZÀ-ɏ֐-׿؀-ۿЀ-ӿ]{2,})\s+\1\b/giu;
+
+export function findRepeatedWords(text: string): string[] {
+  const out: string[] = [];
+  for (const m of text.matchAll(REPEATED_WORD)) out.push(m[1]);
+  return [...new Set(out.map((w) => w.toLowerCase()))].slice(0, 10);
+}
+
+/** Splits on sentence-ending punctuation common to Latin, Hebrew and Arabic text. */
+function sentencesOf(text: string): string[] {
+  return text
+    .split(/(?<=[.!?؟۔])\s+|\n+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 20);
+}
+
+/** Flags a sentence (20+ characters) that appears more than once, word for word: never intentional. */
+export function findRepeatedSentences(text: string): string[] {
+  const seen = new Map<string, number>();
+  for (const s of sentencesOf(text)) {
+    const key = s.toLowerCase().replace(/\s+/g, " ");
+    seen.set(key, (seen.get(key) ?? 0) + 1);
+  }
+  return [...seen.entries()].filter(([, n]) => n > 1).map(([s]) => s).slice(0, 5);
+}
+
 type Inline = { type?: string; text?: string; href?: string; content?: unknown };
 
 function linksOf(content: unknown, out: string[]) {
@@ -142,6 +197,20 @@ export function validateForPublish(c: PublishCandidate, o: ValidationOptions): I
   }
 
   if (/[—―]/.test(everything)) warn("em_dash", "The text contains em dashes.");
+
+  const repeatedWords = findRepeatedWords(everything);
+  if (repeatedWords.length) error("repeated_word", `A word is repeated back to back: ${repeatedWords.join(", ")}.`);
+
+  // A warning, not an error: a stock sentence echoed once in a long article (an intentional callback to
+  // the intro, for example) is a style choice for the editor to judge, not something that should block
+  // publishing on its own. Checked on the body alone, since the meta description or excerpt legitimately
+  // echoing the opening sentence is a normal SEO pattern.
+  const repeatedSentences = findRepeatedSentences(body);
+  if (repeatedSentences.length) warn("repeated_sentence", `A sentence appears more than once: "${repeatedSentences[0].slice(0, 100)}".`);
+
+  const filler = findAiFiller(everything);
+  if (filler.length) warn("ai_filler_phrase", `The text uses generic filler phrasing: ${filler.join(", ")}. Rewrite with something concrete.`);
+
   return issues;
 }
 
