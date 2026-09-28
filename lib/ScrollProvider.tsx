@@ -96,9 +96,23 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     // Fonts change layout height; recalculate once they land
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
+    // A bfcache restore (see IntelligenceCanvas for the fuller explanation)
+    // freezes Lenis and GSAP's ticker mid-flight rather than tearing them
+    // down, so nothing here reliably re-syncs on its own: Lenis's virtual
+    // scroll position can drift from the real one, and ScrollTrigger's
+    // cached measurements can be stale against whatever the layout settled
+    // on while frozen. Recompute both the instant the page is live again.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      lenis?.resize();
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener("pageshow", onPageShow);
+
     return () => {
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("georepute:scroll-lock", onLock);
+      window.removeEventListener("pageshow", onPageShow);
       progressTrigger.kill();
       sectionTriggers.forEach((t) => t.kill());
       delete root.dataset.band;

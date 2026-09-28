@@ -38,8 +38,24 @@ export function IntelligenceCanvas() {
 
     const onVisibility = () => setVisible(!document.hidden);
     document.addEventListener("visibilitychange", onVisibility);
+
+    // The browser's back/forward cache is a *different* lifecycle path than
+    // visibilitychange: switching away and back can freeze the whole page
+    // (JS paused, not unloaded) and restore it later without ever firing a
+    // WebGL context-loss event, yet the canvas's drawing buffer is not
+    // guaranteed to survive the freeze. A stale or corrupted buffer paints
+    // as blank/black behind live content that is otherwise fine. `pageshow`
+    // with `persisted: true` is the one reliable signal a bfcache restore
+    // happened; force a full remount so three.js starts a clean context and
+    // draws a real first frame instead of whatever the GPU kept, or didn't.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setCanvasKey((k) => k + 1);
+    };
+    window.addEventListener("pageshow", onPageShow);
+
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pageshow", onPageShow);
       disposeTextures();
     };
   }, []);
