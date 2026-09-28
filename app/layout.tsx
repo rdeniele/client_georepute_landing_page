@@ -65,6 +65,19 @@ export const viewport: Viewport = {
   // when the visitor switches to light.
   themeColor: "#0C1134",
   colorScheme: "dark light",
+  // Locks pinch-zoom. Real-device reports (iPhone 14/15/16, Android) showed
+  // the page coming back from a backgrounded tab rendered tiny and shifted
+  // toward the right edge, with only slivers of text visible: the signature
+  // of the browser's own pinch-zoom/visual-viewport state getting stuck at a
+  // non-1 scale after returning from the background, a known mobile
+  // Safari/Chrome bug class, not anything in this app's own layout (no
+  // horizontal overflow was reproducible at any of these widths without
+  // zoom involved). Disabling zoom removes the state that can get stuck in
+  // the first place.
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
