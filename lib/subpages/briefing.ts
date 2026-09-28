@@ -67,7 +67,7 @@ const en: BriefingCopy = {
   booking: { title: "Book a time", hint: "Pick a slot that works for you, we'll send the calendar invite and meeting link." },
   tabs: { calendly: "Book a time", form: "Send a message" },
   form: {
-    title: "Request a meeting",
+    title: "Contact us",
     hint: "Fields marked with an asterisk (*) are mandatory.",
     honeypotLabel: "Leave this field empty",
     nameLabel: "Full name",
@@ -114,7 +114,7 @@ const he: BriefingCopy = {
   booking: { title: "קביעת מועד", hint: "בחרו זמן מתאים, ונשלח לכם הזמנה ליומן וקישור לפגישה." },
   tabs: { calendly: "קביעת מועד", form: "שליחת הודעה" },
   form: {
-    title: "בקשת פגישה",
+    title: "צרו קשר",
     hint: "שדות המסומנים בכוכבית (*) הם שדות חובה.",
     honeypotLabel: "השאירו שדה זה ריק",
     nameLabel: "שם מלא",

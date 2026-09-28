@@ -1,24 +1,29 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { submitMeetingRequestAction, type MeetingRequestState } from "@/lib/actions/meeting";
 import { MEETING_SUBJECTS } from "@/lib/contact";
 import { getBriefingCopy } from "@/lib/subpages/briefing";
 
 const initialState: MeetingRequestState = { status: "idle", error: null };
 
-/** `YYYY-MM-DDTHH:mm` for "now" in the browser's timezone — the format `datetime-local` expects for `min`. */
-function localNowValue(): string {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  return now.toISOString().slice(0, 16);
-}
+// `YYYY-MM-DDTHH:mm` for "now" in the browser's timezone — the format `datetime-local`
+// expects for `min`. Only used by the "Book a Google Meet call" toggle below, which is
+// disabled for now, so this is unused until that's turned back on.
+// function localNowValue(): string {
+//   const now = new Date();
+//   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+//   return now.toISOString().slice(0, 16);
+// }
 
 /**
- * The form on /briefing. It always offers "Book a Google Meet call": with
- * Google Calendar configured, the link is created and emailed straight away;
- * otherwise the preferred time is emailed to the team, who confirm it by
- * reply and send the link themselves.
+ * The general contact form on /briefing (the "Send a message" tab; "Book a
+ * time" next to it is the separate Calendly tab for scheduling directly).
+ *
+ * The inline "Book a Google Meet call" toggle is commented out below: it
+ * isn't fixed yet, so the form always submits as a plain contact request
+ * for now. Uncomment it (and the state/handler just above the JSX) once
+ * the automatic Meet-link flow works.
  */
 export function MeetingRequestForm({
   locale = "en",
@@ -30,17 +35,17 @@ export function MeetingRequestForm({
 }) {
   const c = getBriefingCopy(locale).form;
   const [state, formAction, pending] = useActionState(submitMeetingRequestAction, initialState);
-  const [scheduleMeet, setScheduleMeet] = useState(false);
-  const [timeZone, setTimeZone] = useState("");
-  const [minStart, setMinStart] = useState("");
+  // const [scheduleMeet, setScheduleMeet] = useState(false);
+  // const [timeZone, setTimeZone] = useState("");
+  // const [minStart, setMinStart] = useState("");
 
-  const toggleMeet = (checked: boolean) => {
-    setScheduleMeet(checked);
-    if (checked) {
-      setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-      setMinStart(localNowValue());
-    }
-  };
+  // const toggleMeet = (checked: boolean) => {
+  //   setScheduleMeet(checked);
+  //   if (checked) {
+  //     setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  //     setMinStart(localNowValue());
+  //   }
+  // };
 
   if (state.status === "success") {
     const { meet, confirmationSent } = state;
@@ -150,6 +155,9 @@ export function MeetingRequestForm({
           <textarea id="message" name="message" rows={4} required placeholder={c.messagePlaceholder} />
         </div>
 
+        {/* "Book a Google Meet call" toggle: disabled for now, isn't fixed yet.
+            Uncomment this together with the state/handler near the top of the
+            component once the automatic Meet-link flow works again.
         <div className="kit-meet">
           <label className="kit-check">
             <input
@@ -172,6 +180,7 @@ export function MeetingRequestForm({
             </div>
           ) : null}
         </div>
+        */}
 
         <button type="submit" className="briefing-submit" disabled={pending}>
           {pending ? c.sending : c.submit}
