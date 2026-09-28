@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { lockScroll } from "@/components/intro/IntroModal";
 import { getLocaleCopy } from "@/lib/i18n";
 import { getIntroCopy } from "@/lib/intro";
+import { debugLog } from "@/lib/debugLog";
 
 /**
  * Try it on a business, as a modal. Every sign-up CTA on the site opens this
@@ -50,15 +51,38 @@ export function TryModal({ locale = "en" }: { locale?: string }) {
     // Every opening is a fresh test.
     setDomain("");
     setPhase("idle");
+    debugLog("tryModal: open");
     setVisibility("open");
   }, []);
 
   const close = useCallback(() => {
     window.clearTimeout(timers.current.analyze);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    debugLog("tryModal: closing");
     setVisibility("closing");
-    timers.current.close = window.setTimeout(() => setVisibility("closed"), reduced ? 0 : CLOSE_MS);
+    timers.current.close = window.setTimeout(() => {
+      debugLog("tryModal: closed (timer)");
+      setVisibility("closed");
+    }, reduced ? 0 : CLOSE_MS);
   }, []);
+
+  // Same protection as IntroModal (see components/intro/IntroModal.tsx): a
+  // hidden tab does not reliably run the "closing" timer above, which would
+  // otherwise leave `visibility` stuck at "closing" (still rendering, still
+  // holding the scroll lock) forever. Finish the transition directly the
+  // instant the tab is visible again.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.hidden) return;
+      if (visibility === "closing") {
+        debugLog("tryModal: closed (stuck-closing recovery on visibilitychange)");
+        window.clearTimeout(timers.current.close);
+        setVisibility("closed");
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [visibility]);
 
   useEffect(() => {
     const onOpen = () => open();

@@ -9,6 +9,7 @@ import {
   introVideo,
   type IntroCopy,
 } from "@/lib/intro";
+import { debugLog } from "@/lib/debugLog";
 
 /** Asks ScrollProvider to pause/resume Lenis while the dialog owns the screen. */
 export const SCROLL_LOCK_EVENT = "georepute:scroll-lock";
@@ -118,6 +119,7 @@ export function IntroModal({ locale = "en" }: { locale?: string }) {
   const open = useCallback(() => {
     window.clearTimeout(closeTimer.current);
     returnFocus.current = document.activeElement as HTMLElement | null;
+    debugLog("introModal: open");
     setPhase("open");
   }, []);
 
@@ -125,9 +127,33 @@ export function IntroModal({ locale = "en" }: { locale?: string }) {
     writeSeen();
     dialogRef.current?.querySelectorAll("video").forEach((v) => v.pause());
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    debugLog("introModal: closing");
     setPhase("closing");
-    closeTimer.current = window.setTimeout(() => setPhase("closed"), reduced ? 0 : CLOSE_MS);
+    closeTimer.current = window.setTimeout(() => {
+      debugLog("introModal: closed (timer)");
+      setPhase("closed");
+    }, reduced ? 0 : CLOSE_MS);
   }, []);
+
+  // A hidden tab does not reliably run the "closing" timer above (see
+  // lib/useReveal.ts for the fuller explanation of why): if the tab is
+  // backgrounded mid-close, `phase` can stay stuck at "closing" forever,
+  // which keeps the scroll lock (intro-lock, see below) applied and this
+  // fading backdrop/panel in the DOM indefinitely. The instant the tab is
+  // visible again, finish the transition directly instead of trusting a
+  // timer that may never have run.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.hidden) return;
+      if (phase === "closing") {
+        debugLog("introModal: closed (stuck-closing recovery on visibilitychange)");
+        window.clearTimeout(closeTimer.current);
+        setPhase("closed");
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [phase]);
 
   // First entry: open once, unless already dismissed. `?intro` forces it.
   useEffect(() => {
