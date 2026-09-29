@@ -28,7 +28,7 @@ export function createAutomationAi(): AutomationAi {
 /** Featured images come from Unsplash. Without UNSPLASH_ACCESS_KEY the automation simply writes articles without one. */
 function createImageFinder() {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY?.trim();
-  return accessKey ? createUnsplashFinder({ accessKey, appName: "georepute_blog" }) : undefined;
+  return accessKey ? createUnsplashFinder({ accessKey, appName: process.env.UNSPLASH_APP_NAME?.trim() || "georepute_blog" }) : undefined;
 }
 
 /** One bounded scheduler run. Called by the cron route (service client) and by the admin's "Run now" (their own session). */
