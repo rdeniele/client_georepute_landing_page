@@ -443,6 +443,17 @@ html[dir="rtl"] .nav__locale-menu {
   -webkit-backdrop-filter: blur(30px) saturate(1.3);
 }
 
+/* RTL: .nav__primary is an unreversed flex row (see .nav__locale-menu above),
+   so it auto-mirrors under dir="rtl" and the first group (e.g. Platform) ends
+   up hugging the right edge of the viewport, next to the logo. Anchoring the
+   panel from `left` then pushes its whole width further right and off-screen.
+   Anchor from the right edge of the trigger instead, so the panel opens
+   inward toward the center of the page. */
+html[dir="rtl"] .nav__panel {
+  left: auto;
+  right: -8px;
+}
+
 /* The UA [hidden] rule loses to the `display: grid` above, so state it here. */
 .nav__panel[hidden],
 .nav__drawer[hidden],
