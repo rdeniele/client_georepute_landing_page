@@ -27,6 +27,7 @@ import { csvToTopics, parseCsv, rowsToTopics, cleanTopic } from "@/lib/blog/auto
 import { ARTICLE_JSON_SCHEMA, DEFAULT_SYSTEM_PROMPT, allowedLinks, buildArticlePrompt, isAllowedLinkFor, parseLinkRules } from "@/lib/blog/automation/prompt";
 import { generateArticle, validateArticle, type GeneratedArticle } from "@/lib/blog/automation/article";
 import { faqToBlocks, blocksToFaq, localizeArticle, rewriteLocalePaths, validateSeo, type LocalizedArticle } from "@/lib/blog/automation/localize";
+import { createUnsplashFinder, creditFor, type ImageFinder } from "@/lib/blog/automation/images";
 import { findPlaceholders, validateForPublish, type PublishCandidate, type ValidationOptions } from "@/lib/blog/automation/validate";
 import {
   approveVariant,
@@ -262,6 +263,10 @@ class MemoryStore implements AutomationStore {
     const p: StoredPost = { id: this.id("post"), status: "draft", publishedAt: null, ...input, slug };
     this.posts.push(p);
     return { ...p };
+  }
+  async setFeaturedImage(id: string, image: { url: string; credit: import("@/lib/blog/automation/images").ImageCredit | null }) {
+    const p = this.posts.find((x) => x.id === id)!;
+    if (!p.featuredImage) Object.assign(p, { featuredImage: image.url, featuredImageCredit: image.credit });
   }
   async publishPost(id: string, at: Date) {
     Object.assign(this.posts.find((p) => p.id === id)!, { status: "published", publishedAt: at.toISOString() });
@@ -702,6 +707,49 @@ async function main() {
     t.c.set("2026-09-27T05:00:00Z");
     const next = await t.tick();
     check("the next day the window moves and new topics are planned", next.planned === 2, JSON.stringify(next));
+  }
+
+  section("Featured images (Unsplash)");
+  {
+    const photo = (id: string, over: Record<string, unknown> = {}) => ({
+      urls: { regular: `https://images.unsplash.com/${id}?w=1080` },
+      user: { name: `Photographer ${id}`, links: { html: `https://unsplash.com/@${id}` } },
+      links: { html: `https://unsplash.com/photos/${id}`, download_location: `https://api.unsplash.com/photos/${id}/download` },
+      ...over,
+    });
+    const requests: { url: string; auth: string | null }[] = [];
+    const scripted = (results: unknown[], status = 200): typeof fetch =>
+      (async (input: string | URL | Request, init?: RequestInit) => {
+        requests.push({ url: String(input), auth: new Headers(init?.headers).get("authorization") });
+        return new Response(JSON.stringify({ results }), { status });
+      }) as typeof fetch;
+
+    const finder = createUnsplashFinder({ accessKey: "KEY", appName: "app", fetchImpl: scripted([photo("a"), photo("b"), photo("c")]) });
+    const img = await finder.find("shop window night", "topic-1");
+    check("a photo is found with the API's own image URL (hotlinked, unchanged)", !!img && img.url.startsWith("https://images.unsplash.com/") && img.credit.url === img.url);
+    check("the request is authorized with the access key and searches landscape photos", requests[0].auth === "Client-ID KEY" && requests[0].url.includes("orientation=landscape") && requests[0].url.includes("shop+window+night"));
+    check("a download is reported to Unsplash for the chosen photo", requests.length === 2 && requests[1].url.endsWith("/download"));
+    check("the credit links carry the UTM tags", !!img && img.credit.photographerUrl.includes("utm_source=app") && img.credit.photographerUrl.includes("utm_medium=referral") && img.credit.sourceUrl.includes("utm_source=app"));
+    check("the same topic always gets the same photo", (await finder.find("shop window night", "topic-1"))?.url === img?.url);
+    check("different topics spread over the results", new Set(await Promise.all(["t1", "t2", "t3", "t4", "t5", "t6"].map(async (s) => (await finder.find("x y", s))?.url))).size > 1);
+    check("a photo from another host is never used", (await createUnsplashFinder({ accessKey: "K", appName: "a", fetchImpl: scripted([photo("a", { urls: { regular: "https://evil.example/a.jpg" } })]) }).find("q q", "s")) === null);
+    check("rate limiting or an API error gives no image, not an exception", (await createUnsplashFinder({ accessKey: "K", appName: "a", fetchImpl: scripted([], 403) }).find("q q", "s")) === null);
+    check("a network failure gives no image, not an exception", (await createUnsplashFinder({ accessKey: "K", appName: "a", fetchImpl: (async () => { throw new Error("down"); }) as typeof fetch }).find("q q", "s")) === null);
+    check("no key means no request and no image", (await createUnsplashFinder({ accessKey: "", appName: "a", fetchImpl: scripted([photo("a")]) }).find("q q", "s")) === null);
+    check("a credit is only shown for the image it was made for", !!img && creditFor(img.url, img.credit) !== null && creditFor("https://elsewhere/x.jpg", img.credit) === null && creditFor(img.url, { photographer: "x" }) === null);
+
+    const stub: ImageFinder = { find: async (q) => ({ url: "https://images.unsplash.com/one", credit: { ...img!.credit, url: "https://images.unsplash.com/one" } }) };
+    const t = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    t.store.addTopics(1);
+    const withImages = { ...t.deps, images: stub };
+    await runTick(withImages, { trigger: "manual", budgetMs: 265_000 });
+    check("the canonical article gets the featured image", t.store.posts.length > 0 && t.store.posts.some((p) => p.featuredImage === "https://images.unsplash.com/one" && p.featuredImageCredit?.photographer));
+    check("every language version shares the source article's photo and credit", t.store.posts.length === LOCALES.length && t.store.posts.every((p) => p.featuredImage === "https://images.unsplash.com/one" && p.featuredImageCredit));
+
+    const broken = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    broken.store.addTopics(1);
+    await runTick({ ...broken.deps, images: { find: async () => { throw new Error("boom"); } } }, { trigger: "manual", budgetMs: 265_000 });
+    check("an image lookup that throws never fails the article", broken.store.posts.length === LOCALES.length && broken.store.v("scheduled").length === LOCALES.length && broken.store.posts.every((p) => !p.featuredImage));
   }
 
   section("Language modes");

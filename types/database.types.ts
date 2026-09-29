@@ -120,6 +120,7 @@ export interface Database {
           excerpt: string | null;
           content: string;
           featured_image: string | null;
+          featured_image_credit: Json | null;
           author_id: string | null;
           category: string | null;
           tags: string[];
@@ -144,6 +145,7 @@ export interface Database {
           excerpt?: string | null;
           content?: string;
           featured_image?: string | null;
+          featured_image_credit?: Json | null;
           author_id?: string | null;
           category?: string | null;
           tags?: string[];
@@ -168,6 +170,7 @@ export interface Database {
           excerpt?: string | null;
           content?: string;
           featured_image?: string | null;
+          featured_image_credit?: Json | null;
           author_id?: string | null;
           category?: string | null;
           tags?: string[];

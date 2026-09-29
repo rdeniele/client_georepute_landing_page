@@ -7,6 +7,7 @@ import { slugFrom } from "@/lib/blog/generation";
 import { DEFAULT_SETTINGS, settingsFromRow, settingsToRow, type AutomationSettings, type TickSummary } from "@/lib/blog/automation/config";
 import { dateInZone, zonedTimeToUtc } from "@/lib/blog/automation/schedule";
 import type { TopicInput } from "@/lib/blog/automation/topics";
+import type { ImageCredit } from "@/lib/blog/automation/images";
 import type { AutomationStore, Job, NewVariant, PostInput, StoredPost } from "@/lib/blog/automation/worker";
 
 /**
@@ -42,6 +43,8 @@ function toStoredPost(row: Database["public"]["Tables"]["posts"]["Row"]): Stored
     keywords: row.keywords ?? [],
     status: row.status,
     publishedAt: row.published_at,
+    featuredImage: row.featured_image,
+    featuredImageCredit: (row.featured_image_credit as unknown as ImageCredit | null) ?? null,
   };
 }
 
@@ -352,6 +355,15 @@ export class SupabaseAutomationStore implements AutomationStore {
       if (!/duplicate|unique/i.test(error.message)) raise("create the post", error);
     }
     throw new Error("Failed to create the post: the slug kept colliding.");
+  }
+
+  async setFeaturedImage(postId: string, image: { url: string; credit: ImageCredit | null }): Promise<void> {
+    const { error } = await this.db
+      .from("posts")
+      .update({ featured_image: image.url, featured_image_credit: image.credit as unknown as Json })
+      .eq("id", postId)
+      .is("featured_image", null);
+    if (error) raise("set the featured image", error);
   }
 
   async publishPost(postId: string, at: Date): Promise<void> {

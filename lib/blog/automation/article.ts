@@ -46,6 +46,8 @@ export type GeneratedArticle = {
   faq: FaqItem[];
   cta: { heading: string; text: string };
   imageConcept: string;
+  /** Short English search phrase for the featured-image lookup. */
+  imageQuery: string;
   linkOpportunities: string[];
   language: string;
   wordCount: number;
@@ -142,6 +144,8 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
 
   const imageConcept = plainOf(str(d.imageConcept, "the image concept")).slice(0, 300);
   if (imageConcept.length < 10) fail("the featured image concept is missing");
+  // Only a search hint: a missing or odd value falls back to the primary keyword instead of rejecting a good article.
+  const imageQuery = typeof d.imageQuery === "string" ? plainOf(d.imageQuery).replace(/[^\p{L}\p{N} -]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60) : "";
   const linkOpportunities = stringList(d.linkOpportunities, 3, 5, 200);
 
   const all = `${title} ${metaTitle} ${metaDescription} ${blockText(body)} ${faq.map((f) => `${f.question} ${f.answer}`).join(" ")} ${cta.heading} ${cta.text}`;
@@ -165,7 +169,7 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
     { type: "paragraph", content: [{ type: "text", text: cta.text, styles: {} }] },
   ];
 
-  return { title, metaTitle, metaDescription, slug, excerpt, category, tags, keywords, blocks, faq, cta, imageConcept, linkOpportunities, language, wordCount: words, model: meta.model, usage: meta.usage };
+  return { title, metaTitle, metaDescription, slug, excerpt, category, tags, keywords, blocks, faq, cta, imageConcept, imageQuery: imageQuery.length >= 3 ? imageQuery : (req.primaryKeyword?.trim() || keywords[0]), linkOpportunities, language, wordCount: words, model: meta.model, usage: meta.usage };
 }
 
 export type GenerateArticleOptions = {

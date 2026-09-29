@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPostByPreviewToken } from "@/lib/services/posts";
 import { formatDate } from "@/lib/utils/format";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
+import { PhotoCredit } from "@/components/blog/PhotoCredit";
 
 type Params = { token: string };
 
@@ -95,6 +96,7 @@ export default async function BlogPreviewPage({ params }: { params: Promise<Para
                 <div className="blog-article__media">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={post.featured_image} alt="" />
+                  <PhotoCredit image={post.featured_image} credit={post.featured_image_credit} />
                 </div>
               ) : null}
 

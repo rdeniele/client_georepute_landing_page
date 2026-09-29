@@ -466,6 +466,9 @@ alter table public.posts
   add column if not exists faq jsonb,
   add column if not exists translation_group uuid;
 
+-- Photographer credit for an automatically chosen (Unsplash) featured image.
+alter table public.posts add column if not exists featured_image_credit jsonb;
+
 create index if not exists posts_translation_group_idx
   on public.posts (translation_group) where translation_group is not null;
 

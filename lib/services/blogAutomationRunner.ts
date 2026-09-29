@@ -9,6 +9,7 @@ import { runTick, type AutomationAi } from "@/lib/blog/automation/worker";
 import type { TickSummary } from "@/lib/blog/automation/config";
 import { Anthropic, getAnthropicClient, getBlogModel, getTranslationModel } from "@/lib/services/claude";
 import { SupabaseAutomationStore } from "@/lib/services/blogAutomation";
+import { createUnsplashFinder } from "@/lib/blog/automation/images";
 import { describeError } from "@/lib/utils/safeLog";
 
 /**
@@ -24,12 +25,19 @@ export function createAutomationAi(): AutomationAi {
   };
 }
 
+/** Featured images come from Unsplash. Without UNSPLASH_ACCESS_KEY the automation simply writes articles without one. */
+function createImageFinder() {
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY?.trim();
+  return accessKey ? createUnsplashFinder({ accessKey, appName: "georepute_blog" }) : undefined;
+}
+
 /** One bounded scheduler run. Called by the cron route (service client) and by the admin's "Run now" (their own session). */
 export async function runAutomationTick(db: SupabaseClient<Database>, trigger: "cron" | "manual", budgetMs: number): Promise<TickSummary> {
   const summary = await runTick(
     {
       store: new SupabaseAutomationStore(db),
       ai: createAutomationAi(),
+      images: createImageFinder(),
       defaultModels: { generation: getBlogModel(), translation: getTranslationModel() },
       // Codes and counts only: never article text, keys or provider messages.
       log: (message) => console.error(describeError(message)),

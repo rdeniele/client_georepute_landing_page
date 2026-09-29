@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/utils/format";
 import { blogPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
+import { PhotoCredit } from "@/components/blog/PhotoCredit";
 
 type Params = { slug: string };
 type SearchParams = { lang?: string };
@@ -208,6 +209,7 @@ export default async function BlogPostPage({
               <div className="blog-cover">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={post.featured_image} alt="" />
+                <PhotoCredit image={post.featured_image} credit={post.featured_image_credit} />
               </div>
             ) : null}
 

@@ -44,6 +44,7 @@ SEO
 - faq: real questions a searcher would type, each answered directly in 2 to 4 sentences, suitable for FAQ structured data. Follow the FAQ mode in the request.
 - cta: a heading and a short paragraph that follow the CTA instructions and match the article's intent, in natural language for that market, never a literal translation of a generic CTA.
 - imageConcept: 2 to 4 sentences in English describing the visual plan for this article: the featured/hero image (subject and mood), one or two supporting images or diagrams tied to specific sections when they would genuinely help explain the content, and whether a chart, comparison table or process diagram would help (name the type and what it would show, using only figures given in the brief or clearly labeled as illustrative). Do not propose decorative images that add nothing.
+- imageQuery: 2 to 4 plain English words for a stock-photo search that would find a fitting featured photo (a concrete, photographable subject such as "shop window night" or "team laptop meeting", not an abstract idea or a brand name).
 - linkOpportunities: up to 5 short notes in English naming other articles or pages this piece should link to, when a suitable link is not in the allowed list.
 
 Links
@@ -97,6 +98,7 @@ export const ARTICLE_JSON_SCHEMA = {
       additionalProperties: false,
     },
     imageConcept: { type: "string" },
+    imageQuery: { type: "string" },
     linkOpportunities: { type: "array", items: { type: "string" } },
     requiredSections: {
       type: "array",
@@ -121,6 +123,7 @@ export const ARTICLE_JSON_SCHEMA = {
     "faq",
     "cta",
     "imageConcept",
+    "imageQuery",
     "linkOpportunities",
     "requiredSections",
   ],

@@ -25,6 +25,7 @@ import { assignTopics, dateInZone, addDays, planWindow } from "./schedule";
 import type { AutomationSettings, TickSummary } from "./config";
 import type { GeneratedArticle } from "./article";
 import type { LocalizedArticle, SourceArticle } from "./localize";
+import type { FeaturedImage, ImageCredit, ImageFinder } from "./images";
 
 /* -------------------------------------------------------------------------- */
 /* Interfaces                                                                 */
@@ -45,6 +46,8 @@ export type StoredPost = {
   keywords: string[];
   status: "draft" | "published";
   publishedAt: string | null;
+  featuredImage?: string | null;
+  featuredImageCredit?: ImageCredit | null;
 };
 
 export type PostInput = Omit<StoredPost, "id" | "status" | "publishedAt"> & { translationGroup: string };
@@ -88,6 +91,8 @@ export interface AutomationStore {
   getPost(id: string): Promise<StoredPost | null>;
   /** Creates or updates the draft post for a variant. The slug is made unique within its language. */
   savePost(existingId: string | null, input: PostInput): Promise<StoredPost>;
+  /** Sets the featured image and its credit together. Never touches an image an editor already chose. */
+  setFeaturedImage(postId: string, image: { url: string; credit: ImageCredit | null }): Promise<void>;
   publishPost(postId: string, at: Date): Promise<void>;
   unpublishPost(postId: string): Promise<void>;
 }
@@ -100,6 +105,8 @@ export interface AutomationAi {
 export type WorkerDeps = {
   store: AutomationStore;
   ai: AutomationAi;
+  /** Optional: without it, articles are written without a featured image (an editor can add one). */
+  images?: ImageFinder;
   now?: () => Date;
   supported?: readonly string[];
   /** Default models when the settings do not name one. */
@@ -403,6 +410,8 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
         keywords: article.keywords,
         translationGroup: topic.translation_group,
       });
+      const finder = deps.images;
+      if (finder) await attachFeaturedImage(deps, post, () => finder.find(article.imageQuery, topic.id));
       meta = {
         ...(variant.meta as object | null),
         kind: "generation",
@@ -455,6 +464,10 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
         keywords: localized.keywords,
         translationGroup: topic.translation_group,
       });
+      // Every language shows the same photo as the article it was adapted from.
+      if (src.featuredImage) {
+        await attachFeaturedImage(deps, post, async () => ({ url: src.featuredImage!, credit: src.featuredImageCredit ?? null }));
+      }
       // Findings from the translation checks: serious ones hold the article back for a human.
       extra = localized.report.issues.map((i) => ({
         severity: i.severity === "minor" ? ("warning" as const) : ("error" as const),
@@ -489,6 +502,17 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
     return { kind: variant.is_source ? "generated" : "localized" };
   } catch (error) {
     return handleFailure(deps, s, variant, error);
+  }
+}
+
+/** A featured image is optional: whatever goes wrong here, the article still continues. */
+async function attachFeaturedImage(deps: WorkerDeps, post: StoredPost, get: () => Promise<{ url: string; credit: ImageCredit | null } | FeaturedImage | null>): Promise<void> {
+  if (post.featuredImage) return; // keep whatever an editor (or an earlier run) already set
+  try {
+    const image = await get();
+    if (image) await deps.store.setFeaturedImage(post.id, image);
+  } catch {
+    // Missing column, API refusal, network: no image, no failure.
   }
 }
 

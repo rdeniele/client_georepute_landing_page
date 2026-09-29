@@ -98,6 +98,21 @@ At topic level the queue also shows *Generated* (canonical article done, transla
   and hreflang links between the language versions (linked through `translation_group`, so each language can have its own slug).
   The blog index is paginated (24 per page) and has per-language canonical URLs.
 
+## Featured images (Unsplash)
+
+- Set `UNSPLASH_ACCESS_KEY` (server-side only; unsplash.com/developers > your app > Access Key) and run the `featured_image_credit`
+  line in `SUPABASE_SETUP.md` Step 13. Without the key, articles are simply written without a featured image.
+- When the canonical article is written, Claude also returns a short English `imageQuery`. The site searches Unsplash with it
+  (landscape, safe content), picks one of the top 10 results (stable per topic, so different topics rarely share a photo),
+  reports the download to Unsplash, and stores the photo URL plus the photographer credit on the post. Every language version
+  reuses the same photo. The public post shows "Photo by <name> on Unsplash" on the cover, with the UTM-tagged links Unsplash requires.
+- It never blocks anything: no key, no result, an API error or the rate limit just means no image. An image an editor set
+  is never replaced, and the credit only shows while the post still uses that exact image.
+- **Rate limit:** a new Unsplash app is in demo mode (50 requests/hour, 2 per article). Apply for production access
+  (5,000/hour) in the Unsplash dashboard before running many articles a day. Unsplash's terms require the credit and the
+  hotlinked URL, so the photo is not copied into Supabase Storage.
+- Code: `lib/blog/automation/images.ts`, `components/blog/PhotoCredit.tsx`.
+
 ## Errors, retries and cost
 
 - Every failure saves a status and a readable message (never keys or provider text) and keeps the topic. Retryable failures
@@ -128,6 +143,7 @@ At topic level the queue also shows *Generated* (canonical article done, transla
 | `lib/blog/automation/article.ts` | Canonical article: call, validation, retry with feedback |
 | `lib/blog/automation/localize.ts` | Localization: body/FAQ/CTA via the translator, per-language SEO fields, link rewriting |
 | `lib/blog/automation/validate.ts` | The publish gate |
+| `lib/blog/automation/images.ts` | Unsplash featured-image lookup and photographer credit |
 | `lib/blog/automation/worker.ts` | The engine (`runTick`) and manual operations (retry, regenerate, approve, publish, reschedule, skip) |
 | `lib/blog/automation/topics.ts` | CSV/Excel rows to topics |
 | `lib/services/blogAutomation.ts` | Supabase store, queue and statistics queries |
@@ -138,7 +154,7 @@ At topic level the queue also shows *Generated* (canonical article done, transla
 
 ## Tests
 
-`npm run automation:check` runs 188 offline checks with an in-memory store and a scripted model (no database, no API, no cost):
+`npm run automation:check` runs 202 offline checks with an in-memory store and a scripted model (no database, no API, no cost):
 scheduling maths across time zones and DST, planning, both language modes, dynamic languages, retries and back-off, systemic
 errors, expired leases, the publish gate, review, pause and resume, one-language regeneration (no wasted calls), topic import,
 article and SEO validation, localization of body/FAQ/CTA/links, and static checks on secrets and admin guards.
@@ -151,6 +167,6 @@ into Hebrew and French, and checks both pass the publish gate. Output goes to `s
 - The database code, the Claude calls and the scheduler route have not been exercised end to end against the real Supabase
   project and the real API in this repository's checks: the offline suite covers the logic, and the admin screens were checked in
   a browser with sample data. Do a first run with a handful of topics (Run now) before uploading hundreds.
-- Featured images are not generated. Each article stores an image idea (visible in the queue and the post editor).
+- Featured images come from Unsplash (see below) and are stock photos chosen by a search, not generated. Each article still stores an image idea (visible in the queue and the post editor). Images inside the article body are not added.
 - Translations of a post that was edited after localization are not refreshed automatically; use Regenerate on that language.
 - Articles over 3,000 words cannot be localized by the existing translator (the length options stay well below that).
