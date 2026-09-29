@@ -556,6 +556,14 @@ html[dir="rtl"] .kit-meter__fill {
   opacity: 0.55;
 }
 
+/* RTL: .kit-meter__fill already grows from the right (transform-origin
+   above), but this tick was still anchored with `left`, so it landed on the
+   wrong side of the fill it's meant to mark. */
+html[dir="rtl"] .kit-meter__target {
+  left: auto;
+  right: calc(var(--t) * 100%);
+}
+
 .kit-meter--signal { color: var(--color-signal); }
 .kit-meter--up { color: var(--color-up); }
 .kit-meter--down { color: var(--color-down); }

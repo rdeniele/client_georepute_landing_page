@@ -847,6 +847,58 @@
   display: block;
 }
 
+/* RTL: the amber region, its label, the travelling signal dot, and the step
+   markers all plot points on a shared time axis (0% = earliest event). The
+   axis itself must still read start-to-end in the page's own direction, so
+   everything below mirrors from the right instead of assuming left-to-right.
+   Scoped to the same desktop width as the horizontal layout itself — below
+   860px the track stacks vertically (see the media query below) and top-to-
+   bottom order needs no mirroring, so these rules must not leak in there. */
+@media (min-width: 861px) {
+  html[dir="rtl"] .blind__region {
+    left: auto;
+    right: 0;
+    border-right: 0;
+    border-left: 1px dashed rgba(219, 151, 35, 0.5);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: linear-gradient(
+      270deg,
+      rgba(219, 151, 35, 0.03),
+      rgba(219, 151, 35, 0.08)
+    );
+  }
+  html[dir="rtl"] .blind__region-label {
+    right: auto;
+    left: 14px;
+    text-align: left;
+  }
+  html[dir="rtl"] .blind__track::after {
+    left: auto;
+    right: 0;
+    animation-name: blind-signal-travel-rtl;
+  }
+  html[dir="rtl"] .blind__step {
+    left: auto;
+    right: var(--at);
+    transform: translateX(50%);
+  }
+  html[dir="rtl"] .blind__step:first-child {
+    transform: translateX(0);
+    align-items: flex-end;
+  }
+  html[dir="rtl"] .blind__step:last-child {
+    transform: translateX(100%);
+    align-items: flex-start;
+  }
+}
+
+@keyframes blind-signal-travel-rtl {
+  0%, 8% { right: 0; opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { right: calc(100% - 7px); opacity: 0; }
+}
+
 @media (max-width: 860px) {
   .blind__region {
     width: 100%;

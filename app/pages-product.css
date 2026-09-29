@@ -2467,7 +2467,7 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
 .rc-pulse__dot {
   position: absolute;
   top: 50%;
-  left: 0;
+  inset-inline-start: 0;
   width: 8px;
   height: 8px;
   margin-top: -4px;
@@ -2477,17 +2477,20 @@ html.theme-dark .ac-road__bar--muted { color: #0c1134; }
   animation: rc-pulse-run 3.6s var(--ease-out) infinite;
 }
 
+/* Logical (inset-inline-start), not left: the dot travels toward
+   .rc-pulse__nodes below, an <ol> that auto-mirrors under dir="rtl" — the
+   pulse needs to travel the same start-to-end direction as that list. */
 @keyframes rc-pulse-run {
-  0% { left: 0%; opacity: 0; }
+  0% { inset-inline-start: 0%; opacity: 0; }
   8% { opacity: 1; }
   92% { opacity: 1; }
-  100% { left: 100%; opacity: 0; }
+  100% { inset-inline-start: 100%; opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rc-pulse__dot {
     animation: none;
-    left: 50%;
+    inset-inline-start: 50%;
     opacity: 1;
   }
 }
