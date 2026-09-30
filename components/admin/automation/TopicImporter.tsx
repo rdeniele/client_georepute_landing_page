@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { addTopicAction, importTopicsAction } from "@/lib/actions/blogAutomation";
 import { csvToTopics, rowsToTopics, type ParsedRows, type TopicInput } from "@/lib/blog/automation/topics";
+import { Flow } from "@/components/admin/ui/kit";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const CHUNK = 200;
@@ -87,20 +88,39 @@ export function TopicImporter() {
   return (
     <>
       <div className="auto-card">
-        <h2>Import a list of topics</h2>
-        <p className="auto-card__hint">
-          A .csv or .xlsx file with one topic per row. Columns can be in any order if the first row names them: <strong>Topic</strong>, Primary keyword, Secondary keywords, Category, Search intent, Notes. Hundreds or thousands of rows are fine.{" "}
-          <a href="/blog-topics-template.csv" download>
-            Download a template
-          </a>
-          .
-        </p>
+        <h2>Add many topics at once</h2>
+        <p className="auto-card__hint">A topic is one article idea. Put your ideas in a spreadsheet, one per row, and upload it. Hundreds or thousands are fine.</p>
+        <Flow
+          steps={[
+            { title: "Get the template", text: "A ready-made spreadsheet with the right columns and three examples.", href: "/blog-topics-template.csv", download: true },
+            { title: "Fill it in", text: "One topic per row. Only the Topic column is required; the rest makes the articles better." },
+            { title: "Upload it here", text: "You see exactly what will be added before anything happens." },
+          ]}
+        />
+        <details className="ui-more">
+          <summary>What goes in each column?</summary>
+          <dl className="ui-prose" style={{ marginTop: 8 }}>
+            <dt>Topic (required)</dt>
+            <dd>The article idea or working title, for example “How to get more customer reviews”.</dd>
+            <dt>Primary keyword</dt>
+            <dd>The main phrase people search for. The article is built around it. Example: “customer reviews”.</dd>
+            <dt>Secondary keywords</dt>
+            <dd>Related phrases, separated by semicolons.</dd>
+            <dt>Category</dt>
+            <dd>The group the article belongs to, such as “Reputation”.</dd>
+            <dt>Search intent</dt>
+            <dd>What the reader wants: to learn something (“informational”), to compare, or to buy (“commercial”).</dd>
+            <dt>Notes</dt>
+            <dd>Anything the AI should know: who it is for, what to include, links it may use.</dd>
+          </dl>
+          <p className="auto-meta">The column names can be in any order as long as the first row names them.</p>
+        </details>
 
         <label className="auto-dropzone">
           <input ref={input} type="file" accept=".csv,.tsv,.txt,.xlsx,text/csv" onChange={onFile} disabled={importing} />
-          <strong>{parsed ? parsed.fileName : "Choose a file"}</strong>
+          <strong>{parsed ? parsed.fileName : "Click to choose your file"}</strong>
           <br />
-          <span>CSV or Excel (.xlsx), up to 5 MB and 5,000 rows</span>
+          <span>A spreadsheet saved as CSV or Excel (.xlsx). Up to 5 MB and 5,000 rows.</span>
         </label>
 
         {error ? (
@@ -112,10 +132,10 @@ export function TopicImporter() {
         {parsed ? (
           <div style={{ marginTop: 18 }}>
             <p className="auto-meta">
-              <strong>{parsed.topics.length.toLocaleString("en-US")}</strong> topic{parsed.topics.length === 1 ? "" : "s"} ready to import
-              {parsed.duplicates ? <>, {parsed.duplicates.toLocaleString("en-US")} duplicate{parsed.duplicates === 1 ? "" : "s"} skipped</> : null}
-              {parsed.issues.length ? <>, <strong>{parsed.issues.length}</strong> row{parsed.issues.length === 1 ? "" : "s"} with a problem</> : null}.
-              {!parsed.header ? " No header row was found, so the columns are read in the standard order." : null}
+              <strong>{parsed.topics.length.toLocaleString("en-US")}</strong> topic{parsed.topics.length === 1 ? "" : "s"} found in your file
+              {parsed.duplicates ? <>, {parsed.duplicates.toLocaleString("en-US")} repeated topic{parsed.duplicates === 1 ? "" : "s"} left out</> : null}
+              {parsed.issues.length ? <>, <strong>{parsed.issues.length}</strong> row{parsed.issues.length === 1 ? "" : "s"} that cannot be used (listed below)</> : null}.
+              {!parsed.header ? " There is no header row, so the columns are read in the standard order: Topic, Primary keyword, Secondary keywords, Category, Search intent, Notes." : null} Nothing is added until you press the button.
             </p>
 
             {parsed.issues.length ? (
@@ -132,7 +152,7 @@ export function TopicImporter() {
                 <thead>
                   <tr>
                     <th>Topic</th>
-                    <th>Primary keyword</th>
+                    <th>Main phrase</th>
                     <th>Category</th>
                   </tr>
                 </thead>
@@ -140,25 +160,25 @@ export function TopicImporter() {
                   {parsed.topics.slice(0, 6).map((t, i) => (
                     <tr key={i}>
                       <td>{t.topic}</td>
-                      <td>{t.primary_keyword ?? "None"}</td>
-                      <td>{t.category ?? "None"}</td>
+                      <td>{t.primary_keyword ?? "—"}</td>
+                      <td>{t.category ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : null}
-            {parsed.topics.length > 6 ? <p className="auto-meta">Showing 6 of {parsed.topics.length.toLocaleString("en-US")}.</p> : null}
+            {parsed.topics.length > 6 ? <p className="auto-meta">Showing the first 6 of {parsed.topics.length.toLocaleString("en-US")}.</p> : null}
 
             <div className="admin-field" style={{ marginTop: 16, maxWidth: 420 }}>
-              <label htmlFor="import-status">After importing</label>
+              <label htmlFor="import-status">What should happen to them?</label>
               <select id="import-status" value={status} onChange={(e) => setStatus(e.target.value as "queued" | "draft")} disabled={importing}>
-                <option value="queued">Add to the queue (they will be scheduled automatically)</option>
-                <option value="draft">Keep as drafts (I will queue them later)</option>
+                <option value="queued">Put them in the list to be written (recommended)</option>
+                <option value="draft">Save them for later (I will decide when)</option>
               </select>
             </div>
 
             <button type="button" className="admin-btn admin-btn--primary" disabled={importing || parsed.topics.length === 0} onClick={runImport}>
-              {importing ? "Importing…" : `Import ${parsed.topics.length.toLocaleString("en-US")} topic${parsed.topics.length === 1 ? "" : "s"}`}
+              {importing ? "Adding…" : `Add ${parsed.topics.length.toLocaleString("en-US")} topic${parsed.topics.length === 1 ? "" : "s"}`}
             </button>
             {progress ? (
               <div style={{ marginTop: 12 }}>
@@ -175,9 +195,9 @@ export function TopicImporter() {
 
         {result ? (
           <div className="auto-ok" role="status">
-            Imported <strong>{result.inserted.toLocaleString("en-US")}</strong> topic{result.inserted === 1 ? "" : "s"}
-            {result.duplicates ? `, skipped ${result.duplicates.toLocaleString("en-US")} that already existed` : ""}
-            {result.invalid ? `, ${result.invalid} were not valid` : ""}. <Link href="/admin/automation/queue">Open the queue</Link>
+            Added <strong>{result.inserted.toLocaleString("en-US")}</strong> topic{result.inserted === 1 ? "" : "s"}
+            {result.duplicates ? `, skipped ${result.duplicates.toLocaleString("en-US")} that were already in the list` : ""}
+            {result.invalid ? `, ${result.invalid} could not be used` : ""}. <strong>Next:</strong> go to the <Link href="/admin/automation">Overview</Link> and press <em>Start the Auto-Writer</em> if it is not on yet, or <Link href="/admin/automation/queue">see your articles</Link>.
           </div>
         ) : null}
       </div>
@@ -203,7 +223,7 @@ function ManualTopic() {
       const res = await addTopicAction(f satisfies Partial<Record<keyof TopicInput, unknown>>, status);
       if (res.ok) {
         setF(empty);
-        setMsg({ tone: "ok", text: "Topic added." });
+        setMsg({ tone: "ok", text: "Added. It is now in your list." });
         router.refresh();
       } else setMsg({ tone: "error", text: res.error });
     });
@@ -211,20 +231,20 @@ function ManualTopic() {
 
   return (
     <form className="auto-card" onSubmit={submit}>
-      <h2>Add one topic</h2>
-      <p className="auto-card__hint">For a single idea. Everything except the topic is optional; the more Claude knows, the better the article.</p>
+      <h2>Or add just one topic</h2>
+      <p className="auto-card__hint">For a single idea. Only the first box is required. The more you tell the AI, the better the article.</p>
       <div className="admin-field">
-        <label htmlFor="m-topic">Topic or working title</label>
+        <label htmlFor="m-topic">What is the article about?</label>
         <input id="m-topic" type="text" value={f.topic} onChange={set("topic")} required placeholder="How to improve your local business visibility on Google" />
       </div>
       <div className="admin-row">
         <div className="admin-field">
-          <label htmlFor="m-key">Primary keyword</label>
+          <label htmlFor="m-key">Main phrase people search for</label>
           <input id="m-key" type="text" value={f.primary_keyword} onChange={set("primary_keyword")} placeholder="local business visibility" />
         </div>
         <div className="admin-field">
-          <label htmlFor="m-sec">Secondary keywords</label>
-          <input id="m-sec" type="text" value={f.secondary_keywords} onChange={set("secondary_keywords")} placeholder="separated by semicolons" />
+          <label htmlFor="m-sec">Related phrases</label>
+          <input id="m-sec" type="text" value={f.secondary_keywords} onChange={set("secondary_keywords")} placeholder="separate them with semicolons" />
         </div>
       </div>
       <div className="admin-row">
@@ -233,19 +253,19 @@ function ManualTopic() {
           <input id="m-cat" type="text" value={f.category} onChange={set("category")} placeholder="Local SEO" />
         </div>
         <div className="admin-field">
-          <label htmlFor="m-int">Search intent</label>
-          <input id="m-int" type="text" value={f.search_intent} onChange={set("search_intent")} placeholder="informational" />
+          <label htmlFor="m-int">What does the reader want?</label>
+          <input id="m-int" type="text" value={f.search_intent} onChange={set("search_intent")} placeholder="to learn something, to compare, to buy..." />
         </div>
       </div>
       <div className="admin-field">
-        <label htmlFor="m-notes">Notes and instructions</label>
-        <textarea id="m-notes" rows={3} value={f.notes} onChange={set("notes")} placeholder="Angle, audience, points to cover, links Claude may use" />
+        <label htmlFor="m-notes">Instructions for the AI</label>
+        <textarea id="m-notes" rows={3} value={f.notes} onChange={set("notes")} placeholder="Who is it for? What should it cover? Any web links you paste here are the only ones it may use." />
       </div>
       <div className="admin-field" style={{ maxWidth: 420 }}>
-        <label htmlFor="m-status">After adding</label>
+        <label htmlFor="m-status">What should happen to it?</label>
         <select id="m-status" value={status} onChange={(e) => setStatus(e.target.value as "queued" | "draft")}>
-          <option value="queued">Add to the queue</option>
-          <option value="draft">Keep as a draft</option>
+          <option value="queued">Put it in the list to be written</option>
+          <option value="draft">Save it for later</option>
         </select>
       </div>
       {msg ? (

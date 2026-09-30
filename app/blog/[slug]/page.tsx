@@ -15,6 +15,7 @@ import { blogPath, feedPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 import { PhotoCredit } from "@/components/blog/PhotoCredit";
+import { GeneratedCover } from "@/components/blog/GeneratedCover";
 
 type Params = { slug: string };
 type SearchParams = { lang?: string };
@@ -228,7 +229,9 @@ export default async function BlogPostPage({
                 <img src={post.featured_image} alt={post.title} />
                 <PhotoCredit image={post.featured_image} credit={post.featured_image_credit} />
               </div>
-            ) : null}
+            ) : (
+              <GeneratedCover seed={post.slug} label={post.category ?? c.insightFallback} />
+            )}
 
             <article className="blog-article">
               {toc.length >= 3 ? (

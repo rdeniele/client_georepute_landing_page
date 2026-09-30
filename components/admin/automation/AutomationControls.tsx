@@ -49,10 +49,10 @@ export function AutomationControls({ enabled, paused, waiting }: { enabled: bool
       if (!res.ok) setFeedback({ tone: "error", text: res.error });
       else {
         const s = res.summary;
-        const parts = [`planned ${s.planned}`, `written ${s.generated}`, `translated ${s.localized}`, `published ${s.published}`];
-        if (s.retried) parts.push(`${s.retried} to retry`);
+        const parts = [`${s.planned} lined up`, `${s.generated} written`, `${s.localized} translated`, `${s.published} published`];
+        if (s.retried) parts.push(`${s.retried} will be retried`);
         if (s.failed) parts.push(`${s.failed} failed`);
-        setFeedback({ tone: s.error || s.failed ? "warn" : "ok", text: `Run finished in ${s.seconds}s: ${parts.join(", ")}.${s.skipped ? ` ${s.skipped}` : ""}${s.error ? ` ${s.error}` : ""}` });
+        setFeedback({ tone: s.error || s.failed ? "warn" : "ok", text: `Done in ${s.seconds} seconds: ${parts.join(", ")}.${s.skipped ? ` ${s.skipped}` : ""}${s.error ? ` ${s.error}` : ""}` });
       }
       router.refresh();
     });
@@ -64,17 +64,17 @@ export function AutomationControls({ enabled, paused, waiting }: { enabled: bool
       <div className="auto-actions">
         {!enabled ? (
           <button type="button" className="admin-btn admin-btn--primary" disabled={busy} onClick={() => change("start")}>
-            Start Automation
+            Start the Auto-Writer
           </button>
         ) : (
           <>
             {paused ? (
               <button type="button" className="admin-btn admin-btn--primary" disabled={busy} onClick={() => change("resume")}>
-                Resume generation
+                Resume writing
               </button>
             ) : (
               <button type="button" className="admin-btn admin-btn--ghost" disabled={busy} onClick={() => change("pause")}>
-                Pause generation
+                Pause writing
               </button>
             )}
             <button
@@ -82,23 +82,23 @@ export function AutomationControls({ enabled, paused, waiting }: { enabled: bool
               className="admin-btn admin-btn--danger"
               disabled={busy}
               onClick={() => {
-                if (window.confirm("Switch automation off? Nothing will be planned, written or published until you start it again.")) change("stop");
+                if (window.confirm("Turn the Auto-Writer off? Nothing will be written or published until you start it again. Articles already published stay live.")) change("stop");
               }}
             >
-              Stop automation
+              Turn off
             </button>
           </>
         )}
         {enabled && waiting ? (
           <button type="button" className="admin-btn admin-btn--ghost" disabled={busy} onClick={() => change("clear_backoff")}>
-            Don&apos;t wait, try again now
+            Try again now
           </button>
         ) : null}
-        <button type="button" className="admin-btn admin-btn--ghost" disabled={busy || !enabled} onClick={runNow} title={enabled ? "Runs one scheduler pass immediately" : "Start the automation first"}>
-          {running ? `Running… ${elapsed}s` : "Run now"}
+        <button type="button" className="admin-btn admin-btn--ghost" disabled={busy || !enabled} onClick={runNow} title={enabled ? "Do one round of work right now (write, translate and publish whatever is due) instead of waiting for the next automatic run" : "Start the Auto-Writer first"}>
+          {running ? `Working… ${elapsed}s` : "Write now"}
         </button>
       </div>
-      {running ? <p className="auto-meta">One pass can take a few minutes while Claude writes. You can leave this page; the scheduler does not need it.</p> : null}
+      {running ? <p className="auto-meta">This can take a few minutes while the AI writes. Please keep this tab open until it finishes.</p> : null}
       {feedback ? (
         <div className={feedback.tone === "error" ? "admin-banner admin-banner--error" : feedback.tone === "warn" ? "auto-warn" : "auto-ok"} role={feedback.tone === "error" ? "alert" : "status"}>
           {feedback.text}

@@ -3,7 +3,11 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ADMIN_POSTS_PAGE_SIZE, getPostsPage } from "@/lib/services/posts";
 import { formatDate } from "@/lib/utils/format";
 import { POST_LOCALES, isPostLocale } from "@/lib/utils/postLocale";
+import { BLOG_LANGUAGES } from "@/lib/blog/generation";
 import { PostRowActions } from "@/components/admin/PostRowActions";
+import { Callout, EmptyState, HelpTip, PageHead } from "@/components/admin/ui/kit";
+
+export const metadata = { title: "Posts | GeoRepute Admin" };
 
 type Search = { error?: string; page?: string; status?: string; lang?: string; q?: string };
 
@@ -15,6 +19,13 @@ function href(p: { page?: number; status?: string; lang?: string; q?: string }) 
   if (p.page && p.page > 1) params.set("page", String(p.page));
   const s = params.toString();
   return `/admin/blogs${s ? `?${s}` : ""}`;
+}
+
+/** What a reader would say: a published post dated in the future is not live yet, it is scheduled. */
+function statusOf(post: { status: string; published_at: string | null }): { key: "live" | "scheduled" | "draft"; label: string } {
+  if (post.status !== "published") return { key: "draft", label: "Draft" };
+  if (post.published_at && new Date(post.published_at).getTime() > Date.now()) return { key: "scheduled", label: "Scheduled" };
+  return { key: "live", label: "Live" };
 }
 
 export default async function AdminBlogsPage({ searchParams }: { searchParams: Promise<Search> }) {
@@ -38,53 +49,64 @@ export default async function AdminBlogsPage({ searchParams }: { searchParams: P
 
   return (
     <>
-      <div className="admin-header">
-        <div>
-          <h1>Posts</h1>
-          <p>Create, edit and publish blog content.</p>
-        </div>
-        <a className="admin-btn admin-btn--primary" href="/admin/blogs/new">
-          New Post
-        </a>
-      </div>
+      <PageHead title="Your posts" action={{ label: "Write a post", href: "/admin/blogs/new" }}>
+        Everything you have written. A <strong>Draft</strong> is private. A <strong>Live</strong> post is on your website.
+        <HelpTip label="Draft, Live and Scheduled">
+          Saving a post keeps it as a Draft, which only people signed in here can see. Press <b>Publish</b> to make it Live. A post published for a future date shows as Scheduled until then.
+        </HelpTip>
+      </PageHead>
 
       {sp.error ? (
-        <div className="admin-banner admin-banner--error" role="alert">
+        <Callout tone="error" title="That did not work">
           {sp.error}
-        </div>
+        </Callout>
       ) : null}
 
       <form className="auto-filters" action="/admin/blogs" method="get">
-        <select name="status" defaultValue={status ?? ""} aria-label="Status" className="admin-btn admin-btn--ghost">
-          <option value="">Any status</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
+        <select name="status" defaultValue={status ?? ""} aria-label="Show" className="admin-btn admin-btn--ghost">
+          <option value="">All posts</option>
+          <option value="published">Live posts</option>
+          <option value="draft">Drafts</option>
         </select>
         <select name="lang" defaultValue={lang ?? ""} aria-label="Language" className="admin-btn admin-btn--ghost">
-          <option value="">Any language</option>
+          <option value="">Every language</option>
           {POST_LOCALES.map((l) => (
             <option key={l} value={l}>
-              {l.toUpperCase()}
+              {BLOG_LANGUAGES[l].name}
             </option>
           ))}
         </select>
-        <input type="search" name="q" defaultValue={q} placeholder="Search titles" aria-label="Search titles" />
+        <input type="search" name="q" defaultValue={q} placeholder="Search by title" aria-label="Search by title" />
         <button type="submit" className="admin-btn admin-btn--ghost">
-          Filter
+          Search
         </button>
         {filtered ? (
           <Link className="admin-btn admin-btn--ghost" href="/admin/blogs">
-            Clear
+            Show everything
           </Link>
         ) : null}
       </form>
 
       {loadFailed ? (
-        <div className="admin-banner admin-banner--error" role="alert">
-          Couldn&apos;t load posts. Please refresh the page.
-        </div>
+        <Callout tone="error" title="Could not load your posts">
+          This is usually temporary. Refresh the page in a moment. If it keeps happening, check that the database is reachable.
+        </Callout>
       ) : posts.length === 0 ? (
-        <div className="admin-banner admin-banner--info">{filtered ? "No posts match these filters." : "No posts yet. Create your first one."}</div>
+        filtered ? (
+          <EmptyState title="No posts match" actions={[{ label: "Show everything", href: "/admin/blogs", primary: true }]}>
+            Try a different word, or clear the filters.
+          </EmptyState>
+        ) : (
+          <EmptyState
+            title="No posts yet"
+            actions={[
+              { label: "Write your first post", href: "/admin/blogs/new", primary: true },
+              { label: "Let AI write posts", href: "/admin/automation" },
+            ]}
+          >
+            Write a post yourself, or upload a list of topics and let the AI Auto-Writer do it for you.
+          </EmptyState>
+        )
       ) : (
         <table className="admin-table">
           <thead>
@@ -93,27 +115,30 @@ export default async function AdminBlogsPage({ searchParams }: { searchParams: P
               <th>Language</th>
               <th>Status</th>
               <th>Category</th>
-              <th>Updated</th>
-              <th aria-label="Actions" />
+              <th>Last changed</th>
+              <th aria-label="What you can do" />
             </tr>
           </thead>
           <tbody>
-            {posts.map((post) => (
-              <tr key={post.id}>
-                <td className="admin-table__title">
-                  <a href={`/admin/blogs/${post.id}/edit`}>{post.title}</a>
-                </td>
-                <td>{post.locale.toUpperCase()}</td>
-                <td>
-                  <span className={`admin-status admin-status--${post.status}`}>{post.status}</span>
-                </td>
-                <td>{post.category || "None"}</td>
-                <td>{formatDate(post.updated_at)}</td>
-                <td>
-                  <PostRowActions post={post} />
-                </td>
-              </tr>
-            ))}
+            {posts.map((post) => {
+              const st = statusOf(post);
+              return (
+                <tr key={post.id}>
+                  <td className="admin-table__title">
+                    <a href={`/admin/blogs/${post.id}/edit`}>{post.title}</a>
+                  </td>
+                  <td>{BLOG_LANGUAGES[post.locale]?.name ?? post.locale}</td>
+                  <td>
+                    <span className={`admin-status admin-status--${st.key}`}>{st.label}</span>
+                  </td>
+                  <td>{post.category || "—"}</td>
+                  <td>{formatDate(post.updated_at)}</td>
+                  <td>
+                    <PostRowActions post={post} />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

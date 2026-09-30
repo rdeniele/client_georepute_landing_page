@@ -161,6 +161,7 @@ function toCandidate(post: StoredPost): PublishCandidate {
     category: post.category,
     blocks: post.blocks,
     faq: post.faq,
+    featuredImage: post.featuredImage ?? null,
   };
 }
 
@@ -378,6 +379,8 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
     let post: StoredPost;
     let meta: Record<string, unknown>;
     let extra: Issue[] = [];
+    // Why there is no featured image, when there is none. Shown to the admin in place of a silent gap.
+    let imageReason: string | null = null;
     // An admin can skip or reset an item while the model is working on it; in that case the result is discarded.
     const stillMine = async () => (await store.getVariant(variant.id))?.status === variant.status;
 
@@ -411,7 +414,12 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
         translationGroup: topic.translation_group,
       });
       const finder = deps.images;
-      if (finder) await attachFeaturedImage(deps, post, () => finder.find(article.imageQuery, topic.id));
+      if (!finder) imageReason = "no_key";
+      else {
+        const attached = await attachFeaturedImage(deps, post, () => finder.find(article.imageQuery, topic.id), article.imageQuery);
+        imageReason = attached.reason;
+        if (attached.url) post = { ...post, featuredImage: attached.url };
+      }
       meta = {
         ...(variant.meta as object | null),
         kind: "generation",
@@ -466,7 +474,13 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
       });
       // Every language shows the same photo as the article it was adapted from.
       if (src.featuredImage) {
-        await attachFeaturedImage(deps, post, async () => ({ url: src.featuredImage!, credit: src.featuredImageCredit ?? null }));
+        const attached = await attachFeaturedImage(deps, post, async () => ({ url: src.featuredImage!, credit: src.featuredImageCredit ?? null }));
+        imageReason = attached.reason;
+        if (attached.url) post = { ...post, featuredImage: attached.url };
+      } else {
+        // Same root cause as the article this was adapted from (recorded in its meta), not just "the source has none".
+        const inherited = (job.source.variant.meta as { imageStatus?: unknown } | null)?.imageStatus;
+        imageReason = typeof inherited === "string" && inherited ? inherited : "source_has_none";
       }
       // Findings from the translation checks: serious ones hold the article back for a human.
       extra = localized.report.issues.map((i) => ({
@@ -486,7 +500,8 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
       };
     }
 
-    const issues = [...checkPost(post, s), ...extra];
+    // The generic "no featured image" warning gets the specific reason, so the admin knows what to fix.
+    const issues = [...checkPost(post, s), ...extra].map((i) => (i.code === "image_missing" && imageReason ? { ...i, message: imageReasonText(imageReason) } : i));
     const status = decideStatus(issues, s);
     await store.updateVariant(variant.id, {
       status,
@@ -497,7 +512,7 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
       next_attempt_at: null,
       locked_until: null,
       validation: { issues, checkedAt: now().toISOString() },
-      meta: meta as never,
+      meta: { ...meta, ...(imageReason ? { imageStatus: imageReason } : {}) } as never,
     });
     return { kind: variant.is_source ? "generated" : "localized" };
   } catch (error) {
@@ -505,14 +520,45 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
   }
 }
 
-/** A featured image is optional: whatever goes wrong here, the article still continues. */
-async function attachFeaturedImage(deps: WorkerDeps, post: StoredPost, get: () => Promise<{ url: string; credit: ImageCredit | null } | FeaturedImage | null>): Promise<void> {
-  if (post.featuredImage) return; // keep whatever an editor (or an earlier run) already set
+/** What an admin should do about each reason a post ended up without a featured image. */
+export function imageReasonText(reason: string): string {
+  if (reason === "no_key") {
+    return "No featured image: UNSPLASH_ACCESS_KEY is not set in the environment this ran in. In Vercel, add it for Production (and Preview if you test there), then redeploy: environment variable changes only apply to new deployments. The page shows a branded cover meanwhile.";
+  }
+  if (reason === "source_has_none") return "No featured image: the source-language article has none, and other languages copy it. Add a photo to the source article, or upload one here.";
+  if (reason.startsWith("no_match")) {
+    const query = reason.slice("no_match:".length).trim();
+    return `No featured image: Unsplash returned no photo${query ? ` for "${query}"` : ""}, or refused the request (check the access key is valid and the rate limit: a demo-mode app allows 50 requests an hour). Upload one in the post editor. The page shows a branded cover meanwhile.`;
+  }
+  if (reason.startsWith("save_failed")) {
+    return `No featured image: a photo was found but could not be saved (${reason.slice("save_failed:".length).trim() || "database error"}). If this mentions featured_image_credit, run Step 13 in SUPABASE_SETUP.md. The page shows a branded cover meanwhile.`;
+  }
+  return "No featured image. Upload one in the post editor. The page shows a branded cover meanwhile.";
+}
+
+/**
+ * A featured image is optional: whatever goes wrong here, the article still continues. It always reports *why* there is
+ * no image (`reason`), because a silent gap looks like a bug and is the most common thing to misconfigure.
+ */
+async function attachFeaturedImage(
+  deps: WorkerDeps,
+  post: StoredPost,
+  get: () => Promise<{ url: string; credit: ImageCredit | null } | FeaturedImage | null>,
+  query = "",
+): Promise<{ url: string | null; reason: string | null }> {
+  if (post.featuredImage) return { url: post.featuredImage, reason: null }; // keep whatever an editor (or an earlier run) already set
   try {
     const image = await get();
-    if (image) await deps.store.setFeaturedImage(post.id, image);
+    if (!image) return { url: null, reason: `no_match:${query}` };
+    try {
+      await deps.store.setFeaturedImage(post.id, image);
+    } catch (error) {
+      deps.log?.("[blog-automation] could not save the featured image");
+      return { url: null, reason: `save_failed:${(error instanceof Error ? error.message : "").slice(0, 160)}` };
+    }
+    return { url: image.url, reason: null };
   } catch {
-    // Missing column, API refusal, network: no image, no failure.
+    return { url: null, reason: `no_match:${query}` };
   }
 }
 

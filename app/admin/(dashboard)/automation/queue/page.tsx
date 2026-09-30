@@ -3,19 +3,22 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { QUEUE_PAGE_SIZE, SupabaseAutomationStore, getAutomationStats, listQueue, type QueueFilter } from "@/lib/services/blogAutomation";
 import { QueueTable } from "@/components/admin/automation/QueueTable";
 import { BulkButtons } from "@/components/admin/automation/BulkButtons";
+import { Callout, EmptyState } from "@/components/admin/ui/kit";
+import { STATUS_HELP, STATUS_LABEL } from "@/lib/blog/automation/labels";
+import type { VariantStatus } from "@/types/database.types";
 
 export const maxDuration = 60;
 
 const FILTERS: { id: QueueFilter; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "unplanned", label: "Not started" },
-  { id: "in_progress", label: "Writing now" },
-  { id: "attention", label: "Needs attention" },
-  { id: "ready", label: "Ready" },
+  { id: "all", label: "Everything" },
+  { id: "unplanned", label: "Waiting" },
+  { id: "in_progress", label: "Being written" },
+  { id: "attention", label: "Needs your attention" },
+  { id: "ready", label: "Ready for your OK" },
   { id: "scheduled", label: "Scheduled" },
-  { id: "published", label: "Published" },
-  { id: "draft", label: "Drafts" },
-  { id: "skipped", label: "Skipped" },
+  { id: "published", label: "Live" },
+  { id: "draft", label: "Saved for later" },
+  { id: "skipped", label: "Left out" },
 ];
 
 function href(filter: string, page: number, q: string) {
@@ -42,9 +45,9 @@ export default async function QueuePage({ searchParams }: { searchParams: Promis
     [data, stats] = await Promise.all([listQueue(supabase, { page, filter, q }), getAutomationStats(supabase, settings)]);
   } catch (error) {
     return (
-      <div className="admin-banner admin-banner--error" role="alert">
-        Could not load the queue{error instanceof Error ? `: ${error.message}` : "."} If you have not run the SQL in SUPABASE_SETUP.md, Step 13, do that first.
-      </div>
+      <Callout tone="error" title="Could not load the articles" action={{ label: "See how to fix", href: "/admin/help#database" }}>
+        {error instanceof Error ? error.message : "Unknown error."} If the database setup (SUPABASE_SETUP.md, Step 13) has not been done yet, do that first.
+      </Callout>
     );
   }
 
@@ -52,7 +55,11 @@ export default async function QueuePage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <div className="auto-filters" role="navigation" aria-label="Filter the queue">
+      <p className="auto-card__hint">
+        Every topic you added, and the article written for it in each language. Click a row to open it. Use the tabs to see only what needs you.
+      </p>
+
+      <div className="auto-filters" role="navigation" aria-label="Show only">
         {FILTERS.map((f) => (
           <Link key={f.id} href={href(f.id, 1, q)} aria-current={f.id === filter ? "true" : undefined}>
             {f.label}
@@ -60,7 +67,7 @@ export default async function QueuePage({ searchParams }: { searchParams: Promis
         ))}
         <form action="/admin/automation/queue" method="get">
           {filter !== "all" ? <input type="hidden" name="filter" value={filter} /> : null}
-          <input type="search" name="q" defaultValue={q} placeholder="Search topics" aria-label="Search topics" />
+          <input type="search" name="q" defaultValue={q} placeholder="Search by topic" aria-label="Search by topic" />
           <button type="submit" className="admin-btn admin-btn--ghost">
             Search
           </button>
@@ -72,21 +79,32 @@ export default async function QueuePage({ searchParams }: { searchParams: Promis
       </div>
 
       {data.rows.length === 0 ? (
-        <div className="auto-card auto-empty">
-          {data.total === 0 && filter === "all" && !q ? (
-            <>
-              <p>No topics yet.</p>
-              <Link className="admin-btn admin-btn--primary" href="/admin/automation/topics">
-                Add topics
-              </Link>
-            </>
-          ) : (
-            <p>No topics match this filter.</p>
-          )}
-        </div>
+        data.total === 0 && filter === "all" && !q ? (
+          <EmptyState title="No topics yet" actions={[{ label: "Add topics", href: "/admin/automation/topics", primary: true }]}>
+            A topic is one article idea. Add a few, then turn the Auto-Writer on from the Overview page, and the articles appear here.
+          </EmptyState>
+        ) : filter === "attention" && !q ? (
+          <EmptyState title="Nothing needs you right now">Every article is either fine or still being worked on.</EmptyState>
+        ) : (
+          <EmptyState title="Nothing matches" actions={[{ label: "Show everything", href: "/admin/automation/queue", primary: true }]}>
+            Try another tab or a different word.
+          </EmptyState>
+        )
       ) : (
         <QueueTable rows={data.rows} timezone={settings.timezone} autoPublish={settings.autoPublish} />
       )}
+
+      <details className="ui-more" style={{ marginTop: 24 }}>
+        <summary>What do the statuses mean?</summary>
+        <dl className="ui-prose" style={{ marginTop: 8 }}>
+          {(["queued", "generating", "localizing", "ready", "scheduled", "published", "needs_review", "failed", "skipped"] as VariantStatus[]).map((s) => (
+            <div key={s}>
+              <dt>{STATUS_LABEL[s]}</dt>
+              <dd>{STATUS_HELP[s]}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
 
       <div className="auto-pager">
         <span>

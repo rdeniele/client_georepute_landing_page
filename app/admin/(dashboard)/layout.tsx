@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/services/profiles";
 import { SignOutButton } from "@/components/admin/SignOutButton";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 /**
  * Route-group layout (`(dashboard)`) so this auth check applies to every
@@ -25,15 +26,12 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         <a className="admin-topbar__brand" href="/admin">
           GeoRepute <small>Admin</small>
         </a>
-        <nav className="admin-topbar__nav">
-          <a href="/admin">Dashboard</a>
-          <a href="/admin/blogs">Posts</a>
-          <a href="/admin/blogs/new">New Post</a>
-          <a href="/admin/automation">AI Automation</a>
-        </nav>
+        <AdminNav />
         <SignOutButton />
       </header>
-      <main className="admin-main">{children}</main>
+      <main className="admin-main" id="admin-main">
+        {children}
+      </main>
     </>
   );
 }

@@ -14,8 +14,8 @@ export default async function AdminLoginPage({
     <div className="admin-login">
       <div className="admin-login__card">
         <h1>GeoRepute Admin</h1>
-        <p>Sign in with your admin account to manage blog content.</p>
-        <LoginForm next={next && next.startsWith("/admin") ? next : "/admin/blogs"} />
+        <p>Sign in to write and manage your blog. Use the email and password of your admin account.</p>
+        <LoginForm next={next && next.startsWith("/admin") ? next : "/admin"} />
       </div>
     </div>
   );

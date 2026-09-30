@@ -154,15 +154,22 @@ export function SettingsForm({
   const promptIsDefault = f.systemPrompt.trim() === defaultPrompt.trim();
   const canonicalOptions = languages.filter((l) => workload.languages.includes(l.code));
 
+  // The two publishing switches, presented as the three choices a person actually has.
+  const approval: "ask" | "auto" | "manual" = f.requireReview && f.autoPublish ? "ask" : !f.requireReview && f.autoPublish ? "auto" : "manual";
+  function setApproval(v: "ask" | "auto" | "manual") {
+    setMsg(null);
+    setF((c) => ({ ...c, requireReview: v !== "auto", autoPublish: v !== "manual" }));
+  }
+
   function save() {
     setMsg(null);
     if (!f.allLanguages && f.languages.length === 0) {
-      setMsg({ tone: "error", text: "Choose at least one language, or switch on all languages." });
+      setMsg({ tone: "error", text: "Choose at least one language, or switch on “All the languages your website has”." });
       return;
     }
     start(async () => {
       const res = await saveSettingsAction(toInput(f, defaultPrompt) as never);
-      setMsg(res.ok ? { tone: "ok", text: "Settings saved. They apply from the next scheduler run." } : { tone: "error", text: res.error });
+      setMsg(res.ok ? { tone: "ok", text: "Saved. It applies from the next round of work." } : { tone: "error", text: res.error });
       if (res.ok) router.refresh();
     });
   }
@@ -176,13 +183,13 @@ export function SettingsForm({
       }}
     >
       <div className="auto-summary" role="status" aria-live="polite">
-        <strong>What this means: </strong>
+        <strong>In plain words: </strong>
         {workload.sentence}
       </div>
 
-      <Card title="Publishing schedule" hint="How much is published, when, and in which languages.">
+      <Card title="1. How much, how often, which languages" hint="The main choices. The summary above updates as you change them.">
         <div className="admin-field">
-          <label htmlFor="perday">Articles per day (1 to {MAX_ARTICLES_PER_DAY})</label>
+          <label htmlFor="perday">How many new articles a day? (1 to {MAX_ARTICLES_PER_DAY})</label>
           <div className="auto-inline">
             <input id="perday" type="number" min={1} max={MAX_ARTICLES_PER_DAY} value={f.articlesPerDay} onChange={(e) => set("articlesPerDay", Number(e.target.value))} style={{ maxWidth: 110 }} />
             {PRESETS.map((n) => (
@@ -191,31 +198,33 @@ export function SettingsForm({
               </button>
             ))}
           </div>
-          <span className="admin-field__hint">A topic is one article idea. Whether each topic becomes one piece or one per language is the next choice.</span>
+          <span className="admin-field__hint">Not sure? Start with 1 or 2 a day. You can change it any time.</span>
         </div>
 
         <fieldset className="admin-field">
-          <legend>How languages are used</legend>
-          <label className="auto-choice">
-            <input type="radio" name="mode" checked={f.languageMode === "all_languages"} onChange={() => set("languageMode", "all_languages")} />
-            <div>
-              <strong>Every topic in every selected language</strong>
-              <span>Claude writes the article once, then adapts it naturally into each other language, with its own title, meta tags, URL and FAQ. 10 topics a day in 7 languages is 70 pieces a day.</span>
-            </div>
-          </label>
-          <label className="auto-choice">
-            <input type="radio" name="mode" checked={f.languageMode === "rotate"} onChange={() => set("languageMode", "rotate")} />
-            <div>
-              <strong>One language per topic, taking turns</strong>
-              <span>Each topic is written directly in a single language and the languages rotate, so 10 topics a day is exactly 10 pieces a day. The cheapest option.</span>
-            </div>
-          </label>
+          <legend>How should languages work?</legend>
+          <div className="ui-choice-grid">
+            <label className="ui-choice">
+              <input type="radio" name="mode" checked={f.languageMode === "all_languages"} onChange={() => set("languageMode", "all_languages")} />
+              <div>
+                <strong>Every article in every language you choose</strong>
+                <span>The AI writes the article once, then adapts it for each other language (its own title, search descriptions, web address and questions). 10 articles a day in 7 languages is 70 posts a day.</span>
+              </div>
+            </label>
+            <label className="ui-choice">
+              <input type="radio" name="mode" checked={f.languageMode === "rotate"} onChange={() => set("languageMode", "rotate")} />
+              <div>
+                <strong>One language per article, taking turns</strong>
+                <span>Each article is written in just one language, and the languages rotate. 10 articles a day is exactly 10 posts a day. The cheapest option.</span>
+              </div>
+            </label>
+          </div>
         </fieldset>
 
         <fieldset className="admin-field">
-          <legend>Languages</legend>
-          <Switch id="all-langs" checked={f.allLanguages} onChange={(v) => set("allLanguages", v)} title="All languages the site supports">
-            Follows the website automatically: when a language is added to the site, the automation starts using it. Currently {languages.length}: {languages.map((l) => l.name).join(", ")}.
+          <legend>Which languages?</legend>
+          <Switch id="all-langs" checked={f.allLanguages} onChange={(v) => set("allLanguages", v)} title="All the languages your website has">
+            It keeps up with your website: when a language is added to the site, the Auto-Writer starts using it. Right now that is {languages.length}: {languages.map((l) => l.name).join(", ")}.
           </Switch>
           {!f.allLanguages ? (
             <div className="auto-langgrid" style={{ marginTop: 10 }}>
@@ -235,7 +244,7 @@ export function SettingsForm({
 
         {f.languageMode === "all_languages" && workload.languages.length > 1 ? (
           <div className="admin-field" style={{ maxWidth: 360 }}>
-            <label htmlFor="source">Language the article is first written in</label>
+            <label htmlFor="source">Write the first version in</label>
             <select id="source" value={effective.sourceLocale} onChange={(e) => set("sourceLocale", e.target.value)}>
               {canonicalOptions.map((l) => (
                 <option key={l.code} value={l.code}>
@@ -243,24 +252,22 @@ export function SettingsForm({
                 </option>
               ))}
             </select>
-            <span className="admin-field__hint">The other languages are adapted from this one.</span>
+            <span className="admin-field__hint">The other languages are translated from this one. English is a safe choice.</span>
           </div>
         ) : null}
 
         <div className="admin-row">
           <div className="admin-field">
-            <label htmlFor="start">Start date (optional)</label>
+            <label htmlFor="start">Start on (optional)</label>
             <input id="start" type="date" value={f.startDate} onChange={(e) => set("startDate", e.target.value)} />
-            <span className="admin-field__hint">Nothing is published before this day. Leave empty to start as soon as automation is on.</span>
+            <span className="admin-field__hint">Nothing goes live before this day. Empty means as soon as the Auto-Writer is on.</span>
           </div>
           <div className="admin-field">
-            <label htmlFor="time">Publishing time</label>
+            <label htmlFor="time">Time of day articles go live</label>
             <input id="time" type="time" value={f.publishTime} onChange={(e) => set("publishTime", e.target.value)} />
           </div>
-        </div>
-        <div className="admin-row">
           <div className="admin-field">
-            <label htmlFor="tz">Time zone</label>
+            <label htmlFor="tz">Your time zone</label>
             <select id="tz" value={f.timezone} onChange={(e) => set("timezone", e.target.value)}>
               {timezones.map((z) => (
                 <option key={z} value={z}>
@@ -269,33 +276,57 @@ export function SettingsForm({
               ))}
             </select>
           </div>
-          <div className="admin-field">
-            <label htmlFor="spread">Minutes between articles on the same day</label>
-            <input id="spread" type="number" min={0} max={240} value={f.spreadMinutes} onChange={(e) => set("spreadMinutes", Number(e.target.value))} />
-            <span className="admin-field__hint">0 publishes the whole day at once. Large days are compressed to fit within about 12 hours.</span>
+        </div>
+
+        <details className="ui-more">
+          <summary>More timing options</summary>
+          <div className="admin-row" style={{ marginTop: 12 }}>
+            <div className="admin-field">
+              <label htmlFor="spread">Minutes between articles on the same day</label>
+              <input id="spread" type="number" min={0} max={240} value={f.spreadMinutes} onChange={(e) => set("spreadMinutes", Number(e.target.value))} />
+              <span className="admin-field__hint">0 puts the whole day live at once. Very big days are squeezed into about 12 hours.</span>
+            </div>
+            <div className="admin-field">
+              <label htmlFor="ahead">Prepare articles this many days early</label>
+              <input id="ahead" type="number" min={1} max={30} value={f.lookaheadDays} onChange={(e) => set("lookaheadDays", Number(e.target.value))} />
+              <span className="admin-field__hint">Early is safer: a slow day at the AI never delays your blog. It also means more is written in advance.</span>
+            </div>
           </div>
-        </div>
-        <div className="admin-field" style={{ maxWidth: 360 }}>
-          <label htmlFor="ahead">Write this many days ahead</label>
-          <input id="ahead" type="number" min={1} max={30} value={f.lookaheadDays} onChange={(e) => set("lookaheadDays", Number(e.target.value))} />
-          <span className="admin-field__hint">Articles are written and checked this far before they publish, so a slow day at Claude never delays the blog. Higher means more content generated in advance.</span>
+        </details>
+      </Card>
+
+      <Card title="2. Who approves articles?" hint="You always stay in control. Articles that fail a check (broken link, wrong language, missing parts) never go live in any of these modes.">
+        <div className="ui-choice-grid">
+          <label className="ui-choice">
+            <input type="radio" name="approval" checked={approval === "ask"} onChange={() => setApproval("ask")} />
+            <div>
+              <strong>Ask me first</strong>
+              <span>Each article waits for your OK. Press Approve on the Articles page, and it goes live at its scheduled time.</span>
+            </div>
+          </label>
+          <label className="ui-choice">
+            <input type="radio" name="approval" checked={approval === "auto"} onChange={() => setApproval("auto")} />
+            <div>
+              <strong>Fully automatic</strong>
+              <span>Articles that pass every check go live by themselves. Choose this once you have read a few and trust the results.</span>
+            </div>
+          </label>
+          <label className="ui-choice">
+            <input type="radio" name="approval" checked={approval === "manual"} onChange={() => setApproval("manual")} />
+            <div>
+              <strong>
+                I publish by hand<span className="ui-badge">safest</span>
+              </strong>
+              <span>Articles are written and checked, but never go live until you press Publish on each one.</span>
+            </div>
+          </label>
         </div>
       </Card>
 
-      <Card title="Publishing controls">
-        <Switch id="autopub" checked={f.autoPublish} onChange={(v) => set("autoPublish", v)} title="Publish automatically">
-          Articles that pass every check go live at their scheduled time. Off means they wait as Ready until you publish them by hand.
-        </Switch>
-        <Switch id="review" checked={f.requireReview} onChange={(v) => set("requireReview", v)} title="Require human review before publishing">
-          Every article waits for you to approve it (Approve, or Approve all ready) before it is scheduled. Turn this off only once you trust the output.
-        </Switch>
-        <p className="auto-meta">Articles that fail a check (missing fields, placeholder text, wrong language, invalid links) never publish either way: they are held as Needs review.</p>
-      </Card>
-
-      <Card title="Content" hint="These become part of the instructions Claude follows for every article.">
+      <Card title="3. What the articles are like" hint="These become part of the instructions the AI follows for every article.">
         <div className="admin-row">
           <div className="admin-field">
-            <label htmlFor="length">Article length</label>
+            <label htmlFor="length">How long should they be?</label>
             <select id="length" value={f.length} onChange={(e) => set("length", e.target.value as BlogLength)}>
               {(Object.keys(BLOG_LENGTHS) as BlogLength[]).map((k) => (
                 <option key={k} value={k}>
@@ -305,10 +336,10 @@ export function SettingsForm({
             </select>
           </div>
           <div className="admin-field">
-            <label htmlFor="faq">FAQ section</label>
+            <label htmlFor="faq">Questions and answers at the end</label>
             <select id="faq" value={f.faq} onChange={(e) => set("faq", e.target.value as FaqMode)}>
               <option value="auto">When the topic has natural questions</option>
-              <option value="always">Always (at least 3 questions)</option>
+              <option value="always">Always (at least 3)</option>
               <option value="never">Never</option>
             </select>
           </div>
@@ -316,78 +347,95 @@ export function SettingsForm({
         <div className="admin-field">
           <label htmlFor="tone">Tone and style</label>
           <textarea id="tone" rows={2} value={f.tone} onChange={(e) => set("tone", e.target.value)} />
+          <span className="admin-field__hint">Describe how you want it to sound, as you would brief a human writer.</span>
         </div>
         <div className="admin-field">
-          <label htmlFor="seo">SEO instructions</label>
-          <textarea id="seo" rows={3} value={f.seoInstructions} onChange={(e) => set("seoInstructions", e.target.value)} />
-        </div>
-        <div className="admin-field">
-          <label htmlFor="cta">Call to action</label>
+          <label htmlFor="cta">What should readers do at the end?</label>
           <textarea id="cta" rows={2} value={f.ctaInstructions} onChange={(e) => set("ctaInstructions", e.target.value)} />
+          <span className="admin-field__hint">Every article ends with a short call to action. Say what it should invite people to do.</span>
         </div>
-        <div className="admin-row">
-          <div className="admin-field">
-            <label htmlFor="cats">Allowed categories (one per line)</label>
-            <textarea id="cats" rows={4} value={f.categories} onChange={(e) => set("categories", e.target.value)} placeholder={"Local SEO\nAI visibility\nReputation"} />
-            <span className="admin-field__hint">Empty lets Claude choose. A category set on a topic always wins.</span>
+
+        <details className="ui-more">
+          <summary>More writing options (optional)</summary>
+          <div style={{ marginTop: 12 }}>
+            <div className="admin-field">
+              <label htmlFor="seo">Search-engine instructions</label>
+              <textarea id="seo" rows={3} value={f.seoInstructions} onChange={(e) => set("seoInstructions", e.target.value)} />
+              <span className="admin-field__hint">The AI already follows good SEO practice on its own. Add your own rules here only if you have them.</span>
+            </div>
+            <div className="admin-row">
+              <div className="admin-field">
+                <label htmlFor="cats">Allowed categories (one per line)</label>
+                <textarea id="cats" rows={4} value={f.categories} onChange={(e) => set("categories", e.target.value)} placeholder={"Local SEO\nAI visibility\nReputation"} />
+                <span className="admin-field__hint">Empty lets the AI choose. A category set on a topic always wins.</span>
+              </div>
+              <div className="admin-field">
+                <label htmlFor="sections">Sections every article must have (one per line)</label>
+                <textarea id="sections" rows={4} value={f.requiredSections} onChange={(e) => set("requiredSections", e.target.value)} placeholder={"Common mistakes\nNext steps"} />
+                <span className="admin-field__hint">Each becomes a heading in every article, and is checked.</span>
+              </div>
+            </div>
+            <div className="admin-field">
+              <label htmlFor="links">Pages articles may link to</label>
+              <textarea id="links" rows={4} value={f.internalLinkingRules} onChange={(e) => set("internalLinkingRules", e.target.value)} placeholder={"/en/platform | when talking about the product\n/en/methodology | when explaining how results are measured"} />
+              <span className="admin-field__hint">
+                One per line: <code>/page | when to link there</code>. The AI can only link to these and to your site&apos;s main pages; any other link is removed. Write them as /en/... and they are adjusted for each language.
+              </span>
+            </div>
           </div>
-          <div className="admin-field">
-            <label htmlFor="sections">Required sections (one per line)</label>
-            <textarea id="sections" rows={4} value={f.requiredSections} onChange={(e) => set("requiredSections", e.target.value)} placeholder={"Key takeaways\nCommon mistakes"} />
-            <span className="admin-field__hint">Each becomes a heading in every article, and is checked.</span>
-          </div>
-        </div>
-        <div className="admin-field">
-          <label htmlFor="links">Internal linking rules</label>
-          <textarea id="links" rows={4} value={f.internalLinkingRules} onChange={(e) => set("internalLinkingRules", e.target.value)} placeholder={"/en/platform | when talking about the product\n/en/methodology | when explaining how results are measured"} />
-          <span className="admin-field__hint">
-            One per line: <code>/path | when to link there</code>. Claude may only link to these and to the site&apos;s own pages (the same ones as the navigation); any other link is removed and the publish check rejects it. Write paths as /en/... and they are localized for each language.
-          </span>
-        </div>
+        </details>
       </Card>
 
-      <Card title="Generation rules" hint="The full instructions Claude receives, for every article. Edit them here to improve the writing without a developer.">
-        <div className="admin-field">
-          <label htmlFor="prompt">Rules {promptIsDefault ? "(built-in default)" : "(customized)"}</label>
-          <textarea id="prompt" rows={18} value={f.systemPrompt} onChange={(e) => set("systemPrompt", e.target.value)} style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-mono-xs)" }} />
-          <span className="admin-field__hint">
-            Whatever these say, Claude&apos;s answer is still forced into a fixed structure and checked by the site before saving; the rules guide the writing, they cannot change what the system does.
-          </span>
-        </div>
-        {!promptIsDefault ? (
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={() => set("systemPrompt", defaultPrompt)}>
-            Reset to the built-in rules
-          </button>
-        ) : null}
-      </Card>
+      <details className="auto-card auto-card--fold">
+        <summary>
+          <h2>Advanced settings</h2>
+          <span className="auto-card__hint">Most people never need these. The defaults work well.</span>
+        </summary>
 
-      <Card title="Reliability and cost">
-        <Switch id="loc-review" checked={f.localizationReview} onChange={(v) => set("localizationReview", v)} title="Independent review of every translation">
-          A second Claude call reads each adapted article next to the original and flags mistakes. Recommended when publishing without human review. Turning it off saves one call per language.
-        </Switch>
-        <div className="admin-row" style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 16 }}>
+          <h3 className="auto-card__sub">The AI&apos;s full instructions</h3>
+          <p className="auto-card__hint">The complete instructions the AI receives for every article. Edit them to change how it writes, without needing a developer.</p>
           <div className="admin-field">
-            <label htmlFor="gen-model">Writing model</label>
-            <input id="gen-model" type="text" value={f.generationModel} onChange={(e) => set("generationModel", e.target.value)} placeholder={`Server default (${modelDefaults.generation})`} />
+            <label htmlFor="prompt">Instructions {promptIsDefault ? "(the built-in ones)" : "(customized)"}</label>
+            <textarea id="prompt" rows={18} value={f.systemPrompt} onChange={(e) => set("systemPrompt", e.target.value)} style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-mono-xs)" }} />
+            <span className="admin-field__hint">
+              Whatever these say, the AI&apos;s answer is still put into a fixed structure and checked before anything is saved. The search-engine rules are always applied on top.
+            </span>
           </div>
-          <div className="admin-field">
-            <label htmlFor="tr-model">Translation model</label>
-            <input id="tr-model" type="text" value={f.translationModel} onChange={(e) => set("translationModel", e.target.value)} placeholder={`Server default (${modelDefaults.translation})`} />
+          {!promptIsDefault ? (
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={() => set("systemPrompt", defaultPrompt)}>
+              Go back to the built-in instructions
+            </button>
+          ) : null}
+
+          <h3 className="auto-card__sub" style={{ marginTop: 28 }}>Quality and cost</h3>
+          <Switch id="loc-review" checked={f.localizationReview} onChange={(v) => set("localizationReview", v)} title="Have every translation double-checked">
+            A second AI reads each translation next to the original and flags mistakes. Recommended when articles go live without you reading them. Turning it off saves one AI call per language.
+          </Switch>
+          <div className="admin-row" style={{ marginTop: 12 }}>
+            <div className="admin-field">
+              <label htmlFor="gen-model">AI model for writing</label>
+              <input id="gen-model" type="text" value={f.generationModel} onChange={(e) => set("generationModel", e.target.value)} placeholder={`Leave empty to use the default (${modelDefaults.generation})`} />
+            </div>
+            <div className="admin-field">
+              <label htmlFor="tr-model">AI model for translating</label>
+              <input id="tr-model" type="text" value={f.translationModel} onChange={(e) => set("translationModel", e.target.value)} placeholder={`Leave empty to use the default (${modelDefaults.translation})`} />
+            </div>
+          </div>
+          <div className="admin-row">
+            <div className="admin-field">
+              <label htmlFor="attempts">Tries before giving up on an article</label>
+              <input id="attempts" type="number" min={1} max={8} value={f.maxAttempts} onChange={(e) => set("maxAttempts", Number(e.target.value))} />
+              <span className="admin-field__hint">Each failed try is repeated automatically after a growing pause.</span>
+            </div>
+            <div className="admin-field">
+              <label htmlFor="conc">Articles written at the same time (1 to 4)</label>
+              <input id="conc" type="number" min={1} max={4} value={f.concurrency} onChange={(e) => set("concurrency", Number(e.target.value))} />
+              <span className="admin-field__hint">Higher is faster but uses more of your AI allowance.</span>
+            </div>
           </div>
         </div>
-        <div className="admin-row">
-          <div className="admin-field">
-            <label htmlFor="attempts">Attempts before an article is marked Failed</label>
-            <input id="attempts" type="number" min={1} max={8} value={f.maxAttempts} onChange={(e) => set("maxAttempts", Number(e.target.value))} />
-            <span className="admin-field__hint">Failed attempts are retried automatically with a growing delay.</span>
-          </div>
-          <div className="admin-field">
-            <label htmlFor="conc">Articles written at the same time (1 to 4)</label>
-            <input id="conc" type="number" min={1} max={4} value={f.concurrency} onChange={(e) => set("concurrency", Number(e.target.value))} />
-            <span className="admin-field__hint">Higher is faster but uses more of your Claude rate limit.</span>
-          </div>
-        </div>
-      </Card>
+      </details>
 
       <div className="auto-savebar">
         <button type="submit" className="admin-btn admin-btn--primary" disabled={pending}>
@@ -397,7 +445,9 @@ export function SettingsForm({
           <span role={msg.tone === "error" ? "alert" : "status"} className={msg.tone === "error" ? "auto-count auto-count--over" : "auto-count"}>
             {msg.text}
           </span>
-        ) : null}
+        ) : (
+          <span className="auto-count">Changes apply from the next round of work. Articles already written are not changed.</span>
+        )}
       </div>
     </form>
   );

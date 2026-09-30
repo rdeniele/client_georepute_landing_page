@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { optimizeSeoAction } from "@/lib/actions/blogOptimize";
 import { applyOptimized, type FormSeoFields, type OptimizeMode, type OptimizeResult } from "@/lib/blog/optimize";
 import type { BlogLanguage } from "@/lib/blog/generation";
+import { plainCheck } from "@/lib/blog/seoPlain";
 import type { ContentBlock } from "@/types/posts";
 
 type Fields = FormSeoFields & { title: string };
@@ -90,7 +91,7 @@ export function SeoAssistant({
         </div>
 
         <div className="admin-form__actions" style={{ flexWrap: "wrap" }}>
-          <button type="button" className="admin-btn" onClick={() => run("autocomplete")} disabled={pending}>
+          <button type="button" className="admin-btn admin-btn--ghost" onClick={() => run("autocomplete")} disabled={pending}>
             {running === "autocomplete" ? "Filling in…" : "Autocomplete empty fields"}
           </button>
           <button type="button" className="admin-btn admin-btn--primary" onClick={() => run("optimize")} disabled={pending}>
@@ -164,13 +165,10 @@ export function SeoAssistant({
             ) : null}
             {todo.length > 0 ? (
               <details>
-                <summary>{todo.length} SEO checks still open</summary>
+                <summary>{todo.length} thing{todo.length === 1 ? "" : "s"} you can still improve</summary>
                 <ul style={{ margin: "4px 0 0", paddingInlineStart: 20 }}>
                   {todo.map((c) => (
-                    <li key={c.id}>
-                      {c.label}
-                      {c.detail ? ` (${c.detail})` : ""}
-                    </li>
+                    <li key={c.id}>{plainCheck(c).text}</li>
                   ))}
                 </ul>
               </details>

@@ -11,28 +11,28 @@ export const asIssues = (v: unknown): Issue[] => {
 };
 
 export const STATUS_LABEL: Record<VariantStatus, string> = {
-  queued: "Queued",
-  generating: "Generating",
-  localizing: "Translating",
-  needs_review: "Needs review",
-  ready: "Ready",
+  queued: "Waiting",
+  generating: "Being written",
+  localizing: "Being translated",
+  needs_review: "Needs your attention",
+  ready: "Ready for your OK",
   scheduled: "Scheduled",
-  published: "Published",
+  published: "Live",
   failed: "Failed",
   skipped: "Skipped",
 };
 
-/** One line explaining what each status means and what happens next, shown as a tooltip. */
+/** One plain sentence saying what each status means and what happens next, shown as a tooltip and on the Auto-Writer overview. */
 export const STATUS_HELP: Record<VariantStatus, string> = {
-  queued: "Waiting for the scheduler (or for a retry time).",
-  generating: "Claude is writing the article right now.",
-  localizing: "Claude is adapting the article into this language right now.",
-  needs_review: "It did not pass the checks, or the translation was flagged. It will not publish until you fix and approve it.",
-  ready: "Written and checked. Waiting for your approval or for you to publish it.",
-  scheduled: "Approved. It publishes by itself at its scheduled time.",
-  published: "Live on the blog.",
-  failed: "All automatic attempts failed. Retry it, or read the error.",
-  skipped: "Skipped. It will not be generated or published.",
+  queued: "In the list, waiting for its turn. Nothing to do.",
+  generating: "The AI is writing this article right now. Nothing to do.",
+  localizing: "The AI is translating this article right now. Nothing to do.",
+  needs_review: "A check found a problem, so this will not go live until you fix it or write it again. Open it to see what.",
+  ready: "Written and checked. Read it, then press Approve (or edit it first).",
+  scheduled: "Approved. It goes live by itself at the time shown.",
+  published: "On your website.",
+  failed: "The AI could not finish this after several tries. Press Retry, or open it to see why.",
+  skipped: "You chose to leave this one out. You can bring it back.",
 };
 
 export type TopicRollup = { label: string; tone: VariantStatus | "draft" | "unplanned" | "generated" };
@@ -43,19 +43,19 @@ export type TopicRollup = { label: string; tone: VariantStatus | "draft" | "unpl
  */
 export function rollup(topic: Pick<BlogTopicRow, "status" | "scheduled_date">, variants: Pick<BlogVariantRow, "status" | "is_source">[]): TopicRollup {
   if (topic.status === "skipped") return { label: "Skipped", tone: "skipped" };
-  if (topic.status === "draft") return { label: "Draft", tone: "draft" };
-  if (!variants.length) return { label: "Queued", tone: topic.scheduled_date ? "queued" : "unplanned" };
+  if (topic.status === "draft") return { label: "Saved for later", tone: "draft" };
+  if (!variants.length) return { label: "Waiting", tone: topic.scheduled_date ? "queued" : "unplanned" };
   const has = (...s: VariantStatus[]) => variants.some((v) => s.includes(v.status));
   if (has("failed")) return { label: "Failed", tone: "failed" };
-  if (has("needs_review")) return { label: "Needs review", tone: "needs_review" };
-  if (has("generating")) return { label: "Generating", tone: "generating" };
-  if (has("localizing")) return { label: "Translation in progress", tone: "localizing" };
+  if (has("needs_review")) return { label: "Needs your attention", tone: "needs_review" };
+  if (has("generating")) return { label: "Being written", tone: "generating" };
+  if (has("localizing")) return { label: "Being translated", tone: "localizing" };
   if (has("queued")) {
     const sourceDone = variants.some((v) => v.is_source && v.status !== "queued");
-    return sourceDone ? { label: "Generated", tone: "generated" } : { label: "Queued", tone: "queued" };
+    return sourceDone ? { label: "Written, translating next", tone: "generated" } : { label: "Waiting", tone: "queued" };
   }
-  if (has("ready")) return { label: "Ready", tone: "ready" };
+  if (has("ready")) return { label: "Ready for your OK", tone: "ready" };
   if (has("scheduled")) return { label: "Scheduled", tone: "scheduled" };
-  if (variants.every((v) => v.status === "published")) return { label: "Published", tone: "published" };
+  if (variants.every((v) => v.status === "published")) return { label: "Live", tone: "published" };
   return { label: "Skipped", tone: "skipped" };
 }

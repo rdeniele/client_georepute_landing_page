@@ -24,6 +24,8 @@ export type PublishCandidate = {
   category: string;
   blocks: ContentBlock[];
   faq: FaqItem[];
+  /** The post's featured image URL. `undefined` means "not known here" and is never warned about; null or empty means there is none. */
+  featuredImage?: string | null;
 };
 
 export type ValidationOptions = {
@@ -208,6 +210,10 @@ export function validateForPublish(c: PublishCandidate, o: ValidationOptions): I
   // echoing the opening sentence is a normal SEO pattern.
   const repeatedSentences = findRepeatedSentences(body);
   if (repeatedSentences.length) warn("repeated_sentence", `A sentence appears more than once: "${repeatedSentences[0].slice(0, 100)}".`);
+
+  if (c.featuredImage !== undefined && !c.featuredImage?.trim()) {
+    warn("image_missing", "There is no featured image. Automated photos need UNSPLASH_ACCESS_KEY in the server environment (or no photo matched the topic); upload one in the post editor. The page shows a branded cover meanwhile.");
+  }
 
   const filler = findAiFiller(everything);
   if (filler.length) warn("ai_filler_phrase", `The text uses generic filler phrasing: ${filler.join(", ")}. Rewrite with something concrete.`);

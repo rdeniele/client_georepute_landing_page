@@ -638,6 +638,8 @@ async function main() {
     check("an over-long meta title and a missing keyword are both named", weak.some((i) => i.code === "seo_meta_title_length") && weak.some((i) => i.code === "seo_kw_meta_title"));
     const noFaq = validateForPublish(cand({ faq: [] }), { ...opts, faqRequired: false });
     check("no FAQ is reported as an SEO warning", noFaq.some((i) => i.code === "seo_faq" && i.severity === "warning"));
+    check("a post with no featured image gets a warning that names the fix, never a blocker", (() => { const w = validateForPublish(cand({ featuredImage: null }), opts).find((i) => i.code === "image_missing"); return !!w && w.severity === "warning" && /UNSPLASH_ACCESS_KEY/.test(w.message); })());
+    check("a post with an image, or where the image is unknown, gets no image warning", !validateForPublish(cand({ featuredImage: "https://images.unsplash.com/x" }), opts).some((i) => i.code === "image_missing") && !validateForPublish(cand(), opts).some((i) => i.code === "image_missing"));
     const report = analyzeSeo({ title: good.title, metaTitle: good.metaTitle, metaDescription: good.metaDescription, keywords: good.keywords, blocks: good.blocks, faq: good.faq });
     check("analyzeSeo is deterministic", JSON.stringify(report) === JSON.stringify(good.seo));
   }
@@ -856,6 +858,22 @@ async function main() {
     const broken = setup({ articlesPerDay: 1, lookaheadDays: 1 });
     broken.store.addTopics(1);
     await runTick({ ...broken.deps, images: { find: async () => { throw new Error("boom"); } } }, { trigger: "manual", budgetMs: 265_000 });
+    // Why there is no image is always visible to the admin, and the warning never appears when an image was attached.
+    const warnings = (store: { variants: BlogVariantRow[] }) => store.variants.flatMap((v) => ((v.validation as { issues?: { code: string; message: string }[] } | null)?.issues ?? []).filter((i) => i.code === "image_missing"));
+    check("with an image attached there is no missing-image warning", warnings(t.store).length === 0);
+    const noKey = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    noKey.store.addTopics(1);
+    await runTick(noKey.deps, { trigger: "manual", budgetMs: 265_000 });
+    check("no Unsplash key: every language says so and names the Vercel fix", warnings(noKey.store).length === LOCALES.length && warnings(noKey.store).every((w) => /UNSPLASH_ACCESS_KEY/.test(w.message) && /redeploy/i.test(w.message)));
+    const noMatch = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    noMatch.store.addTopics(1);
+    await runTick({ ...noMatch.deps, images: { find: async () => null } }, { trigger: "manual", budgetMs: 265_000 });
+    check("no photo found: the warning says Unsplash returned nothing or refused", warnings(noMatch.store).some((w) => /returned no photo/.test(w.message)));
+    const saveFails = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    saveFails.store.addTopics(1);
+    saveFails.store.setFeaturedImage = async () => { throw new Error('column "featured_image_credit" does not exist'); };
+    await runTick({ ...saveFails.deps, images: stub }, { trigger: "manual", budgetMs: 265_000 });
+    check("a photo that cannot be saved names the database step to run, and the article still completes", warnings(saveFails.store).some((w) => /Step 13/.test(w.message) && /featured_image_credit/.test(w.message)) && saveFails.store.v("scheduled").length + saveFails.store.v("ready").length === LOCALES.length);
     check("an image lookup that throws never fails the article", broken.store.posts.length === LOCALES.length && broken.store.v("scheduled").length === LOCALES.length && broken.store.posts.every((p) => !p.featuredImage));
   }
 

@@ -19,6 +19,7 @@ import "./cookies.css";
 import "./reports.css";
 import "./blog.css";
 import "./admin.css";
+import "./admin-ui.css";
 
 const display = Inter_Tight({
   subsets: ["latin"],

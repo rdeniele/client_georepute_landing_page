@@ -364,3 +364,27 @@
 .blog-related__title {
   margin: 0 0 24px;
 }
+
+/* Cover for a post with no photo: branded, tinted per post, and not announced to screen readers. */
+.blog-cover--generated {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  background:
+    radial-gradient(60% 90% at 20% 0%, color-mix(in srgb, var(--color-signal-lit) 38%, transparent), transparent 70%),
+    radial-gradient(50% 80% at 90% 100%, color-mix(in srgb, var(--color-signal-core) 45%, transparent), transparent 70%),
+    linear-gradient(135deg, var(--color-raised), var(--color-signal-core));
+  filter: hue-rotate(var(--cover-hue, 0deg));
+}
+
+.blog-cover__mark {
+  opacity: 0.95;
+}
+
+.blog-cover__label {
+  color: var(--color-ink);
+  opacity: 0.85;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}

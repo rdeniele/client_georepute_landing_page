@@ -67,19 +67,20 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
       {selected.size > 0 ? (
         <div className="auto-toolbar">
           <strong>{selected.size} selected</strong>
-          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("prioritize")}>
-            Move to front
+          <span className="auto-meta">What should happen to them?</span>
+          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("prioritize")} title="Write these before the others">
+            Write these first
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("queue")}>
-            Queue drafts
+          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("queue")} title="Put these saved topics into the list so they get written">
+            Add to the list
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("skip", "Skip the selected topics? Nothing will be generated or published for them until you restore them.")}>
-            Skip
+          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("skip", "Leave these topics out? Nothing will be written or published for them. You can bring them back later.")} title="Leave these out for now">
+            Leave out
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("restore")}>
-            Restore
+          <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => bulk("restore")} title="Put left-out topics back in the list">
+            Bring back
           </button>
-          <button type="button" className="admin-btn admin-btn--danger auto-btn-sm" disabled={pending} onClick={() => bulk("delete", "Delete the selected topics? Topics with published articles are kept. This cannot be undone.")}>
+          <button type="button" className="admin-btn admin-btn--danger auto-btn-sm" disabled={pending} onClick={() => bulk("delete", "Delete these topics for good? Topics that already have a live article are kept. This cannot be undone.")}>
             Delete
           </button>
         </div>
@@ -90,8 +91,8 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
           <input type="checkbox" aria-label="Select all topics on this page" checked={allSelected} onChange={() => setSelected(allSelected ? new Set() : new Set(rows.map((r) => r.id)))} />
           <span>Topic</span>
           <span>Languages</span>
-          <span>Status</span>
-          <span>Publishes</span>
+          <span>Where it is</span>
+          <span>Goes live</span>
           <span />
         </div>
 
@@ -114,7 +115,7 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
                   {topic.topic}
                   <span className="auto-topic__sub">
                     {[topic.primary_keyword, topic.category].filter(Boolean).join(" · ") || "No keyword or category"}
-                    {topic.status === "queued" && !topic.scheduled_date ? " · waiting to be planned" : ""}
+                    {topic.status === "queued" && !topic.scheduled_date ? " · waiting for its turn" : ""}
                   </span>
                 </span>
                 <span className="auto-langs">
@@ -125,15 +126,15 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
                       </span>
                     ))
                   ) : (
-                    <span className="auto-meta">Not planned</span>
+                    <span className="auto-meta">Not started</span>
                   )}
                 </span>
                 <span>
                   <StatusChip label={roll.label} tone={roll.tone} />
-                  {topic.variants.length > 1 && published > 0 && published < topic.variants.length ? <span className="auto-topic__sub">{published}/{topic.variants.length} live</span> : null}
-                  {worst?.attempts ? <span className="auto-topic__sub">{worst.attempts} retr{worst.attempts === 1 ? "y" : "ies"}</span> : null}
+                  {topic.variants.length > 1 && published > 0 && published < topic.variants.length ? <span className="auto-topic__sub">{published} of {topic.variants.length} languages live</span> : null}
+                  {worst?.attempts ? <span className="auto-topic__sub">tried {worst.attempts} time{worst.attempts === 1 ? "" : "s"}</span> : null}
                 </span>
-                <span>{first?.scheduled_at ? formatDateTime(first.scheduled_at, timezone) : "None"}</span>
+                <span>{first?.scheduled_at ? formatDateTime(first.scheduled_at, timezone) : "Not set yet"}</span>
                 <span className="auto-topic__caret" aria-hidden="true">
                   ▸
                 </span>
@@ -142,28 +143,28 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
               <div className="auto-topic__body">
                 <div className="auto-inline" style={{ marginTop: 12 }}>
                   <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" onClick={() => setEditing(editing === topic.id ? null : topic.id)}>
-                    {editing === topic.id ? "Close editor" : "Edit topic"}
+                    {editing === topic.id ? "Close" : "Edit topic"}
                   </button>
                   {topic.status === "skipped" ? (
                     <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => start(async () => settle(await topicsBulkAction([topic.id], "restore")))}>
-                      Restore
+                      Bring back
                     </button>
                   ) : (
-                    <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => window.confirm("Skip this topic? Nothing more will be generated or published for it.") && start(async () => settle(await topicsBulkAction([topic.id], "skip")))}>
-                      Skip
+                    <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => window.confirm("Leave this topic out? Nothing more will be written or published for it. You can bring it back later.") && start(async () => settle(await topicsBulkAction([topic.id], "skip")))}>
+                      Leave out
                     </button>
                   )}
                   {topic.status === "draft" ? (
                     <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => start(async () => settle(await topicsBulkAction([topic.id], "queue")))}>
-                      Add to queue
+                      Add to the list
                     </button>
                   ) : null}
                   {!topic.scheduled_date && topic.status === "queued" ? (
                     <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" disabled={pending} onClick={() => start(async () => settle(await topicsBulkAction([topic.id], "prioritize")))}>
-                      Move to front
+                      Write this first
                     </button>
                   ) : null}
-                  <button type="button" className="admin-btn admin-btn--danger auto-btn-sm" disabled={pending} onClick={() => window.confirm(`Delete "${topic.topic}"? This cannot be undone.`) && start(async () => settle(await topicsBulkAction([topic.id], "delete")))}>
+                  <button type="button" className="admin-btn admin-btn--danger auto-btn-sm" disabled={pending} onClick={() => window.confirm(`Delete the topic "${topic.topic}" for good? This cannot be undone.`) && start(async () => settle(await topicsBulkAction([topic.id], "delete")))}>
                     Delete
                   </button>
                 </div>
@@ -172,8 +173,8 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
 
                 {topic.notes || topic.search_intent || topic.secondary_keywords.length ? (
                   <p className="auto-meta">
-                    {topic.secondary_keywords.length ? <>Secondary keywords: <strong>{topic.secondary_keywords.join(", ")}</strong>. </> : null}
-                    {topic.search_intent ? <>Intent: <strong>{topic.search_intent}</strong>. </> : null}
+                    {topic.secondary_keywords.length ? <>Related phrases: <strong>{topic.secondary_keywords.join(", ")}</strong>. </> : null}
+                    {topic.search_intent ? <>Reader wants to: <strong>{topic.search_intent}</strong>. </> : null}
                     {topic.notes ? <>Notes: {topic.notes}</> : null}
                   </p>
                 ) : null}
@@ -184,12 +185,12 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
                       <tr>
                         <th>Language</th>
                         <th>Status</th>
-                        <th>Generated</th>
-                        <th>Scheduled</th>
-                        <th>Published</th>
-                        <th>Retries</th>
-                        <th>Details</th>
-                        <th>Actions</th>
+                        <th>Written</th>
+                        <th>Goes live</th>
+                        <th>Went live</th>
+                        <th>Tries</th>
+                        <th>What is wrong</th>
+                        <th>What you can do</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -199,7 +200,7 @@ export function QueueTable({ rows, timezone, autoPublish }: { rows: QueueTopic[]
                     </tbody>
                   </table>
                 ) : (
-                  <p className="auto-meta">This topic has not been planned yet. It is picked up in queue order once there is room in the schedule.</p>
+                  <p className="auto-meta">Nothing has been written for this topic yet. It is picked up in order once there is room in the schedule, so there is nothing to do.</p>
                 )}
               </div>
             </details>
@@ -234,14 +235,14 @@ function VariantRow({ v, timezone, autoPublish, busy, onAction }: { v: Variant; 
     <tr>
       <td>
         <strong>{v.locale.toUpperCase()}</strong>
-        {v.is_source ? <span className="auto-topic__sub">canonical</span> : null}
+        {v.is_source ? <span className="auto-topic__sub" title="The other languages are translated from this one">original</span> : null}
       </td>
       <td>
         <StatusChip status={v.status} />
       </td>
-      <td>{v.generated_at ? formatDateTime(v.generated_at, timezone) : "None"}</td>
-      <td>{v.scheduled_at ? formatDateTime(v.scheduled_at, timezone) : "None"}</td>
-      <td>{v.published_at ? formatDateTime(v.published_at, timezone) : "None"}</td>
+      <td>{v.generated_at ? formatDateTime(v.generated_at, timezone) : "—"}</td>
+      <td>{v.scheduled_at ? formatDateTime(v.scheduled_at, timezone) : "—"}</td>
+      <td>{v.published_at ? formatDateTime(v.published_at, timezone) : "—"}</td>
       <td>{v.attempts}</td>
       <td>
         {v.last_error && (v.status === "failed" || v.status === "queued") ? (
@@ -250,14 +251,14 @@ function VariantRow({ v, timezone, autoPublish, busy, onAction }: { v: Variant; 
             {v.last_error}
           </span>
         ) : null}
-        {v.status === "queued" && v.next_attempt_at && new Date(v.next_attempt_at).getTime() > Date.now() ? <span className="auto-topic__sub">retries {formatDateTime(v.next_attempt_at, timezone)}</span> : null}
+        {v.status === "queued" && v.next_attempt_at && new Date(v.next_attempt_at).getTime() > Date.now() ? <span className="auto-topic__sub">will try again {formatDateTime(v.next_attempt_at, timezone)}</span> : null}
         {issues.slice(0, 3).map((i, idx) => (
           <span key={idx} className="auto-issue">
             {i.message}
           </span>
         ))}
         {issues.length > 3 ? <span className="auto-issue">and {issues.length - 3} more</span> : null}
-        {m.imageConcept ? <span className="auto-topic__sub">Image idea: {m.imageConcept}</span> : null}
+        {m.imageConcept ? <span className="auto-topic__sub">Picture idea: {m.imageConcept}</span> : null}
       </td>
       <td>
         <div className="auto-inline">
@@ -268,32 +269,32 @@ function VariantRow({ v, timezone, autoPublish, busy, onAction }: { v: Variant; 
           ) : null}
           {v.status === "published" && v.post ? (
             <a className="admin-btn admin-btn--ghost auto-btn-sm" href={blogPath(v.locale as never, v.post.slug)} target="_blank" rel="noreferrer">
-              View live
+              View
             </a>
           ) : null}
-          {v.status === "failed" ? btn("Retry", "retry", { primary: true, ok: "Queued for another attempt." }) : null}
-          {v.status === "needs_review" ? btn(autoPublish ? "Approve & schedule" : "Approve", "approve", { primary: true }) : null}
-          {v.status === "ready" ? btn(autoPublish ? "Approve & schedule" : "Approve", "approve", { primary: true }) : null}
-          {v.post_id && v.status !== "published" && !running && v.status !== "skipped" ? btn("Publish now", "publish", { confirm: "Publish this article now?" }) : null}
-          {v.status === "published" ? btn("Unpublish", "unpublish", { confirm: "Take this article off the blog?" }) : null}
+          {v.status === "failed" ? btn("Try again", "retry", { primary: true, ok: "It will be written again shortly." }) : null}
+          {v.status === "needs_review" ? btn("Check again and approve", "approve", { primary: true, ok: "Checked and approved." }) : null}
+          {v.status === "ready" ? btn("Approve", "approve", { primary: true, ok: autoPublish ? "Approved. It goes live at its scheduled time." : "Approved." }) : null}
+          {v.post_id && v.status !== "published" && !running && v.status !== "skipped" ? btn("Publish now", "publish", { confirm: "Put this article on your website right now?" }) : null}
+          {v.status === "published" ? btn("Take offline", "unpublish", { confirm: "Take this article off your website? It becomes a private draft. Nothing is deleted." }) : null}
           {!running && v.status !== "published" && v.status !== "skipped" && v.status !== "queued"
-            ? btn(v.is_source ? "Regenerate" : "Regenerate this language", "regenerate", {
-                confirm: v.post_id ? `Write this ${v.locale.toUpperCase()} version again? The current text is replaced.` : undefined,
-                ok: "Queued to be written again.",
+            ? btn(v.is_source ? "Write again" : "Translate again", "regenerate", {
+                confirm: v.post_id ? `${v.is_source ? "Write" : "Translate"} the ${v.locale.toUpperCase()} version again? The current text is replaced, including any edits you made.` : undefined,
+                ok: "It will be written again shortly.",
               })
             : null}
           {v.is_source && !running && v.status !== "published" && v.status !== "skipped" && v.status !== "queued"
-            ? btn("Regenerate all languages", "regenerate_all", { confirm: "Write the article again and re-adapt every language that is not published yet? This uses one Claude call per language.", ok: "Queued." })
+            ? btn("Write again in every language", "regenerate_all", { confirm: "Write the article again and translate every language that is not live yet? Current text and edits are replaced. This uses the AI once per language.", ok: "They will be written again shortly." })
             : null}
           {v.status !== "published" && v.status !== "skipped" && !running ? (
             <button type="button" className="admin-btn admin-btn--ghost auto-btn-sm" onClick={() => setRescheduling((x) => !x)}>
-              {rescheduling ? "Cancel" : "Change date"}
+              {rescheduling ? "Cancel" : "Change time"}
             </button>
           ) : null}
         </div>
         {rescheduling ? (
           <div className="auto-inline" style={{ marginTop: 8 }}>
-            <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} aria-label={`New publishing time (${timezone})`} />
+            <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} aria-label={`New time to go live (${timezone})`} />
             <button
               type="button"
               className="admin-btn admin-btn--primary auto-btn-sm"
@@ -303,7 +304,7 @@ function VariantRow({ v, timezone, autoPublish, busy, onAction }: { v: Variant; 
                 setRescheduling(false);
               }}
             >
-              Save ({timezone})
+              Save time ({timezone})
             </button>
           </div>
         ) : null}
@@ -338,11 +339,11 @@ function TopicEditor({ topic, onDone }: { topic: QueueTopic; onDone: (res: Actio
       </div>
       <div className="admin-row">
         <div className="admin-field">
-          <label htmlFor={`k-${topic.id}`}>Primary keyword</label>
+          <label htmlFor={`k-${topic.id}`}>Main phrase people search for</label>
           <input id={`k-${topic.id}`} type="text" value={f.primary_keyword} onChange={set("primary_keyword")} />
         </div>
         <div className="admin-field">
-          <label htmlFor={`s-${topic.id}`}>Secondary keywords</label>
+          <label htmlFor={`s-${topic.id}`}>Related phrases</label>
           <input id={`s-${topic.id}`} type="text" value={f.secondary_keywords} onChange={set("secondary_keywords")} placeholder="separated by semicolons" />
         </div>
       </div>
@@ -352,17 +353,17 @@ function TopicEditor({ topic, onDone }: { topic: QueueTopic; onDone: (res: Actio
           <input id={`c-${topic.id}`} type="text" value={f.category} onChange={set("category")} />
         </div>
         <div className="admin-field">
-          <label htmlFor={`i-${topic.id}`}>Search intent</label>
-          <input id={`i-${topic.id}`} type="text" value={f.search_intent} onChange={set("search_intent")} placeholder="informational, commercial, ..." />
+          <label htmlFor={`i-${topic.id}`}>What the reader wants</label>
+          <input id={`i-${topic.id}`} type="text" value={f.search_intent} onChange={set("search_intent")} placeholder="to learn something, to compare, to buy..." />
         </div>
       </div>
       <div className="admin-field">
-        <label htmlFor={`n-${topic.id}`}>Notes for the writer</label>
+        <label htmlFor={`n-${topic.id}`}>Instructions for the AI</label>
         <textarea id={`n-${topic.id}`} rows={3} value={f.notes} onChange={set("notes")} />
-        <span className="admin-field__hint">Changes apply to articles written from now on. Use Regenerate on an article to rewrite it.</span>
+        <span className="admin-field__hint">Changes apply to articles written from now on. To rewrite one that already exists, use “Write again” on it.</span>
       </div>
       <button type="submit" className="admin-btn admin-btn--primary" disabled={pending}>
-        {pending ? "Saving…" : "Save topic"}
+        {pending ? "Saving…" : "Save changes"}
       </button>
     </form>
   );

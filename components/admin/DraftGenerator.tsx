@@ -51,7 +51,7 @@ export function DraftGenerator({
     setDone(null);
     if (
       hasContent &&
-      !window.confirm("Replace the current title, excerpt, tags and content with a newly generated draft? Unsaved edits will be lost.")
+      !window.confirm("Replace what you have written with a new AI draft? Anything you have not saved will be lost.")
     ) {
       return;
     }
@@ -71,17 +71,17 @@ export function DraftGenerator({
   return (
     <div className="admin-generator">
       <button type="button" className="admin-generator__toggle" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <span aria-hidden="true">{open ? "−" : "+"}</span> Generate a draft with Claude
+        <span aria-hidden="true">{open ? "−" : "+"}</span> Stuck? Let AI write a first draft for you
       </button>
 
       {open ? (
         <div className="admin-generator__body">
           <p className="admin-field__hint">
-            Claude writes a first draft into this form. Review and edit everything before saving. Nothing is published until you publish it.
+            Describe what the post is about and the AI writes a first version into the boxes below: the article, the search-engine boxes and the questions. Read it and change anything you like. It is saved as a private draft, and nothing goes live until you publish it.
           </p>
 
           <div className="admin-field">
-            <label htmlFor="gen-topic">Topic</label>
+            <label htmlFor="gen-topic">What is the post about?</label>
             <textarea
               id="gen-topic"
               rows={2}
@@ -95,7 +95,7 @@ export function DraftGenerator({
 
           <div className="admin-row">
             <div className="admin-field">
-              <label htmlFor="gen-language">Language</label>
+              <label htmlFor="gen-language">Write it in</label>
               <select id="gen-language" value={language} onChange={(e) => setLanguage(e.target.value as BlogLanguage)}>
                 {languages.map((l) => (
                   <option key={l} value={l}>
@@ -105,7 +105,7 @@ export function DraftGenerator({
               </select>
             </div>
             <div className="admin-field">
-              <label htmlFor="gen-length">Length</label>
+              <label htmlFor="gen-length">How long?</label>
               <select id="gen-length" value={length} onChange={(e) => setLength(e.target.value as BlogLength)}>
                 {(Object.keys(BLOG_LENGTHS) as BlogLength[]).map((l) => (
                   <option key={l} value={l}>
@@ -115,28 +115,28 @@ export function DraftGenerator({
               </select>
             </div>
             <div className="admin-field">
-              <label htmlFor="gen-keywords">Keywords (optional)</label>
+              <label htmlFor="gen-keywords">Main phrase people search for (optional)</label>
               <input
                 id="gen-keywords"
                 type="text"
                 dir={dir}
                 value={keywords}
                 maxLength={INPUT_LIMITS.keywords[1]}
-                placeholder="comma, separated"
+                placeholder="for example: customer reviews"
                 onChange={(e) => setKeywords(e.target.value)}
               />
             </div>
           </div>
 
           <div className="admin-field">
-            <label htmlFor="gen-notes">Brief (optional)</label>
+            <label htmlFor="gen-notes">Anything the AI should know? (optional)</label>
             <textarea
               id="gen-notes"
               rows={3}
               dir={dir}
               value={notes}
               maxLength={INPUT_LIMITS.notes[1]}
-              placeholder="Angle, audience, points to cover. Any URLs you paste here are the only links the draft may use."
+              placeholder="Who is it for? What should it cover? Any web links you paste here are the only ones the AI is allowed to use."
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
@@ -169,9 +169,9 @@ export function DraftGenerator({
               onClick={generate}
               disabled={pending || topic.trim().length < INPUT_LIMITS.topic[0]}
             >
-              {pending ? `Writing… ${elapsed}s` : done ? "Generate again" : "Generate draft"}
+              {pending ? `Writing… ${elapsed}s` : done ? "Write another version" : "Write a first draft"}
             </button>
-            {pending ? <span className="admin-field__hint">This usually takes 20 to 90 seconds. Keep this tab open.</span> : null}
+            {pending ? <span className="admin-field__hint">This usually takes 20 to 90 seconds. Please keep this tab open.</span> : null}
           </div>
         </div>
       ) : null}

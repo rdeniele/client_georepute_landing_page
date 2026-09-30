@@ -305,7 +305,7 @@ export function describeWorkload(s: AutomationSettings, supported: readonly stri
       topicsPerDay: topics,
       piecesPerDay: topics,
       callsPerDay: topics,
-      sentence: `${topics} article${topics === 1 ? "" : "s"} per day, each written directly in one language, taking turns across ${n} language${n === 1 ? "" : "s"}. That is ${topics} piece${topics === 1 ? "" : "s"} per day and about ${topics} Claude call${topics === 1 ? "" : "s"}.`,
+      sentence: `${topics} article${topics === 1 ? "" : "s"} per day, each written directly in one language, taking turns across ${n} language${n === 1 ? "" : "s"}. That is ${topics} piece${topics === 1 ? "" : "s"} per day and about ${topics} AI request${topics === 1 ? "" : "s"}.`,
     };
   }
   const pieces = topics * n;
@@ -315,6 +315,6 @@ export function describeWorkload(s: AutomationSettings, supported: readonly stri
     topicsPerDay: topics,
     piecesPerDay: pieces,
     callsPerDay: calls,
-    sentence: `${topics} topic${topics === 1 ? "" : "s"} per day, each published in ${n === 2 ? "both" : `all ${n}`} languages. That is ${pieces} pieces per day and about ${calls} Claude calls (1 to write, ${perLocalization} per translation).`,
+    sentence: `${topics} topic${topics === 1 ? "" : "s"} per day, each published in ${n === 2 ? "both" : `all ${n}`} languages. That is ${pieces} pieces per day and about ${calls} AI requests (1 to write, ${perLocalization} per translation).`,
   };
 }
