@@ -66,7 +66,7 @@ export const SEARCH_NOTES: Record<string, string> = {
  * editable system prompt: an admin can replace that prompt in the database, and search
  * optimization must not silently disappear when they do.
  */
-export function seoPlaybook(language: string): string {
+export function seoPlaybook(language: string, opts: { inlineImages?: number; charts?: number } = {}): string {
   const L = SEO_LIMITS;
   const searchNote = SEARCH_NOTES[language];
   return `<seo_playbook>
@@ -76,14 +76,29 @@ This article must rank in search, be quoted by AI engines (ChatGPT, Gemini, Perp
 - metaDescription: ${L.metaDescription.min} to ${L.metaDescription.target} characters, contains the primary keyword once, states the concrete answer or benefit, and gives a reason to click. It must stand alone as a summary and must not repeat the title.
 - Opening paragraph (answer first): ${L.intro.minWords} to ${L.intro.maxWords} words that answer the topic's core question directly, primary keyword in the first sentence. It could be quoted alone as the answer. No warm-up, no restating the title.
 - Definition: define the core concept once, near the top, in a plain "X is ..." sentence in the target language's natural pattern.
-- keyTakeaways: ${L.takeaways.min} to ${L.takeaways.max} short, self-contained points that summarise the article for a reader in a hurry, and give the section a short natural heading in takeawaysHeading.
+- Executive summary, right after the opening paragraph: takeawaysHeading is a short natural heading for it ("Executive summary" in the target language), executiveSummary is 40 to 80 words that summarise the whole article (the problem, the main recommendation, the outcome) and read well alone, and keyTakeaways are ${L.takeaways.min} to ${L.takeaways.max} short, self-contained bullet points.
 - Headings: ${L.h2.min} to 6 H2 sections. Write most H2s as the question a searcher would ask, or as a clear noun phrase that names the answer. The first sentence of each section directly answers its heading in 40 to 60 words, then expands with detail. H3 only to split a long section; never skip a heading level. Headings are sentence case and never keyword-stuffed.
-- Scannable structure: at least one list (numbered for steps, bulleted for criteria or options). Short paragraphs.
+- Scannable structure: at least one bulleted or numbered list in the body (numbered for steps, bulleted for criteria, options or mistakes). Short paragraphs.
+- Links: 2 to 5 in the body, only from <allowed_links>. At least one to a page of our own site (a path starting with /) and, when one fits the topic, at least one to an authoritative external source. Descriptive anchor text (never "click here"), each address once, none in headings.
 - Factual density and honesty: prefer specific, checkable statements over vague ones. Give a number only when the brief gives it; label any illustration as an example. Never invent statistics, studies, quotes or sources. Phrase unsupported points as reasoning or a typical pattern, not as fact.
 - Entity clarity: name GeoRepute, Google and each AI engine consistently and in full. Do not alternate between different names for the same thing.
 - faq: real follow-up questions a searcher would ask next (People Also Ask style), each in the target language's natural question form and ending with a question mark. Each answer opens with the direct answer, is self-contained, is ${L.faqAnswerWords} words or fewer, and does not repeat the article. Do not repeat FAQ questions as H2s.
-- keywords: the primary phrase first, then related searches and synonyms a topical brief would list.${searchNote ? `\n- Search behavior in this language: ${searchNote}` : ""}
+- keywords: the primary phrase first, then related searches and synonyms a topical brief would list.${imagesNote(opts.inlineImages)}${chartsNote(opts.charts)}${searchNote ? `\n- Search behavior in this language: ${searchNote}` : ""}
 </seo_playbook>`;
+}
+
+/** Instructions for the pictures inside the article. Only the generator that can place them (the automation) asks for them. */
+function imagesNote(count: number | undefined): string {
+  if (count === undefined) return "";
+  if (count <= 0) return "\n- sectionImages: return an empty array.";
+  return `\n- sectionImages: choose up to ${count} sections where a photo genuinely helps the reader, at most one per section. Never the key takeaways, the FAQ or the closing call to action. heading is the exact text of one of your H2 headings. query is 2 to 4 plain English words that would find a fitting stock photo: a concrete, photographable subject (for example "shop owner tablet" or "storefront street"), never an abstract idea, a brand or person's name, a chart, or a screen with words on it. alt is one descriptive sentence of 6 to 16 words, written in the article's language, saying what the photo shows and how it relates to the section; never start with "image of" or "photo of", and never stuff keywords into it. Return an empty array if no photo would help.`;
+}
+
+/** Instructions for charts and diagrams. Facts are never invented: the site labels any chart whose numbers are not in the brief. */
+function chartsNote(count: number | undefined): string {
+  if (count === undefined) return "";
+  if (count <= 0) return "\n- charts: return an empty array.";
+  return `\n- charts: up to ${count} visual${count === 1 ? "" : "s"} that explain something a photo cannot, each in a different section from the photos and from each other. kind "process" is for steps, a framework or a workflow: 3 to 6 short steps in steps, no numbers needed. kind "bar" is only for comparing 2 to 6 quantities, and only with numbers that appear in the topic or the brief: put them in items (label, value), give the unit (for example %) and name where they come from in source. If the brief contains no numbers, do not make a bar chart; never invent statistics (any chart whose numbers cannot be found in the brief is stamped "illustrative example, not real data" on the site). heading is the exact text of one of your H2 headings. title is a short descriptive title in the article's language, and every label and step is in the article's language too. Leave the fields a kind does not use empty ("" or []). Return an empty array if no visual would help.`;
 }
 
 /* -------------------------------------------------------------------------- */

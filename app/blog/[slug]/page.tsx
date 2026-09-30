@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPublishedAlternates, getPublishedPostBySlug, getRelatedPosts } from "@/lib/services/posts";
 import { PostCard } from "@/components/blog/PostCard";
 import { outline } from "@/lib/blog/seo";
+import { imageUrls } from "@/lib/blog/automation/inlineImages";
 import { FALLBACK_IMAGE, OG_LOCALE, SITE_NAME, buildPostJsonLd, postTitleTag, safeJsonLd } from "@/lib/blog/structuredData";
 import { BLOG_LANGUAGES } from "@/lib/blog/generation";
 import { formatDate } from "@/lib/utils/format";
@@ -16,6 +17,10 @@ import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 import { PhotoCredit } from "@/components/blog/PhotoCredit";
 import { GeneratedCover } from "@/components/blog/GeneratedCover";
+import { AuthorBox, MoreByAuthor } from "@/components/blog/AuthorBox";
+import Image from "next/image";
+import teamLogo from "@/public/brand/logo-g-mark.png";
+import { getAuthorForPost, getMoreByAuthor } from "@/lib/services/authors";
 
 type Params = { slug: string };
 type SearchParams = { lang?: string };
@@ -154,6 +159,10 @@ export default async function BlogPostPage({
   const locale = post.locale;
   const c = getBlogChromeCopy(locale);
 
+  // The public author (Admin > Authors), or the default author, or the built-in team. Never fails the page.
+  const author = await getAuthorForPost(await createSupabaseServerClient(), post);
+  const moreByAuthor = await getMoreByAuthor(await createSupabaseServerClient(), post, author, 4);
+
   const faq = (post.faq ?? []).filter((f) => f?.question && f?.answer);
   const path = blogPath(post.locale, post.slug);
   const wordCount = post.content.trim().split(/\s+/).filter(Boolean).length;
@@ -165,7 +174,9 @@ export default async function BlogPostPage({
     publishedAt: post.published_at,
     modifiedAt: post.updated_at,
     image: post.featured_image,
-    authorName: post.author?.full_name ?? null,
+    extraImages: imageUrls(post.content_blocks ?? []),
+    authorName: null,
+    author: { name: author.name, jobTitle: author.jobTitle, description: author.bio, image: author.avatarUrl, sameAs: author.links.map((l) => l.url), isTeam: author.isTeam },
     category: post.category,
     keywords: post.keywords ?? [],
     wordCount,
@@ -207,12 +218,10 @@ export default async function BlogPostPage({
                   <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
                 </li>
               ) : null}
-              {post.author?.full_name ? (
-                <li className="blog-meta__chip">
-                  <UserCircle weight="duotone" aria-hidden="true" />
-                  <span>{post.author.full_name}</span>
-                </li>
-              ) : null}
+              <li className="blog-meta__chip">
+                <UserCircle weight="duotone" aria-hidden="true" />
+                <a href="#author">{author.name}</a>
+              </li>
               <li className="blog-meta__chip">
                 <Clock weight="duotone" aria-hidden="true" />
                 <span>{c.minRead(readingMinutes(post.content))}</span>
@@ -233,6 +242,7 @@ export default async function BlogPostPage({
               <GeneratedCover seed={post.slug} label={post.category ?? c.insightFallback} />
             )}
 
+            <div className="blog-layout">
             <article className="blog-article">
               {toc.length >= 3 ? (
                 // Collapsed: the answer-first opening paragraph stays the first thing a reader sees, while the jump links
@@ -279,6 +289,12 @@ export default async function BlogPostPage({
                 </div>
               ) : null}
             </article>
+
+            <aside className="blog-sidebar" aria-label={author.name}>
+              <AuthorBox author={author} copy={c} teamMark={<Image src={teamLogo} alt="" width={28} height={28} />} />
+              <MoreByAuthor author={author} posts={moreByAuthor} locale={locale} copy={c} />
+            </aside>
+            </div>
 
             {related.length > 0 ? (
               <aside className="blog-related" aria-labelledby="post-related">

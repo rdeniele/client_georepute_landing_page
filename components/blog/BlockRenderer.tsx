@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import type { ContentBlock } from "@/types/posts";
 import { safeHref } from "@/lib/utils/safeHref";
 import { inlineText, uniqueIds } from "@/lib/blog/seo";
+import { readImageMeta } from "@/lib/blog/automation/inlineImages";
+import { isChartDataUri } from "@/lib/blog/automation/charts";
 
 type InlineNode = {
   type?: string;
@@ -46,6 +48,38 @@ function renderInline(content: unknown): ReactNode {
   });
 }
 
+/** Unsplash asks for the photographer and Unsplash to be credited with links. Works in any language: it links the name and the word "Unsplash" wherever they sit in the caption. */
+function renderCredit(caption: string, by: string, byUrl: string): ReactNode {
+  let profile: URL | null = null;
+  try {
+    const u = new URL(byUrl);
+    if (u.protocol === "https:" && u.hostname === "unsplash.com") profile = u;
+  } catch {
+    // no link
+  }
+  if (!profile) return caption;
+  const home = new URL("https://unsplash.com/");
+  for (const k of ["utm_source", "utm_medium"]) {
+    const v = profile.searchParams.get(k);
+    if (v) home.searchParams.set(k, v);
+  }
+  const link = (href: string, label: string, k: string) => (
+    <a key={k} href={href} target="_blank" rel="noopener noreferrer">
+      {label}
+    </a>
+  );
+  const parts: ReactNode[] = [];
+  const nameAt = caption.indexOf(by);
+  const rest = (chunk: string, prefix: string) => {
+    const at = chunk.indexOf("Unsplash");
+    if (at < 0) return [chunk];
+    return [chunk.slice(0, at), link(home.toString(), "Unsplash", `${prefix}-u`), chunk.slice(at + "Unsplash".length)];
+  };
+  if (nameAt < 0) return rest(caption, "c");
+  parts.push(...rest(caption.slice(0, nameAt), "a"), link(profile.toString(), by, "n"), ...rest(caption.slice(nameAt + by.length), "b"));
+  return parts;
+}
+
 function renderBlock(block: ContentBlock, key: number, idFor: (text: string) => string): ReactNode {
   switch (block.type) {
     case "heading": {
@@ -73,12 +107,16 @@ function renderBlock(block: ContentBlock, key: number, idFor: (text: string) => 
       return <li key={key}>{renderInline(block.content)}</li>;
     case "image": {
       const props = (block.props ?? {}) as { url?: string; caption?: string };
-      if (!props.url) return null;
+      // Editor content is untrusted: only http(s) and site-relative image addresses are rendered.
+      // Also the small SVG charts drawn by the Auto-Writer (a data address that is exactly an SVG picture, never anything else).
+      const src = props.url && (/^(?:https?:\/\/|\/(?!\/))/i.test(props.url) || isChartDataUri(props.url)) ? props.url : null;
+      if (!src) return null;
+      const meta = readImageMeta(block);
       return (
-        <figure key={key} className="blog-article__image">
+        <figure key={key} className={`blog-article__image${meta.by ? " blog-article__image--stock" : ""}${meta.chart ? " blog-article__image--chart" : ""}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={props.url} alt={props.caption ?? ""} loading="lazy" />
-          {props.caption ? <figcaption>{props.caption}</figcaption> : null}
+          <img src={src} alt={meta.alt} loading="lazy" decoding="async" />
+          {props.caption ? <figcaption>{meta.by ? renderCredit(props.caption, meta.by, meta.byUrl) : props.caption}</figcaption> : null}
         </figure>
       );
     }

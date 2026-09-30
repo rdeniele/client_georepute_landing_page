@@ -98,6 +98,63 @@ At topic level the queue also shows *Generated* (canonical article done, transla
   and hreflang links between the language versions (linked through `translation_group`, so each language can have its own slug).
   The blog index is paginated (24 per page) and has per-language canonical URLs.
 
+## Pictures inside articles
+
+Besides the featured image, the AI plans up to **N pictures inside each article** (Settings > "Pictures inside each article", 0 to 4,
+default 2). For each it returns the section (an exact heading of the article), a plain-English search for a stock photo, and a
+description of the photo in the article's language. `lib/blog/automation/inlineImages.ts` does the rest, before the article is first saved:
+
+- A plan that names a heading the article does not have is dropped, never an error. Fewer pictures than planned is normal.
+- Each picture is a different photo, and none repeats the featured image (a repeated result is retried with another seed).
+- A picture is placed after the first paragraph of its section, so the section's direct answer stays first; if the section opens with a
+  list, it goes straight under the heading.
+- Storage uses the props BlockNote's image block keeps: `caption` is the visible credit line (in the article's language), `name` holds a
+  small JSON object `{alt, by, byUrl}` with the description for screen readers and search engines and the photographer. Hand-added
+  pictures keep a plain file name there and work as before.
+- The public page renders the description as `alt`, lazy-loads the image, and links the photographer and Unsplash in the caption (only to
+  unsplash.com), as Unsplash's guidelines require. The pictures are also offered to search engines in the article's structured data.
+- Localization translates each description together with the article (they travel as extra paragraphs after the FAQ, with the same
+  checks) and rewrites the credit line in the target language. The photos are reused, so other languages cost **no extra Unsplash
+  requests**.
+- The publish gate warns (never blocks) about a picture with no description.
+
+Unsplash's free demo tier allows 50 requests an hour, and each article uses about one search and one download report per picture (featured
+included). A few articles an hour is fine; for bulk runs, apply for production access on unsplash.com/developers.
+
+## What every article contains
+
+Each article is built to a fixed shape (the client's brief: images, graphs, bullet points, an executive summary, a sidebar with the
+author's other articles, internal and external links, and information about the author):
+
+- **Opening paragraph** (answer first), then an **Executive summary** section: a 40 to 80 word summary of the whole article followed by
+  3 to 5 key-takeaway bullets. The heading is written in the article's language.
+- **At least one bulleted or numbered list** in the body (a hard requirement; the AI rewrites if there is none).
+- **Pictures** inside the article (see below) and **charts and diagrams** (Settings > "Charts and diagrams", 0 to 2, default 1):
+  - A **process diagram** (3 to 6 steps) needs no numbers.
+  - A **bar chart** is drawn as real data only if it names a source and *every number appears in the topic or notes the admin wrote*
+    (checked by code, not trusted to the model). Otherwise it is forced to "Illustrative example, not real data", stamped inside the
+    picture itself. The rule is `enforceHonesty` in `lib/blog/automation/charts.ts`.
+  - Charts are our own SVG, stored in an image block (`data:image/svg+xml`, the only inline address the page will render), with the data kept
+    in the block so localization redraws them in the target language and direction. Each has a written description (alt text).
+- **2 to 5 links**: at least one to a page of our own site and, when one fits, one to an authoritative outside source. The AI may only use
+  addresses from `lib/blog/links.ts` (the site's pages in the article's language, plus a short list of checked Google, Schema.org and W3C
+  pages), the admin's link rules and URLs in the brief. It never invents a URL. The publish gate warns when an article has no internal
+  link, no outside link or no list.
+- **Author box and sidebar** on the page (see below).
+
+## Authors
+
+Readers see an author box (name, photo, role, short bio, links) and "More from this author" beside every article, and the article's
+structured data names the author as a Person (job title, bio, photo, profiles) or, for the built-in team, the organization.
+
+- `profiles` is private (each person can read only their own row), so public author details live in a separate `authors` table that
+  anyone can read and only admins can change. **Run SUPABASE_SETUP.md Step 14.** Until then everything works and articles show the
+  built-in "GeoRepute Editorial Team" (bios in all seven languages, `lib/authors.ts`).
+- Manage people in **Admin > Authors** (photo upload, links, a bio per language). One can be the **default author**: AI-written articles and
+  posts with no author chosen use it. Choose an author per post in the editor (step 3).
+- "More from this author" lists that author's other published posts in the same language; the default author also owns every post with
+  no author of its own. Everything degrades safely if the table or column is missing.
+
 ## Featured images (Unsplash)
 
 - Set `UNSPLASH_ACCESS_KEY` (server-side only; unsplash.com/developers > your app > Access Key) and run the `featured_image_credit`
@@ -193,7 +250,7 @@ helps AI engines and answer boxes read the page, and the FAQ is visible to reade
 
 ## Tests
 
-`npm run automation:check` runs 270 offline checks with an in-memory store and a scripted model (no database, no API, no cost):
+`npm run automation:check` runs 404 offline checks with an in-memory store and a scripted model (no database, no API, no cost):
 scheduling maths across time zones and DST, planning, both language modes, dynamic languages, retries and back-off, systemic
 errors, expired leases, the publish gate, review, pause and resume, one-language regeneration (no wasted calls), topic import,
 article and SEO validation, localization of body/FAQ/CTA/links, and static checks on secrets and admin guards.

@@ -6,7 +6,8 @@
  * needs no deploy). Whatever the rules say, the output is still forced through the JSON schema
  * and the validators in this folder: the prompt guides the writing, it never controls the app.
  */
-import { localizeNav, localizePath } from "@/lib/i18n";
+import { localizePath } from "@/lib/i18n";
+import { defaultLinkRules, siteLinkRules, type LinkRule } from "@/lib/blog/links";
 import { BLOG_LANGUAGES, BLOG_LENGTHS, type BlogLanguage } from "@/lib/blog/generation";
 import { seoPlaybook } from "@/lib/blog/seo";
 import type { ContentConfig } from "./config";
@@ -43,15 +44,19 @@ SEO
 - slug: lowercase Latin letters, digits and hyphens only, 3 to 8 words, built from the primary keyword. In every language, including Hebrew, Arabic and Russian, transliterate or use the keyword's Latin form.
 - keywords: the primary keyword first, then 3 to 8 semantically related search phrases and synonyms in the article's own language, the kind a topical SEO brief would list, not near-duplicates of the primary keyword.
 - faq: real questions a searcher would type, each answered directly in 2 to 4 sentences (the first sentence is the direct answer), suitable for FAQ structured data. Follow the FAQ mode in the request.
-- keyTakeaways: 3 to 5 short, self-contained points that summarise the article, with a natural heading for them in takeawaysHeading. They appear right after the opening paragraph.
+- Executive summary: takeawaysHeading is a short natural heading for it ("Executive summary" in the article's language), executiveSummary is a paragraph of 40 to 80 words that summarises the whole article (the problem, the main recommendation, the outcome) and reads well on its own, and keyTakeaways are 3 to 5 short, self-contained bullet points. All three appear right after the opening paragraph.
+- The article must contain at least one bulleted or numbered list in its body (steps, criteria, options, mistakes, a checklist).
 - The request also contains an <seo_playbook>. It is part of the required output format: follow it together with these rules.
 - cta: a heading and a short paragraph that follow the CTA instructions and match the article's intent, in natural language for that market, never a literal translation of a generic CTA.
 - imageConcept: 2 to 4 sentences in English describing the visual plan for this article: the featured/hero image (subject and mood), one or two supporting images or diagrams tied to specific sections when they would genuinely help explain the content, and whether a chart, comparison table or process diagram would help (name the type and what it would show, using only figures given in the brief or clearly labeled as illustrative). Do not propose decorative images that add nothing.
 - imageQuery: 2 to 4 plain English words for a stock-photo search that would find a fitting featured photo (a concrete, photographable subject such as "shop window night" or "team laptop meeting", not an abstract idea or a brand name).
+- charts: charts and diagrams, planned as described in the <seo_playbook>. They are optional, and must never contain invented statistics.
+- sectionImages: photos placed inside the article, planned as described in the <seo_playbook>. They are optional: fewer is fine, and an empty array is fine.
 - linkOpportunities: up to 5 short notes in English naming other articles or pages this piece should link to, when a suitable link is not in the allowed list.
 
 Links
 - Only use URLs and paths listed in <allowed_links>. If none are listed, include no links at all. Never invent a URL.
+- Link generously but naturally: 2 to 5 links in the body. Include at least one to a page of our own site (a path starting with /) and, when one fits the topic, at least one to an authoritative external source from the list. Use descriptive anchor text that says what the reader will find (never "click here"), link each address once, and never put a link in a heading or in the opening paragraph's first sentence. If nothing in the list fits, use fewer.
 - Inline formatting inside text fields is limited to **bold**, *italic* and [label](url). No HTML, no other Markdown, no line breaks inside a field.
 
 Output
@@ -71,6 +76,7 @@ export const ARTICLE_JSON_SCHEMA = {
     category: { type: "string" },
     tags: { type: "array", items: { type: "string" } },
     keywords: { type: "array", items: { type: "string" } },
+    executiveSummary: { type: "string" },
     keyTakeaways: { type: "array", items: { type: "string" } },
     takeawaysHeading: { type: "string" },
     blocks: {
@@ -104,6 +110,33 @@ export const ARTICLE_JSON_SCHEMA = {
     },
     imageConcept: { type: "string" },
     imageQuery: { type: "string" },
+    charts: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          heading: { type: "string" },
+          kind: { type: "string", enum: ["process", "bar"] },
+          title: { type: "string" },
+          unit: { type: "string" },
+          items: { type: "array", items: { type: "object", properties: { label: { type: "string" }, value: { type: "number" } }, required: ["label", "value"], additionalProperties: false } },
+          steps: { type: "array", items: { type: "string" } },
+          illustrative: { type: "boolean" },
+          source: { type: "string" },
+        },
+        required: ["heading", "kind", "title", "unit", "items", "steps", "illustrative", "source"],
+        additionalProperties: false,
+      },
+    },
+    sectionImages: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { heading: { type: "string" }, query: { type: "string" }, alt: { type: "string" } },
+        required: ["heading", "query", "alt"],
+        additionalProperties: false,
+      },
+    },
     linkOpportunities: { type: "array", items: { type: "string" } },
     requiredSections: {
       type: "array",
@@ -124,6 +157,7 @@ export const ARTICLE_JSON_SCHEMA = {
     "category",
     "tags",
     "keywords",
+    "executiveSummary",
     "keyTakeaways",
     "takeawaysHeading",
     "blocks",
@@ -131,6 +165,8 @@ export const ARTICLE_JSON_SCHEMA = {
     "cta",
     "imageConcept",
     "imageQuery",
+    "sectionImages",
+    "charts",
     "linkOpportunities",
     "requiredSections",
   ],
@@ -141,7 +177,9 @@ export const ARTICLE_JSON_SCHEMA = {
 /* Links                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export type LinkRule = { href: string; note: string };
+// Shared with the manual "Generate with Claude" button: lib/blog/links.ts.
+export type { LinkRule };
+export { siteLinkRules };
 
 /** Parses "/path | when to link here" lines. Only site-relative paths and https URLs are accepted; anything else is ignored. */
 export function parseLinkRules(text: string): LinkRule[] {
@@ -154,27 +192,15 @@ export function parseLinkRules(text: string): LinkRule[] {
   return rules;
 }
 
-/** The site's own real pages, from the same navigation the header renders, localized. These are the only internal links an article may use by default. */
-export function siteLinkRules(locale: string): LinkRule[] {
-  const nav = localizeNav(locale);
-  const rules: LinkRule[] = [];
-  for (const group of nav.groups) {
-    for (const item of group.items) rules.push({ href: item.href, note: `${item.name}: ${item.desc}` });
-  }
-  for (const link of nav.links) if (link.href.startsWith("/")) rules.push({ href: link.href, note: link.label });
-  const seen = new Set<string>();
-  return rules.filter((r) => (seen.has(r.href) ? false : (seen.add(r.href), true)));
-}
-
 /**
  * Every link an article in `locale` is allowed to contain: the admin's own rules, links the topic's brief
- * supplied, and the site's real pages. Admin rules written as `/en/...` are localized to `locale`.
+ * supplied, the site's real pages and a short list of trusted external sources (lib/blog/links.ts). Admin rules written as `/en/...` are localized to `locale`.
  */
 export function allowedLinks(config: Pick<ContentConfig, "internalLinkingRules">, notes: string, locale: string): LinkRule[] {
   const fromAdmin = parseLinkRules(config.internalLinkingRules).map((r) => ({ ...r, href: localizePath(r.href, locale as never) }));
   const fromBrief = (notes.match(/https:\/\/[^\s<>"')\]]+/g) ?? []).map((href) => ({ href: href.replace(/[.,;:!?]+$/, ""), note: "" }));
   const seen = new Set<string>();
-  return [...fromAdmin, ...fromBrief, ...siteLinkRules(locale)].filter((r) => (seen.has(r.href) ? false : (seen.add(r.href), true)));
+  return [...fromAdmin, ...fromBrief, ...defaultLinkRules(locale)].filter((r) => (seen.has(r.href) ? false : (seen.add(r.href), true)));
 }
 
 export function isAllowedLinkFor(config: Pick<ContentConfig, "internalLinkingRules">, locale: string): (href: string) => boolean {
@@ -221,7 +247,7 @@ export function buildArticlePrompt(req: ArticleRequest): { system: string; user:
     c.tone ? `<tone>${c.tone}</tone>` : "",
     c.seoInstructions ? `<seo_instructions>${c.seoInstructions}</seo_instructions>` : "",
     // Always appended in code: the editable system prompt can be replaced, the playbook cannot be lost that way.
-    seoPlaybook(String(req.language)),
+    seoPlaybook(String(req.language), { inlineImages: c.inlineImages, charts: c.charts }),
     c.ctaInstructions ? `<cta_instructions>${c.ctaInstructions}</cta_instructions>` : "",
     c.requiredSections.length
       ? `<required_sections>\n${c.requiredSections.join("\n")}\n</required_sections>\nEvery required section must appear as its own heading. In requiredSections, report the exact heading text you used for each one.`

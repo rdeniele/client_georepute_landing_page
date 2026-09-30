@@ -51,6 +51,8 @@ function readFormValues(formData: FormData): PostFormValues {
     tags: String(formData.get("tags") ?? ""),
     status: (formData.get("status") as PostStatus) ?? "draft",
     locale: readLocale(formData),
+    // Present only when the author select was shown; absent means the feature is not available and nothing is saved.
+    byline_id: formData.has("byline_id") ? String(formData.get("byline_id") ?? "").trim() : null,
     meta_title: String(formData.get("meta_title") ?? "").trim(),
     meta_description: String(formData.get("meta_description") ?? "").trim(),
     keywords: String(formData.get("keywords") ?? ""),

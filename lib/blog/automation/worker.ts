@@ -24,6 +24,7 @@ import { hasBlockingIssues, validateForPublish, type Issue, type PublishCandidat
 import { assignTopics, dateInZone, addDays, planWindow } from "./schedule";
 import type { AutomationSettings, TickSummary } from "./config";
 import type { GeneratedArticle } from "./article";
+import { findSectionImages, placeCharts, placeImages } from "./inlineImages";
 import type { LocalizedArticle, SourceArticle } from "./localize";
 import type { FeaturedImage, ImageCredit, ImageFinder } from "./images";
 
@@ -399,6 +400,25 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
         s.config.generationModel || models.generation,
       );
       if (!(await stillMine())) return { kind: "skipped" };
+
+      // Photos are looked up before the article is saved, so the pictures inside it are part of the first save:
+      // the featured image, then one distinct photo for each planned section. Any of them may be missing; none may fail the article.
+      const finder = deps.images;
+      let featured: FeaturedImage | null = null;
+      let articleBlocks = article.blocks as ContentBlock[];
+      let inlineImages = 0;
+      // Charts are drawn by us and need no photo service, so they are placed whether or not a photo key exists.
+      const chartsPlaced = placeCharts(articleBlocks, article.charts, variant.locale);
+      articleBlocks = chartsPlaced.blocks;
+      if (finder) {
+        featured = await finder.find(article.imageQuery, topic.id).catch(() => null);
+        if (article.sectionImages.length) {
+          const found = await findSectionImages(finder, article.sectionImages, { seed: topic.id, avoid: featured ? [featured.url] : [] });
+          const placed = placeImages(articleBlocks, found, variant.locale);
+          articleBlocks = placed.blocks;
+          inlineImages = placed.placed;
+        }
+      }
       post = await store.savePost(variant.post_id, {
         locale: variant.locale,
         slug: article.slug,
@@ -406,17 +426,16 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
         excerpt: article.excerpt,
         category: article.category,
         tags: article.tags,
-        blocks: article.blocks as ContentBlock[],
+        blocks: articleBlocks,
         faq: article.faq,
         metaTitle: article.metaTitle,
         metaDescription: article.metaDescription,
         keywords: article.keywords,
         translationGroup: topic.translation_group,
       });
-      const finder = deps.images;
       if (!finder) imageReason = "no_key";
       else {
-        const attached = await attachFeaturedImage(deps, post, () => finder.find(article.imageQuery, topic.id), article.imageQuery);
+        const attached = await attachFeaturedImage(deps, post, async () => featured, article.imageQuery);
         imageReason = attached.reason;
         if (attached.url) post = { ...post, featuredImage: attached.url };
       }
@@ -427,6 +446,8 @@ async function runJob(deps: WorkerDeps, s: AutomationSettings, job: Job, deadlin
         usage: article.usage,
         wordCount: article.wordCount,
         imageConcept: article.imageConcept,
+        inlineImages: { planned: article.sectionImages.length, placed: inlineImages },
+        charts: { planned: article.charts.length, placed: chartsPlaced.placed },
         linkOpportunities: article.linkOpportunities,
         cta: article.cta,
         seconds: Math.round((now().getTime() - t0) / 1000),

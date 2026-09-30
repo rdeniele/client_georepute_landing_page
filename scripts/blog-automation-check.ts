@@ -32,6 +32,18 @@ import { findPlaceholders, validateForPublish, type PublishCandidate, type Valid
 import { SEARCH_NOTES, SEO_LIMITS, analyzeSeo, headingId, mentions, outline, seoPlaybook, uniqueIds } from "@/lib/blog/seo";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import { buildIndexJsonLd, buildPostJsonLd, postTitleTag, safeJsonLd, xmlEscape } from "@/lib/blog/structuredData";
+import { TRUSTED_SOURCES, countLinks } from "@/lib/blog/links";
+import { CHART_WORDS, chartAlt, chartCaption, chartDataUri, chartTexts, enforceHonesty, isChartDataUri, parseChartSpec, renderChartSvg, withChartTexts, type ChartSpec } from "@/lib/blog/automation/charts";
+import { applyImageTexts as applyTexts, chartBlock, placeCharts } from "@/lib/blog/automation/inlineImages";
+import { getFirstContentImage } from "@/lib/utils/blocks";
+import { MAX_CHARTS } from "@/lib/blog/automation/config";
+import { AUTHOR_LIMITS, TEAM_NAME, authorFromRow, cleanLinks, initials, parseAuthorInput, teamAuthor } from "@/lib/authors";
+import { AuthorBox, MoreByAuthor } from "@/components/blog/AuthorBox";
+import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
+import { EMPTY_POST_FORM, postToFormValues } from "@/types/posts";
+import type { AuthorRow } from "@/types/database.types";
+import { PHOTO_CREDIT, findSectionImages, applyImageTexts, imageBlock, imageTexts, imageUrls, insertAfterHeading, photoCaption, placeImages, readImageMeta } from "@/lib/blog/automation/inlineImages";
+import { MAX_INLINE_IMAGES, normalizeConfig } from "@/lib/blog/automation/config";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import {
@@ -308,6 +320,7 @@ function rawArticle(over: Raw = {}): Raw {
     category: "Local SEO",
     tags: ["local seo", "visibility"],
     keywords: ["local business visibility", "google business profile", "local seo tips", "google maps ranking"],
+    executiveSummary: "Local visibility depends on three things: a complete business profile, honest and recent reviews, and identical business details everywhere. Fix the profile first, answer reviews within days, then check the details across listings once a month to keep the record consistent.",
     keyTakeaways: ["Complete every field of the business profile", "Reply to the latest reviews within a few days", "Keep the name, address and phone number identical everywhere"],
     takeawaysHeading: "Key points to remember",
     blocks: [
@@ -550,10 +563,22 @@ async function main() {
   {
     const ok = validate(rawArticle());
     const headingTexts = ok.blocks.filter((b) => b.type === "heading").map((b) => JSON.stringify(b.content));
-    check("key takeaways sit right after the opening paragraph, under their own heading", ok.blocks[0].type === "paragraph" && ok.blocks[1].type === "heading" && JSON.stringify(ok.blocks[1].content).includes("Key points to remember") && ok.blocks[2].type === "bulletListItem" && ok.blocks[4].type === "bulletListItem" && ok.blocks[5].type !== "bulletListItem");
+    check("key takeaways sit right after the opening paragraph, under their own heading, after the executive summary paragraph", ok.blocks[0].type === "paragraph" && ok.blocks[1].type === "heading" && JSON.stringify(ok.blocks[1].content).includes("Key points to remember") && ok.blocks[2].type === "paragraph" && ok.blocks[3].type === "bulletListItem" && ok.blocks[5].type === "bulletListItem" && ok.blocks[6].type !== "bulletListItem");
     check("the article still ends with the call to action", headingTexts.at(-1)?.includes("See how your business looks today") === true);
+    check("the executive summary is a paragraph under the summary heading, before the bullets, and matches what the model wrote", JSON.stringify(ok.blocks[2].content).includes("Local visibility depends on three things"));
+    check("a missing or too-short executive summary is rejected (the model is asked again)", throwsMsg(() => validate(rawArticle({ executiveSummary: "" })), /executive summary/) && throwsMsg(() => validate(rawArticle({ executiveSummary: "Too short to summarise anything." })), /executive summary/));
+    check("an over-long executive summary is rejected", throwsMsg(() => validate(rawArticle({ executiveSummary: "word ".repeat(200) })), /executive summary/));
+    check("an article with no bulleted or numbered list is rejected", throwsMsg(() => validate(rawArticle({ blocks: (rawArticle().blocks as Raw[]).filter((b) => b.type !== "bullet_list") })), /no bulleted or numbered list/));
+    check("the request asks for the executive summary, the list and the links", (() => { const u = buildArticlePrompt({ ...baseReq, config: DEFAULT_SETTINGS.config } as never).user; return /executiveSummary/.test(u) && /at least one bulleted or numbered list/.test(u) && /2 to 5 in the body/.test(u); })());
+    check("trusted external sources are offered to the writer, each with a note, and the site's own pages too", (() => { const l = allowedLinks(DEFAULT_SETTINGS.config, "", "he"); return TRUSTED_SOURCES.every((t) => l.some((x) => x.href === t.href && x.note)) && l.some((x) => x.href.startsWith("/he/")); })());
+    check("every trusted source is https and unique", TRUSTED_SOURCES.every((t) => /^https:\/\/[^\s]+$/.test(t.href)) && new Set(TRUSTED_SOURCES.map((t) => t.href)).size === TRUSTED_SOURCES.length);
+    check("a trusted external link in the body is kept as a real link; an invented one is not", (() => { const link = TRUSTED_SOURCES[0].href; const mk = (u: string) => rawArticle({ blocks: (rawArticle().blocks as Raw[]).map((b, i) => (i === 0 ? { ...b, text: `${b.text} See [the guide](${u}).` } : b)) }); return JSON.stringify(validate(mk(link)).blocks).includes(link) && !JSON.stringify(validate(mk("https://made-up.example/x")).blocks).includes("made-up.example"); })());
+    check("the publish gate accepts a trusted external link", isAllowedLinkFor(DEFAULT_SETTINGS.config, "en")(TRUSTED_SOURCES[1].href) && !isAllowedLinkFor(DEFAULT_SETTINGS.config, "en")("https://made-up.example/x"));
+    check("link counting tells own pages from outside sources", (() => { const c = countLinks(["/en/methodology", "https://www.georepute.ai/en/x", "https://developers.google.com/a", "https://developers.google.com/a"]); return c.internal === 2 && c.external === 1; })());
+    check("the gate warns when an article has no internal link, no outside link or no list", (() => { const codes = validateForPublish({ locale: "en", slug: "x-y", title: "A title here", excerpt: "e", metaTitle: "A title here", metaDescription: "d".repeat(130), keywords: ["a"], category: "c", blocks: [{ type: "paragraph", content: [{ type: "text", text: "word ".repeat(200), styles: {} }] }, { type: "heading", props: { level: 2 }, content: "A" }, { type: "heading", props: { level: 2 }, content: "B" }] as never, faq: [] }, { isAllowedLink: () => true }); return ["links_internal_missing", "links_external_missing", "list_missing"].every((c) => codes.some((i) => i.code === c && i.severity === "warning")); })());
+    check("a well-linked article with a list gets none of those warnings", (() => { const good = validate(rawArticle({ blocks: (rawArticle().blocks as Raw[]).map((b, i) => (i === 0 ? { ...b, text: `${b.text} See [Google's guide](${TRUSTED_SOURCES[0].href}).` } : b)) })); const w = validateForPublish({ locale: "en", slug: good.slug, title: good.title, excerpt: good.excerpt, metaTitle: good.metaTitle, metaDescription: good.metaDescription, keywords: good.keywords, category: good.category, blocks: good.blocks as never, faq: good.faq }, { isAllowedLink: () => true }); return !w.some((i) => ["links_internal_missing", "links_external_missing", "list_missing"].includes(i.code)); })());
     check("fewer than 3 key takeaways is rejected (the model is asked again)", throwsMsg(() => validate(rawArticle({ keyTakeaways: ["Only one point here"] })), /key takeaways/));
-    check("a missing takeaways heading is rejected", throwsMsg(() => validate(rawArticle({ takeawaysHeading: "" })), /takeaways heading/));
+    check("a missing takeaways heading is rejected", throwsMsg(() => validate(rawArticle({ takeawaysHeading: "" })), /executive summary heading/));
     check("a meta title without the primary keyword is rejected", throwsMsg(() => validate(rawArticle({ metaTitle: "A completely different subject about cooking" })), /primary keyword/));
     check("...but an inflected form of the keyword passes (stem matching)", validate(rawArticle({ metaTitle: "Improving local businesses visibility on Google" })).metaTitle.length > 0);
     check("a meta description under 100 characters is rejected", throwsMsg(() => validate(rawArticle({ metaDescription: "Too short to be a real description." })), /meta description/));
@@ -624,6 +649,230 @@ async function main() {
     check("title tag: an authored meta title is used as is", postTitleTag({ title: "T", meta_title: "Meta" }) === "Meta");
     check("title tag: brand is added only while it still fits a search result", postTitleTag({ title: "Short title", meta_title: null }) === "Short title | GeoRepute" && postTitleTag({ title: "x".repeat(55), meta_title: null }) === "x".repeat(55));
     check("feed text is XML-escaped", xmlEscape(`A & B <c> "d"`) === "A &amp; B &lt;c&gt; &quot;d&quot;");
+  }
+
+  section("Pictures inside the article");
+  {
+    const credit = (n: string) => ({ url: `https://images.unsplash.com/${n}`, credit: { url: `https://images.unsplash.com/${n}`, photographer: `Jane ${n}`, photographerUrl: `https://unsplash.com/@${n}?utm_source=app&utm_medium=referral`, photoUrl: `https://unsplash.com/photos/${n}`, sourceName: "Unsplash" as const, sourceUrl: "https://unsplash.com/?utm_source=app&utm_medium=referral" } });
+    const doc = validate(rawArticle()).blocks as unknown as ContentBlock[];
+    const H2 = "What to fix first";
+
+    // Blocks: what is stored, and how it survives the editor
+    const pic = imageBlock({ image: credit("a"), alt: "A shop window at dusk with a lit open sign", locale: "en" });
+    const meta = readImageMeta(pic);
+    check("a picture stores its photo, credit line and description in the props the editor keeps", (pic.props as { url: string }).url.includes("images.unsplash.com/a") && (pic.props as { caption: string }).caption === "Photo by Jane a on Unsplash" && meta.alt.startsWith("A shop window") && meta.by === "Jane a" && meta.byUrl.includes("unsplash.com/@a"));
+    check("the credit line exists in every language and always names the photographer and Unsplash", LOCALES.every((l) => !!PHOTO_CREDIT[l] && photoCaption(l, "Jane").includes("Jane") && photoCaption(l, "Jane").includes("Unsplash")));
+    check("a hand-added picture (plain file name) is read without error and uses its caption as description", readImageMeta({ type: "image", props: { url: "https://x/y.jpg", name: "photo.jpg", caption: "Our team" } }).alt === "Our team" && readImageMeta({ type: "image", props: { url: "https://x/y.jpg" } }).alt === "");
+    check("broken JSON in the name prop never throws", readImageMeta({ type: "image", props: { url: "https://x/y.jpg", name: "{not json", caption: "c" } }).alt === "c");
+
+    // Placement
+    const placed = insertAfterHeading(doc, "Measuring progress", pic)!;
+    const at = placed.findIndex((b) => b.type === "image");
+    check("a picture goes after the first paragraph of its section, so the direct answer stays first", placed[at - 1]?.type === "paragraph" && placed[at - 2]?.type === "heading" && JSON.stringify(placed[at - 2].content).includes("Measuring progress") && placed.length === doc.length + 1);
+    const afterList = insertAfterHeading(doc, H2, pic)!;
+    const at2 = afterList.findIndex((b) => b.type === "image");
+    check("when a section opens with a list instead, the picture goes straight under the heading", afterList[at2 - 1]?.type === "heading" && afterList[at2 + 1]?.type === "bulletListItem");
+    check("a heading that does not exist places nothing", insertAfterHeading(doc, "No such heading", pic) === null);
+    check("heading match ignores case and spacing", insertAfterHeading(doc, "  WHAT  to fix FIRST ", pic) !== null);
+
+    // Finding photos: distinct, never the featured image
+    const same: ImageFinder = { find: async () => credit("dup") };
+    const foundSame = await findSectionImages(same, [{ heading: H2, query: "a b", alt: "x y z w v" }, { heading: "Measuring progress", query: "c d", alt: "x y z w v" }], { seed: "t" });
+    check("two pictures never show the same photo (the second is skipped rather than repeated)", foundSame.length === 1);
+    const seeds: string[] = [];
+    const varied: ImageFinder = { find: async (_q, seed) => { seeds.push(seed); return credit(seed.endsWith(":1") || seed.endsWith(":2") ? "other" : "dup"); } };
+    const foundVaried = await findSectionImages(varied, [{ heading: H2, query: "a b", alt: "x y z w v" }, { heading: "Measuring progress", query: "c d", alt: "x y z w v" }], { seed: "t" });
+    check("a repeated photo is retried with another seed and then accepted", foundVaried.length === 2 && new Set(foundVaried.map((f) => f.image.url)).size === 2 && seeds.some((x) => x.endsWith(":1")));
+    check("a photo equal to the featured image is avoided", (await findSectionImages(same, [{ heading: H2, query: "a b", alt: "x y z w v" }], { seed: "t", avoid: [credit("dup").url] })).length === 0);
+    check("a search that finds nothing, or throws, is skipped without failing", (await findSectionImages({ find: async () => null }, [{ heading: H2, query: "a b", alt: "x y z w v" }], { seed: "t" })).length === 0 && (await findSectionImages({ find: async () => { throw new Error("down"); } }, [{ heading: H2, query: "a b", alt: "x y z w v" }], { seed: "t" })).length === 0);
+    const two = placeImages(doc, [{ plan: { heading: H2, query: "q q", alt: "alt one here now" }, image: credit("p1") }, { plan: { heading: "Nowhere", query: "q q", alt: "alt two here now" }, image: credit("p2") }], "en");
+    check("a picture whose heading is missing is skipped, the rest are placed", two.placed === 1 && imageUrls(two.blocks).length === 1);
+
+    // The plan the model returns
+    const withPlan = (sectionImages: unknown, inline = 2) => validate(rawArticle({ sectionImages }), { ...baseReq, config: { ...DEFAULT_SETTINGS.config, inlineImages: inline } } as never);
+    const plan = [{ heading: H2, query: "shop owner tablet", alt: "A shop owner checking her business profile on a tablet" }, { heading: "Measuring progress", query: "analytics laptop desk", alt: "A laptop on a desk showing simple weekly numbers" }];
+    check("a valid plan is kept, matched to the article's real headings", withPlan(plan).sectionImages.length === 2 && withPlan(plan).sectionImages[0].heading === H2);
+    check("no plan is fine", withPlan([]).sectionImages.length === 0 && validate(rawArticle()).sectionImages.length === 0);
+    check("a heading the article does not have is dropped, not an error", withPlan([{ heading: "Invented section", query: "shop owner", alt: "A description of a photo here" }, plan[0]]).sectionImages.length === 1);
+    check("the same section twice is used once", withPlan([plan[0], plan[0]]).sectionImages.length === 1);
+    check("the plan is capped at the configured number", withPlan(plan, 1).sectionImages.length === 1 && withPlan(plan, 0).sectionImages.length === 0);
+    check("a too-short search or description is dropped", withPlan([{ heading: H2, query: "a", alt: "A long enough description here" }, { heading: "Measuring progress", query: "laptop desk", alt: "short" }]).sectionImages.length === 0);
+    check("the planned search keeps only plain words (no markup, no punctuation)", withPlan([{ heading: H2, query: "**shop** (owner), tablet!", alt: "A shop owner checking a tablet" }]).sectionImages[0].query === "shop owner tablet");
+    check("a bad plan never rejects a good article", withPlan("nonsense").sectionImages.length === 0 && withPlan([null, 5, { heading: 1 }]).sectionImages.length === 0);
+
+    // The setting and the instructions
+    check("the setting defaults to 2 and is clamped to 0..4", DEFAULT_SETTINGS.config.inlineImages === 2 && normalizeConfig({ inlineImages: 9 }).inlineImages === MAX_INLINE_IMAGES && normalizeConfig({ inlineImages: -3 }).inlineImages === 0 && normalizeConfig({ inlineImages: "x" }).inlineImages === 2 && normalizeConfig({ inlineImages: 0 }).inlineImages === 0);
+    const promptWith = (n: number) => buildArticlePrompt({ ...baseReq, config: { ...DEFAULT_SETTINGS.config, inlineImages: n } } as never).user;
+    check("the request asks for up to N pictures, and for none when the setting is 0", /up to 3 sections/.test(promptWith(3)) && /sectionImages: return an empty array/.test(promptWith(0)));
+    check("the request says how to describe a photo, and forbids brands, charts and 'image of'", /alt is one descriptive sentence/.test(promptWith(2)) && /never an abstract idea, a brand or person's name, a chart/.test(promptWith(2)) && /never start with "image of"/.test(promptWith(2)));
+    check("the schema requires sectionImages, and the manual generator does not ask for pictures", (ARTICLE_JSON_SCHEMA.required as readonly string[]).includes("sectionImages") && !seoPlaybook("en").includes("sectionImages"));
+
+    // Rendering
+    const htmlPic = renderToStaticMarkup(createElement(BlockRenderer, { blocks: placed }));
+    check("the image renders with its description as alt text, lazy loading and the credit as links", /<img [^>]*alt="A shop window at dusk with a lit open sign"/.test(htmlPic) && /loading="lazy"/.test(htmlPic) && htmlPic.includes('href="https://unsplash.com/@a?utm_source=app&amp;utm_medium=referral"') && htmlPic.includes('href="https://unsplash.com/?utm_source=app&amp;utm_medium=referral"'), htmlPic.match(/<figure[\s\S]*?<\/figure>/)?.[0]);
+    check("the credit is linked in any language (Hebrew caption)", (() => { const he = applyImageTexts([pic], [["תיאור בעברית של התמונה"]], "he"); const h = renderToStaticMarkup(createElement(BlockRenderer, { blocks: he })); return h.includes(">Jane a</a>") && h.includes(">Unsplash</a>") && h.includes("צילום:"); })());
+    check("a hand-added picture renders with its caption and no stock treatment", (() => { const h = renderToStaticMarkup(createElement(BlockRenderer, { blocks: [{ type: "image", props: { url: "https://cdn.example/a.jpg", caption: "Our team", name: "a.jpg" } }] })); return h.includes('alt="Our team"') && h.includes("<figcaption>Our team</figcaption>") && !h.includes("--stock"); })());
+    check("an image with an unsafe address renders nothing", renderToStaticMarkup(createElement(BlockRenderer, { blocks: [{ type: "image", props: { url: "javascript:alert(1)", caption: "x" } }] })) === "");
+    check("a photographer link that is not on unsplash.com is never made a link", !renderToStaticMarkup(createElement(BlockRenderer, { blocks: [{ type: "image", props: { url: "https://x/y.jpg", caption: "Photo by Eve on Unsplash", name: JSON.stringify({ alt: "a b", by: "Eve", byUrl: "https://evil.example/@eve" }) } }] })).includes("evil.example"));
+
+    // Structured data and the publish gate
+    const ld = buildPostJsonLd({ path: "/blog/x", title: "t", description: "d", locale: "en", publishedAt: null, modifiedAt: "2026-01-01", image: null, extraImages: imageUrls(placed), authorName: null, category: null, keywords: [], wordCount: 0, breadcrumb: [], faq: [] })[0] as { image: string[] };
+    check("pictures inside the article are offered to search engines with the main image", ld.image.length === 2 && ld.image.some((u) => u.includes("images.unsplash.com/a")));
+    const gate = (blocks: ContentBlock[]) => validateForPublish({ locale: "en", slug: "x-y", title: "A title here", excerpt: "e", metaTitle: "A title here", metaDescription: "d".repeat(130), keywords: ["a"], category: "c", blocks, faq: [] }, { isAllowedLink: () => true }).filter((i) => i.code === "image_alt_missing");
+    check("a picture with a description raises no warning; one without raises a warning, not a blocker", gate(placed).length === 0 && gate([...doc, { type: "image", props: { url: "https://x/y.jpg", name: "y.jpg" } }]).length === 1 && gate([...doc, { type: "image", props: { url: "https://x/y.jpg", name: "y.jpg" } }])[0].severity === "warning");
+
+    // Localization carries the descriptions through the translator
+    const src = validate(rawArticle());
+    const withPics = placeImages(src.blocks as unknown as ContentBlock[], [{ plan: { heading: H2, query: "q q", alt: "A shop owner checking her business profile on a tablet" }, image: credit("p1") }, { plan: { heading: "Measuring progress", query: "q q", alt: "A laptop on a desk showing simple weekly numbers" }, image: credit("p2") }], "en").blocks;
+    check("descriptions are read in document order", imageTexts(withPics).length === 2 && imageTexts(withPics)[0][0].startsWith("A shop owner"));
+    const localized = applyImageTexts(withPics, [["תיאור ראשון של תמונה"], ["תיאור שני של תמונה"]], "he");
+    const lm = localized.filter((b) => b.type === "image").map(readImageMeta);
+    check("localizing rewrites the description and the credit line, and keeps the photo and photographer", lm[0].alt === "תיאור ראשון של תמונה" && lm[1].alt === "תיאור שני של תמונה" && lm[0].by === "Jane p1" && imageUrls(localized).join() === imageUrls(withPics).join() && (localized.find((b) => b.type === "image")!.props as { caption: string }).caption === "צילום: Jane p1, Unsplash");
+    check("a hand-added captioned picture gets its translated description as caption; an uncaptioned one is left alone", (() => { const out = applyImageTexts([{ type: "image", props: { url: "https://x/1.jpg", caption: "Our team", name: "1.jpg" } }, { type: "image", props: { url: "https://x/2.jpg", name: "2.jpg" } }], [["הצוות שלנו"], [""]], "he"); return (out[0].props as { caption: string }).caption === "הצוות שלנו" && (out[1].props as { caption?: string }).caption === undefined; })());
+  }
+
+  section("Charts and diagrams");
+  {
+    const decode = (uri: string) => Buffer.from(uri.split(",")[1], "base64").toString("utf-8");
+    const bar = (over: Record<string, unknown> = {}) => ({ kind: "bar", title: "Share of buyers who read reviews first", unit: "%", items: [{ label: "Read reviews", value: 82 }, { label: "Visit the website", value: 61 }, { label: "Ask a friend", value: 34 }], illustrative: false, source: "Customer survey provided by the client", ...over });
+    const proc = (over: Record<string, unknown> = {}) => ({ kind: "process", title: "A four step reputation check", steps: ["Read your reviews", "Search your name", "Ask an AI engine", "Fix the biggest gap"], ...over });
+
+    // Reading a spec safely
+    check("a valid bar chart and a valid process diagram are accepted", parseChartSpec(bar())?.kind === "bar" && parseChartSpec(proc())?.kind === "process");
+    check("a bar chart needs 2 to 6 numeric items, a negative value is dropped (leaving too few), not all zero", parseChartSpec(bar({ items: [{ label: "A", value: 1 }] })) === null && parseChartSpec(bar({ items: Array.from({ length: 7 }, (_, i) => ({ label: `L${i}`, value: i + 1 })) })) === null && parseChartSpec(bar({ items: [{ label: "A", value: -5 }, { label: "B", value: 3 }] })) === null && parseChartSpec(bar({ items: [{ label: "A", value: 0 }, { label: "B", value: 0 }] })) === null);
+    check("a value that is not a finite number is dropped, leaving too few items", parseChartSpec(bar({ items: [{ label: "A", value: "many" }, { label: "B", value: 3 }] })) === null);
+    check("a process diagram needs 3 to 6 steps", parseChartSpec(proc({ steps: ["One", "Two"] })) === null && parseChartSpec(proc({ steps: ["a1", "b2", "c3", "d4", "e5", "f6", "g7"] })) === null);
+    check("unknown kinds, missing titles and junk are rejected without throwing", [null, "x", 5, {}, { kind: "pie", title: "abc" }, bar({ title: "" }), proc({ title: "no" })].every((x) => parseChartSpec(x) === null));
+    check("markup in labels is neutralised", !JSON.stringify(parseChartSpec(bar({ items: [{ label: "<script>alert(1)</script>", value: 5 }, { label: "B", value: 3 }] }))).includes("<"));
+
+    // The honesty rule
+    const ev = "Customers told us 82% read reviews first, 61 visit the website and 34 ask a friend.";
+    check("real data stays real only with a source and every number present in the brief", enforceHonesty(parseChartSpec(bar())!, ev).kind === "bar" && (enforceHonesty(parseChartSpec(bar())!, ev) as { illustrative: boolean }).illustrative === false);
+    check("a number that is not in the brief forces 'illustrative' and drops the invented source", (() => { const s = enforceHonesty(parseChartSpec(bar({ items: [{ label: "A", value: 82 }, { label: "B", value: 47 }] }))!, ev) as { illustrative: boolean; source: string }; return s.illustrative && s.source === ""; })());
+    check("a bar chart with no source is illustrative even if the numbers are in the brief", (enforceHonesty(parseChartSpec(bar({ source: "" }))!, ev) as { illustrative: boolean }).illustrative === true);
+    check("the model claiming 'not illustrative' is never believed", (enforceHonesty(parseChartSpec(bar({ illustrative: false }))!, "no numbers here") as { illustrative: boolean }).illustrative === true);
+    check("numbers match whole numbers only ('45' is not found inside '145')", (enforceHonesty(parseChartSpec(bar({ items: [{ label: "A", value: 45 }, { label: "B", value: 30 }] }))!, "we saw 145 and 130") as { illustrative: boolean }).illustrative === true);
+    check("decimals are matched exactly", (enforceHonesty(parseChartSpec(bar({ items: [{ label: "A", value: 12.5 }, { label: "B", value: 30 }] }))!, "12.5 and 30 respectively") as { illustrative: boolean }).illustrative === false);
+    check("a process diagram carries no numbers and is left alone", JSON.stringify(enforceHonesty(parseChartSpec(proc())!, "")) === JSON.stringify(parseChartSpec(proc())));
+
+    // Drawing
+    const real = parseChartSpec(bar())! as ChartSpec;
+    const illus = enforceHonesty(parseChartSpec(bar())!, "nothing") as ChartSpec;
+    const svgReal = renderChartSvg(real, "en");
+    const svgIllus = renderChartSvg(illus, "en");
+    check("a chart is a self-contained SVG with the title, every label and every value", svgReal.startsWith("<svg ") && svgReal.endsWith("</svg>") && svgReal.includes("Share of buyers") && svgReal.includes("Read reviews") && svgReal.includes("82%") && svgReal.includes("34%"));
+    check("an illustrative chart carries its label inside the picture itself; a sourced one does not, and shows its source", svgIllus.includes(CHART_WORDS.en.illustrative) && !svgReal.includes(CHART_WORDS.en.illustrative) && svgReal.includes("Source: Customer survey"));
+    check("bar lengths are proportional to the values", (() => { const w = [...svgReal.matchAll(/<rect x="\d+" y="\d+" width="(\d+)" height="24" rx="12" fill="#744BD1"/g)].map((m) => Number(m[1])); return w.length === 3 && w[0] > w[1] && w[1] > w[2] && Math.abs(w[1] / w[0] - 61 / 82) < 0.02; })());
+    check("drawing never lets text break out of the SVG", (() => { const s = renderChartSvg(parseChartSpec(bar({ title: 'Evil </text><script>alert(1)</script> "x"', items: [{ label: "<b>&</b>", value: 5 }, { label: "B", value: 3 }] }))!, "en"); return !s.includes("<script") && !s.includes("<b>") && !s.includes("</b>") && s.includes("&amp;"); })());
+    check("right-to-left languages are mirrored: SVG anchors are direction-relative, so a right-aligned Hebrew label uses start (its right edge sits at the position)", (() => { const he = renderChartSvg(real, "he"); const en = renderChartSvg(real, "en"); return he.includes('text-anchor="start" direction="rtl"') && !he.includes('text-anchor="end" direction="rtl"') && !en.includes('direction="rtl"') && en.includes('text-anchor="start" direction="ltr"'); })());
+    check("a process diagram draws numbered steps in order", (() => { const svg = renderChartSvg(parseChartSpec(proc())!, "en"); return svg.indexOf("Read your reviews") < svg.indexOf("Search your name") && svg.indexOf("Search your name") < svg.indexOf("Fix the biggest gap") && svg.includes(">4</text>"); })());
+    check("every language draws without error and no chart is taller than it is sensible", LOCALES.every((l) => { const svg = renderChartSvg(illus, l); const h = Number(/viewBox="0 0 760 (\d+)"/.exec(svg)?.[1]); return h > 200 && h < 700; }));
+    check("very long titles and labels are wrapped or cut, not overflowed", (() => { const svg = renderChartSvg(parseChartSpec(bar({ title: "A very long title that goes on and on about many things and never seems to stop talking at all", items: [{ label: "x".repeat(200), value: 5 }, { label: "B", value: 3 }] }))!, "en"); return svg.includes("…") && !svg.includes("x".repeat(60)); })());
+
+    // The address an image block stores
+    const uri = chartDataUri(real, "en");
+    check("a chart is stored as an SVG data address that passes the renderer's allow-list", uri.startsWith("data:image/svg+xml;base64,") && isChartDataUri(uri) && decode(uri).startsWith("<svg "));
+    check("nothing else is allowed through that door", ["javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "data:image/svg+xml;utf8,<svg/>", "data:image/png;base64,AAAA", `${uri}"onerror="x`, "", null, 5].every((x) => !isChartDataUri(x)));
+    check("the thumbnail fallback for cards skips a chart", getFirstContentImage([chartBlock({ spec: real, locale: "en" })]) === null && getFirstContentImage([chartBlock({ spec: real, locale: "en" }), { type: "image", props: { url: "https://images.unsplash.com/z" } }]) === "https://images.unsplash.com/z");
+
+    // What a screen reader hears
+    check("the description states the data and, when illustrative, says so, in every language", LOCALES.every((l) => { const a = chartAlt(illus, l); return a.includes("82%") && a.includes("Read reviews") && a.includes(CHART_WORDS[l].illustrative) && chartCaption(illus, l) === CHART_WORDS[l].illustrative; }));
+    check("a sourced chart credits its source instead", chartAlt(real, "en").includes("Source: Customer survey") && chartCaption(real, "en") === "Source: Customer survey provided by the client");
+    check("a process diagram is described step by step, with no caption", chartAlt(parseChartSpec(proc())!, "en").includes("1. Read your reviews") && chartCaption(parseChartSpec(proc())!, "en") === "");
+
+    // In the document, and in another language
+    const cb = chartBlock({ spec: illus, locale: "en" });
+    check("a chart block keeps its data so it can be redrawn", readImageMeta(cb).chart?.kind === "bar" && readImageMeta(cb).alt.startsWith("Bar chart") && JSON.stringify(imageTexts([cb])) === JSON.stringify([chartTexts(illus)]));
+    const doc2 = validate(rawArticle()).blocks as unknown as ContentBlock[];
+    const withChart = placeCharts(doc2, [{ heading: "Measuring progress", spec: illus }, { heading: "No such heading", spec: real }], "en");
+    check("a chart goes into its section; one whose heading is missing is skipped", withChart.placed === 1 && withChart.blocks.filter((b) => b.type === "image").length === 1);
+    const he = applyTexts([cb], [["שיעור הקונים שקוראים ביקורות קודם", "קוראים ביקורות", "נכנסים לאתר", "שואלים חבר"]], "he");
+    const heMeta = readImageMeta(he[0]);
+    const heSvg = decode((he[0].props as { url: string }).url);
+    check("localizing redraws the chart in Hebrew, mirrored, with the same numbers", heSvg.includes("קוראים ביקורות") && heSvg.includes('direction="rtl"') && heSvg.includes("82%") && heSvg.includes("61%") && heSvg.includes("34%") && heMeta.chart?.kind === "bar");
+    check("its caption and description are in Hebrew and still say it is illustrative", (he[0].props as { caption: string }).caption === CHART_WORDS.he.illustrative && heMeta.alt.includes(CHART_WORDS.he.illustrative) && heMeta.alt.includes("קוראים ביקורות"));
+    check("translated texts fall back to the original wording when missing", (withChartTexts(illus, ["Only a title"]) as { items: { label: string }[]; title: string }).items[0].label === "Read reviews" && (withChartTexts(illus, ["Only a title"]) as { title: string }).title === "Only a title");
+
+    // Rendering on the public page
+    const html = renderToStaticMarkup(createElement(BlockRenderer, { blocks: withChart.blocks }));
+    check("the page renders the chart as an image with its description and caption, marked as a chart", /<figure class="blog-article__image blog-article__image--chart">/.test(html) && /<img src="data:image\/svg\+xml;base64,/.test(html) && html.includes("Bar chart: Share of buyers") && html.includes(`<figcaption>${CHART_WORDS.en.illustrative}</figcaption>`));
+    check("an image with any other inline address renders nothing", renderToStaticMarkup(createElement(BlockRenderer, { blocks: [{ type: "image", props: { url: "data:image/svg+xml;utf8,<svg onload=alert(1)/>", caption: "x" } }] })) === "");
+
+    // The plan the model returns
+    const withCharts = (charts: unknown, n = 1, notes = ev) => validate(rawArticle({ charts }), { ...baseReq, notes, config: { ...DEFAULT_SETTINGS.config, charts: n, inlineImages: 2 } } as never);
+    const P = "What to fix first";
+    const asPlan = (heading: string, x: Record<string, unknown>) => ({ heading, unit: "", items: [], steps: [], illustrative: true, source: "", ...x });
+    check("a process diagram plan is kept and matched to a real heading", withCharts([asPlan("Measuring progress", proc())]).charts[0]?.spec.kind === "process" && withCharts([asPlan("Measuring progress", proc())]).charts[0].heading === "Measuring progress");
+    check("a bar chart whose numbers are in the brief is kept as real data", (() => { const c = withCharts([asPlan("Measuring progress", bar())]).charts[0]; return c?.spec.kind === "bar" && !c.spec.illustrative; })());
+    check("the same chart with a brief that lacks the numbers is forced to illustrative", (() => { const c = withCharts([asPlan("Measuring progress", bar())], 1, "no numbers here").charts[0]; return c?.spec.kind === "bar" && c.spec.illustrative && c.spec.source === ""; })());
+    check("a heading the article does not have is dropped", withCharts([asPlan("Invented", proc())]).charts.length === 0);
+    check("a chart never shares a section with a photo", withCharts([asPlan(P, proc())]).charts.length === 1 && validate(rawArticle({ sectionImages: [{ heading: P, query: "shop owner", alt: "A shop owner at her counter" }], charts: [asPlan(P, proc())] })).charts.length === 0);
+    check("the plan is capped by the setting, and 0 means none", withCharts([asPlan("Measuring progress", proc()), asPlan(P, proc({ title: "A second diagram here" }))], 1).charts.length === 1 && withCharts([asPlan("Measuring progress", proc())], 0).charts.length === 0 && MAX_CHARTS === 2);
+    check("junk in the plan never rejects a good article", withCharts("nonsense").charts.length === 0 && withCharts([null, 5, { heading: 1 }, asPlan("Measuring progress", { kind: "pie", title: "abc" })]).charts.length === 0);
+    check("the setting defaults to 1 and is clamped to 0..2", DEFAULT_SETTINGS.config.charts === 1 && normalizeConfig({ charts: 9 }).charts === 2 && normalizeConfig({ charts: -1 }).charts === 0 && normalizeConfig({ charts: "x" }).charts === 1);
+    check("the request explains the two kinds, forbids invented statistics, and asks for none when the setting is 0", (() => { const u1 = buildArticlePrompt({ ...baseReq, config: { ...DEFAULT_SETTINGS.config, charts: 2 } } as never).user; const u0 = buildArticlePrompt({ ...baseReq, config: { ...DEFAULT_SETTINGS.config, charts: 0 } } as never).user; return /up to 2 visuals/.test(u1) && /never invent statistics/.test(u1) && /kind "process"/.test(u1) && /charts: return an empty array/.test(u0); })());
+    check("the schema requires charts, and the manual generator does not ask for them", (ARTICLE_JSON_SCHEMA.required as readonly string[]).includes("charts") && !seoPlaybook("en").includes("charts:"));
+
+    // End to end through the engine: charts do not need a photo key
+    const chartPlan = [asPlan("Measuring progress", proc())];
+    const eng = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    eng.store.addTopics(1);
+    eng.deps.ai.generateArticle = async (req: never) => ({ ...validate(rawArticle({ charts: chartPlan }), req) }) as never;
+    await runTick(eng.deps, { trigger: "manual", budgetMs: 265_000 });
+    const engPost = eng.store.posts.find((p) => p.locale === "en")!;
+    check("the engine draws the chart into the saved article even with no photo service", !!engPost && engPost.blocks.filter((b) => b.type === "image" && readImageMeta(b as never).chart).length === 1);
+    check("...and the chart in the saved article is the stored SVG, ready to render", (() => { const b = engPost.blocks.find((x) => x.type === "image"); return !!b && isChartDataUri((b.props as { url: string }).url); })());
+  }
+
+  section("Authors: who wrote it, shown to readers and search engines");
+  {
+    const row = (over: Partial<AuthorRow> = {}): AuthorRow => ({ id: "11111111-1111-4111-8111-111111111111", slug: "dana-levi", name: "Dana Levi", job_title: "Head of Content", bio: "Dana writes about local search.", bio_i18n: { he: "דנה כותבת על חיפוש מקומי." }, avatar_url: "https://cdn.example/dana.jpg", links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/dana" }], is_default: false, created_at: "2026-01-01", ...over });
+
+    // The built-in author
+    check("the built-in team author exists in every language, with a name, role and bio, and claims nothing personal", LOCALES.every((l) => { const t = teamAuthor(l); return t.isTeam && t.isDefault && t.id === null && t.name === TEAM_NAME && t.jobTitle.length > 3 && t.bio.length > 60 && !t.avatarUrl && t.links.length === 0; }));
+    check("each language's team bio is written in that language", /[֐-׿]/.test(teamAuthor("he").bio) && /[؀-ۿ]/.test(teamAuthor("ar").bio) && /[Ѐ-ӿ]/.test(teamAuthor("ru").bio) && teamAuthor("fr").bio.includes("l'équipe") === false && /entreprises/.test(teamAuthor("fr").bio) && /empresas/.test(teamAuthor("es").bio) && /empresas/.test(teamAuthor("pt").bio));
+
+    // A stored author
+    const a = authorFromRow(row(), "en");
+    check("a stored author keeps its name, role, bio, photo and links", a.name === "Dana Levi" && a.jobTitle === "Head of Content" && a.bio.startsWith("Dana writes") && a.avatarUrl === "https://cdn.example/dana.jpg" && a.links.length === 1 && !a.isTeam && a.id !== null);
+    check("the bio written for the reader's language wins, otherwise the main bio", authorFromRow(row(), "he").bio === "דנה כותבת על חיפוש מקומי." && authorFromRow(row(), "fr").bio.startsWith("Dana writes"));
+    check("a photo that is not https is never used", authorFromRow(row({ avatar_url: "http://cdn.example/x.jpg" }), "en").avatarUrl === null && authorFromRow(row({ avatar_url: "javascript:alert(1)" }), "en").avatarUrl === null);
+    check("only https links with a name survive, and at most four", cleanLinks([{ label: "A", url: "https://a.example" }, { label: "B", url: "http://b.example" }, { label: "C", url: "javascript:alert(1)" }, { label: "", url: "https://d.example" }, { label: "E", url: "https://e.example" }, { label: "F", url: "https://f.example" }, { label: "G", url: "https://g.example" }, { label: "H", url: "https://h.example" }]).map((l) => l.label).join() === "A,E,F,G");
+    check("junk in the stored columns never throws", authorFromRow(row({ bio_i18n: "nope" as never, links: "x" as never, job_title: null, bio: null }), "he").bio === "" && authorFromRow(row({ bio_i18n: [] as never }), "he").bio.startsWith("Dana"));
+    check("initials are taken from the first two words", initials("Dana Levi") === "DL" && initials("madonna") === "M" && initials("  ") === "" && initials("דנה לוי") === "דל");
+
+    // What an admin types
+    const ok = parseAuthorInput({ name: "  Dana   Levi ", job_title: "Head of Content", bio: "Bio", bio_i18n: { he: "עברית", xx: "ignored", fr: "  " }, avatar_url: "https://cdn.example/d.jpg", links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/dana" }, { label: "", url: "" }], is_default: true }, LOCALES);
+    check("a valid author form is cleaned and accepted", ok.ok && ok.value.name === "Dana Levi" && ok.value.slug === "dana-levi" && ok.value.is_default === true && (ok.value.links as unknown[]).length === 1 && JSON.stringify(ok.value.bio_i18n) === JSON.stringify({ he: "עברית" }));
+    const bad = (raw: Record<string, unknown>, re: RegExp) => { const r = parseAuthorInput({ name: "Dana Levi", ...raw }, LOCALES); return !r.ok && re.test(r.error); };
+    check("a name that is too short, a non-https photo, a bad link and a nameless link are each explained in plain words", bad({ name: "D" }, /name/i) && bad({ avatar_url: "http://x.example/a.jpg" }, /https/) && bad({ links: [{ label: "Site", url: "not a link" }] }, /web address/) && bad({ links: [{ label: "", url: "https://ok.example" }] }, /short name/));
+    check("a name in another script still gets a usable web name", (() => { const r = parseAuthorInput({ name: "דנה לוי" }, LOCALES); return r.ok && /^[a-z0-9-]+$/.test(r.value.slug) && r.value.slug.length > 3; })());
+    check("only an explicit true makes an author the default", (() => { const r = parseAuthorInput({ name: "Dana Levi", is_default: "true" }, LOCALES); return r.ok && r.value.is_default === false; })());
+    check("over-long text is cut to the limits", (() => { const r = parseAuthorInput({ name: "N".repeat(300), bio: "b".repeat(2000) }, LOCALES); return r.ok && r.value.name.length === AUTHOR_LIMITS.name && (r.value.bio ?? "").length === AUTHOR_LIMITS.bio; })());
+
+    // The box readers see
+    const c = getBlogChromeCopy("en");
+    const boxHtml = renderToStaticMarkup(createElement(AuthorBox, { author: a, copy: c }));
+    check("the author box shows who wrote it, their role, bio and photo", boxHtml.includes("Written by") && boxHtml.includes(">Dana Levi<") && boxHtml.includes("Head of Content") && boxHtml.includes("Dana writes about local search.") && boxHtml.includes('src="https://cdn.example/dana.jpg"') && boxHtml.includes('id="author"'));
+    check("author links open safely and say they are the author's own profiles", /<a href="https:\/\/www\.linkedin\.com\/in\/dana" target="_blank" rel="me noopener noreferrer">LinkedIn<\/a>/.test(boxHtml));
+    check("an author with no photo shows initials; the built-in team has no photo either", renderToStaticMarkup(createElement(AuthorBox, { author: authorFromRow(row({ avatar_url: null }), "en"), copy: c })).includes(">DL<") && renderToStaticMarkup(createElement(AuthorBox, { author: teamAuthor("en"), copy: c })).includes(TEAM_NAME));
+    check("the box is announced by its heading and is a landmark section", /<section id="author" class="blog-author" aria-labelledby="author-name">/.test(boxHtml) && boxHtml.includes('<h2 id="author-name"'));
+    const listed = [{ id: "p1", slug: "first-post", title: "First post", published_at: "2026-09-01T09:00:00Z", locale: "en" }, { id: "p2", slug: "second-post", title: "Second post", published_at: "2026-09-02T09:00:00Z", locale: "en" }] as never;
+    const moreHtml = renderToStaticMarkup(createElement(MoreByAuthor, { author: a, posts: listed, locale: "en", copy: c }));
+    check("'more from this author' lists their other articles with links and dates", moreHtml.includes("More from Dana Levi") && moreHtml.includes('href="/blog/first-post"') && moreHtml.includes("Second post") && moreHtml.includes("<time"));
+    check("...using the language's own address form", renderToStaticMarkup(createElement(MoreByAuthor, { author: a, posts: listed, locale: "he", copy: getBlogChromeCopy("he") })).includes('href="/blog/first-post?lang=he"'));
+    check("...and nothing at all when the author has no other articles", renderToStaticMarkup(createElement(MoreByAuthor, { author: a, posts: [], locale: "en", copy: c })) === "");
+    check("the labels exist in every language, and 'more from' names the author", LOCALES.every((l) => { const x = getBlogChromeCopy(l); return x.writtenBy.length > 1 && x.moreFrom("Dana Levi").includes("Dana Levi"); }));
+
+    // Search engines
+    const ldAuthor = (buildPostJsonLd({ path: "/blog/x", title: "t", description: "d", locale: "en", publishedAt: null, modifiedAt: "2026-01-01", image: null, authorName: null, author: { name: a.name, jobTitle: a.jobTitle, description: a.bio, image: a.avatarUrl, sameAs: a.links.map((l) => l.url), isTeam: false }, category: null, keywords: [], wordCount: 0, breadcrumb: [], faq: [] })[0] as { author: Record<string, unknown> }).author;
+    check("a real author becomes a Person with job title, bio, photo and profiles", ldAuthor["@type"] === "Person" && ldAuthor.name === "Dana Levi" && ldAuthor.jobTitle === "Head of Content" && String(ldAuthor.description).startsWith("Dana") && String(ldAuthor.image).startsWith("https://") && JSON.stringify(ldAuthor.sameAs).includes("linkedin.com"));
+    check("the team author is the organization; nothing personal is invented", (() => { const t = (buildPostJsonLd({ path: "/blog/x", title: "t", description: "d", locale: "en", publishedAt: null, modifiedAt: "2026-01-01", image: null, authorName: null, author: { name: TEAM_NAME, isTeam: true }, category: null, keywords: [], wordCount: 0, breadcrumb: [], faq: [] })[0] as { author: Record<string, unknown> }).author; return t["@type"] === "Organization" && t.name === "GeoRepute" && !("jobTitle" in t); })());
+    check("the older authorName input still works", ((buildPostJsonLd({ path: "/blog/x", title: "t", description: "d", locale: "en", publishedAt: null, modifiedAt: "2026-01-01", image: null, authorName: "Sam Kim", category: null, keywords: [], wordCount: 0, breadcrumb: [], faq: [] })[0] as { author: { "@type": string } }).author)["@type"] === "Person");
+
+    // Choosing an author on a post, safely
+    check("posts on a database without the author column open with the picker hidden and save as before", postToFormValues({ id: "x", title: "t", slug: "s", excerpt: null, content: "", featured_image: null, featured_image_credit: null, author_id: null, category: null, tags: [], status: "draft", created_at: "", updated_at: "", published_at: null, preview_token: "", preview_expires_at: null, content_blocks: null, locale: "en", meta_title: null, meta_description: null, keywords: [], faq: null, translation_group: null } as never).byline_id === null && EMPTY_POST_FORM.byline_id === null);
+    check("with the column, 'no author chosen' is an empty choice and a chosen author is kept", postToFormValues({ ...({ id: "x", title: "t", slug: "s", content: "", tags: [], status: "draft", locale: "en", keywords: [], faq: null } as object), byline_id: null } as never).byline_id === "" && postToFormValues({ ...({ id: "x", title: "t", slug: "s", content: "", tags: [], status: "draft", locale: "en", keywords: [], faq: null } as object), byline_id: "abc" } as never).byline_id === "abc");
   }
 
   section("SEO: the publish gate reports what to improve");
@@ -774,6 +1023,18 @@ async function main() {
       const retried = await localizeArticle(client, src, opts);
       check("unusable SEO fields are retried once with feedback", retried.slug === seoOk.slug && seoCalls.at(-1)!.includes("rejected"));
     }
+    {
+      const pics = placeImages(src.blocks, [{ plan: { heading: "What to fix first", query: "q q", alt: "A shop owner checking her business profile on a tablet" }, image: { url: "https://images.unsplash.com/p1", credit: { url: "https://images.unsplash.com/p1", photographer: "Jane Doe", photographerUrl: "https://unsplash.com/@jane?utm_source=app&utm_medium=referral", photoUrl: "https://unsplash.com/photos/p1", sourceName: "Unsplash", sourceUrl: "https://unsplash.com/" } } }], "en").blocks;
+      const o2 = (await localizeArticle(client, { ...src, blocks: pics }, opts).catch((e: Error) => e)) as LocalizedArticle | Error;
+      if (o2 instanceof Error) check("localization with pictures runs end to end", false, o2.message);
+      else {
+        const im = o2.blocks.filter((b) => b.type === "image");
+        const meta2 = im.length ? readImageMeta(im[0]) : null;
+        check("the picture survives translation in the same position, with the same photo", im.length === 1 && o2.blocks.length === pics.length && imageUrls(o2.blocks)[0] === "https://images.unsplash.com/p1" && o2.blocks.findIndex((b) => b.type === "image") === pics.findIndex((b) => b.type === "image"));
+        check("its description went through the translator (Hebrew) and its credit line is in Hebrew", !!meta2 && /[֐-׿]/.test(meta2.alt) && (im[0].props as { caption: string }).caption === "צילום: Jane Doe, Unsplash");
+        check("the FAQ and body are unaffected by the extra description units", o2.faq.length === 3 && o2.report.status === "verified", JSON.stringify(o2.report.issues.slice(0, 2)));
+      }
+    }
     check("localized SEO: a meta title without the main search phrase is rejected", (() => { try { validateSeo({ ...seoOk, metaTitle: "כותרת שאינה קשורה לנושא בכלל" }, "he", "x"); return false; } catch (e) { return e instanceof GenerationError && /main search phrase/.test(e.message); } })());
     check("localized SEO: a Hebrew prefix on the phrase still counts", validateSeo({ ...seoOk, metaTitle: "כך משפרים את הנראות של עסק מקומי" , keywords: ["בנראות עסק מקומי", ...seoOk.keywords] }, "he", "x").keywords.length === 4);
     check("localized SEO: a meta description under 100 characters is rejected", (() => { try { validateSeo({ ...seoOk, metaDescription: "קצר מדי" }, "he", "x"); return false; } catch (e) { return e instanceof GenerationError && /meta description/.test(e.message); } })());
@@ -854,6 +1115,32 @@ async function main() {
     await runTick(withImages, { trigger: "manual", budgetMs: 265_000 });
     check("the canonical article gets the featured image", t.store.posts.length > 0 && t.store.posts.some((p) => p.featuredImage === "https://images.unsplash.com/one" && p.featuredImageCredit?.photographer));
     check("every language version shares the source article's photo and credit", t.store.posts.length === LOCALES.length && t.store.posts.every((p) => p.featuredImage === "https://images.unsplash.com/one" && p.featuredImageCredit));
+
+    // Pictures inside the article, end to end through the engine
+    const plan = [{ heading: "What to fix first", query: "shop owner tablet", alt: "A shop owner checking her business profile on a tablet" }, { heading: "Measuring progress", query: "analytics laptop desk", alt: "A laptop on a desk showing simple weekly numbers" }];
+    const byQuery: ImageFinder = { find: async (q) => { const id = q.replace(/\s+/g, "-"); return { url: `https://images.unsplash.com/${id}`, credit: { ...img!.credit, url: `https://images.unsplash.com/${id}`, photographer: `Pho ${id}` } }; } };
+    const inl = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    inl.store.addTopics(1);
+    inl.deps.ai.generateArticle = async (req: never) => ({ ...validate(rawArticle(), req), sectionImages: plan, imageQuery: "local shop window" }) as never;
+    await runTick({ ...inl.deps, images: byQuery }, { trigger: "manual", budgetMs: 265_000 });
+    const srcPost = inl.store.posts.find((p) => p.locale === "en")!;
+    check("the saved article contains one picture per planned section, in the right places", !!srcPost && imageUrls(srcPost.blocks).length === 2, String(srcPost && imageUrls(srcPost.blocks).length));
+    check("no picture inside the article repeats the featured image", !!srcPost && !imageUrls(srcPost.blocks).includes(srcPost.featuredImage ?? "-"));
+    check("the featured image is still attached alongside", !!srcPost?.featuredImage && /local-shop-window/.test(srcPost.featuredImage));
+    const noInline = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    noInline.store.addTopics(1);
+    await runTick({ ...noInline.deps, images: byQuery }, { trigger: "manual", budgetMs: 265_000 });
+    check("an article with no planned pictures gets none, and still gets its featured image", noInline.store.posts.every((p) => imageUrls(p.blocks).length === 0) && noInline.store.posts.some((p) => !!p.featuredImage));
+    const noFinder = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    noFinder.store.addTopics(1);
+    noFinder.deps.ai.generateArticle = async (req: never) => ({ ...validate(rawArticle(), req), sectionImages: plan }) as never;
+    await runTick(noFinder.deps, { trigger: "manual", budgetMs: 265_000 });
+    check("without a photo key the article is written without pictures, and nothing fails", noFinder.store.posts.length === LOCALES.length && noFinder.store.posts.every((p) => imageUrls(p.blocks).length === 0));
+    const flaky = setup({ articlesPerDay: 1, lookaheadDays: 1 });
+    flaky.store.addTopics(1);
+    flaky.deps.ai.generateArticle = async (req: never) => ({ ...validate(rawArticle(), req), sectionImages: plan }) as never;
+    await runTick({ ...flaky.deps, images: { find: async () => { throw new Error("boom"); } } }, { trigger: "manual", budgetMs: 265_000 });
+    check("photo lookups that throw never fail the article", flaky.store.posts.length === LOCALES.length && flaky.store.v("failed").length === 0);
 
     const broken = setup({ articlesPerDay: 1, lookaheadDays: 1 });
     broken.store.addTopics(1);

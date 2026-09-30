@@ -109,6 +109,22 @@ export type BlogVariantRow = {
   updated_at: string;
 }
 
+export type AuthorRow = {
+  id: string;
+  slug: string;
+  name: string;
+  job_title: string | null;
+  bio: string | null;
+  /** Bio per language code, for example {"he": "..."}; `bio` is the fallback. */
+  bio_i18n: Json;
+  avatar_url: string | null;
+  /** [{ "label": "LinkedIn", "url": "https://..." }] */
+  links: Json;
+  /** The author used for AI-written articles and for posts with no author chosen. At most one. */
+  is_default: boolean;
+  created_at: string;
+};
+
 export interface Database {
   public: {
     Tables: {
@@ -137,6 +153,8 @@ export interface Database {
           keywords: string[];
           faq: Json | null;
           translation_group: string | null;
+          /** The public author (authors table, SUPABASE_SETUP.md Step 14). Absent until that step is run. */
+          byline_id?: string | null;
         };
         Insert: {
           id?: string;
@@ -162,6 +180,7 @@ export interface Database {
           keywords?: string[];
           faq?: Json | null;
           translation_group?: string | null;
+          byline_id?: string | null;
         };
         Update: {
           id?: string;
@@ -187,6 +206,7 @@ export interface Database {
           keywords?: string[];
           faq?: Json | null;
           translation_group?: string | null;
+          byline_id?: string | null;
         };
         Relationships: [
           {
@@ -230,6 +250,12 @@ export interface Database {
             referencedColumns: ["id"];
           },
         ];
+      };
+      authors: {
+        Row: AuthorRow;
+        Insert: Partial<AuthorRow> & Pick<AuthorRow, "slug" | "name">;
+        Update: Partial<AuthorRow>;
+        Relationships: [];
       };
       profiles: {
         Row: {

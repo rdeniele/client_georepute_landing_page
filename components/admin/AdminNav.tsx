@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin/blogs", label: "Posts", match: (p: string) => p.startsWith("/admin/blogs") && !p.startsWith("/admin/blogs/new") },
   { href: "/admin/blogs/new", label: "Write a post", match: (p: string) => p.startsWith("/admin/blogs/new") },
   { href: "/admin/automation", label: "AI Auto-Writer", match: (p: string) => p.startsWith("/admin/automation") },
+  { href: "/admin/authors", label: "Authors", match: (p: string) => p.startsWith("/admin/authors") },
   { href: "/admin/help", label: "Help", match: (p: string) => p.startsWith("/admin/help") },
 ];
 

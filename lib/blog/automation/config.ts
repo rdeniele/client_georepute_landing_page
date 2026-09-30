@@ -31,6 +31,10 @@ export type ContentConfig = {
   /** Sections every article must have, for example "Key takeaways". */
   requiredSections: string[];
   faq: FaqMode;
+  /** Pictures placed inside each article (not counting the featured image). 0 means none. */
+  inlineImages: number;
+  /** Charts and diagrams drawn inside each article. 0 means none. */
+  charts: number;
   /** The generation rules. Empty means the built-in default (lib/blog/automation/prompt.ts). */
   systemPrompt: string;
   /** Empty means the server default (ANTHROPIC_BLOG_MODEL / ANTHROPIC_TRANSLATION_MODEL). */
@@ -80,6 +84,9 @@ export type TickSummary = {
   error: string | null;
 };
 
+export const MAX_INLINE_IMAGES = 4;
+export const MAX_CHARTS = 2;
+
 export const DEFAULT_CONFIG: ContentConfig = {
   categories: [],
   length: "medium",
@@ -90,6 +97,8 @@ export const DEFAULT_CONFIG: ContentConfig = {
   internalLinkingRules: "",
   requiredSections: [],
   faq: "auto",
+  inlineImages: 2,
+  charts: 1,
   systemPrompt: "",
   generationModel: "",
   translationModel: "",
@@ -160,6 +169,8 @@ export function normalizeConfig(raw: unknown): ContentConfig {
     internalLinkingRules: text(c.internalLinkingRules, 4000),
     requiredSections: list(c.requiredSections, 12, 80),
     faq: c.faq === "always" || c.faq === "never" || c.faq === "auto" ? c.faq : d.faq,
+    inlineImages: clampInt(c.inlineImages, 0, MAX_INLINE_IMAGES, d.inlineImages),
+    charts: clampInt(c.charts, 0, MAX_CHARTS, d.charts),
     systemPrompt: text(c.systemPrompt, 20000),
     generationModel: text(c.generationModel, 80),
     translationModel: text(c.translationModel, 80),

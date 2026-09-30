@@ -55,6 +55,23 @@ export function organizationLd() {
   };
 }
 
+/** The author as structured data: a Person with job title, bio, photo and profiles when we have them; the organization for the team. */
+function authorLd(p: PostLdInput): object {
+  const a = p.author;
+  if (a && !a.isTeam) {
+    return {
+      "@type": "Person",
+      name: a.name,
+      jobTitle: a.jobTitle || undefined,
+      description: a.description || undefined,
+      image: a.image ? absoluteUrl(a.image) : undefined,
+      sameAs: a.sameAs?.length ? a.sameAs : undefined,
+    };
+  }
+  if (!a && p.authorName) return { "@type": "Person", name: p.authorName };
+  return { "@type": "Organization", name: SITE_NAME, url: siteUrl() };
+}
+
 export type PostLdInput = {
   /** Site-relative canonical path, for example "/blog/my-post?lang=he". */
   path: string;
@@ -64,7 +81,11 @@ export type PostLdInput = {
   publishedAt: string | null;
   modifiedAt: string;
   image: string | null;
+  /** Pictures inside the article, offered to search engines alongside the main image. */
+  extraImages?: string[];
   authorName: string | null;
+  /** A real person or team from Admin > Authors. Takes precedence over `authorName`. */
+  author?: { name: string; jobTitle?: string; description?: string; image?: string | null; sameAs?: string[]; isTeam?: boolean } | null;
   category: string | null;
   keywords: string[];
   wordCount: number;
@@ -87,12 +108,12 @@ export function buildPostJsonLd(p: PostLdInput): object[] {
     url,
     headline: p.title,
     description: p.description || undefined,
-    image: [image],
+    image: [...new Set([image, ...(p.extraImages ?? []).map(absoluteUrl)])].slice(0, 6),
     datePublished: p.publishedAt ?? undefined,
     dateModified: p.modifiedAt,
     inLanguage: p.locale,
     isAccessibleForFree: true,
-    author: p.authorName ? { "@type": "Person", name: p.authorName } : { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
+    author: authorLd(p),
     publisher: org,
     articleSection: p.category ?? undefined,
     keywords: p.keywords.length ? p.keywords.join(", ") : undefined,

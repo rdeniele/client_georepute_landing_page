@@ -17,6 +17,7 @@ export default function AdminHelpPage() {
           ["#basics", "The basics", "Drafts, live posts and how a post gets on the website."],
           ["#seo", "The search boxes explained", "What each box under “Get found” is for."],
           ["#auto", "The AI Auto-Writer", "How it works and what each status means."],
+          ["#authors", "Authors", "Who wrote an article, and the author box readers see."],
           ["#setup", "One-time setup", "AI key, photos, scheduler and database."],
           ["#problems", "Something is wrong", "The most common problems and their fixes."],
         ].map(([href, title, text]) => (
@@ -114,6 +115,26 @@ export default function AdminHelpPage() {
           <dd>You told it to leave this topic alone. You can bring it back.</dd>
         </dl>
 
+        <h2 id="authors">Authors</h2>
+        <p>
+          Under every article readers see a box with the author&apos;s name, photo, role and a short bio, plus a list of that author&apos;s other articles. Google and AI tools use the same
+          facts to judge whether an article can be trusted, so a real name with a real bio helps.
+        </p>
+        <ul>
+          <li>
+            Add people under <a href="/admin/authors">Authors</a>. Only add real people and only information you are happy to show publicly.
+          </li>
+          <li>Pick the author of a post in step 3 of the post editor.</li>
+          <li>
+            Tick <strong>Use as the default author</strong> on one author, and the AI-written articles (and posts with no author chosen) are shown under them. With none, they show
+            &ldquo;GeoRepute Editorial Team&rdquo;.
+          </li>
+        </ul>
+        <p>
+          The pictures and charts the Auto-Writer adds inside articles have a written description for screen readers and search engines. Charts are drawn from real numbers only when you
+          put those numbers in the topic notes; otherwise they are clearly labelled &ldquo;illustrative example, not real data&rdquo;.
+        </p>
+
         <h2 id="setup">One-time setup</h2>
         <p>
           These are done once, by whoever manages the website&apos;s hosting (Vercel) and database (Supabase). If that is not you, send this section to them. After
@@ -126,7 +147,7 @@ export default function AdminHelpPage() {
         <h3 id="photos">Automatic photos</h3>
         <p>
           Create a free app at unsplash.com/developers and copy its <em>Access Key</em>. Add it in Vercel as <code>UNSPLASH_ACCESS_KEY</code> for Production, and
-          optionally <code>UNSPLASH_APP_NAME</code>. Redeploy. Only articles written after this get a photo; add photos to older ones by hand. Unsplash allows 50
+          optionally <code>UNSPLASH_APP_NAME</code>. Redeploy. Only articles written after this get photos: one main picture, plus the pictures inside the article (you choose how many in Settings). Add photos to older articles by hand. Unsplash allows 50
           requests an hour for a new app, so a big batch may finish without photos for some articles.
         </p>
         <h3 id="scheduler">The scheduler</h3>
@@ -134,6 +155,11 @@ export default function AdminHelpPage() {
           It is what writes and publishes by itself, even when nobody has this page open. It needs <code>CRON_SECRET</code> and <code>SUPABASE_SERVICE_ROLE_KEY</code>{" "}
           in Vercel, and a cron job that calls <code>/api/cron/blog-automation</code>. Without it, articles are only written when you press{" "}
           <strong>Write now</strong>. Full steps: <code>SUPABASE_SETUP.md</code>, Step 13.
+        </p>
+        <h3 id="author-table">Authors table</h3>
+        <p>
+          To add real authors, run the SQL in <code>SUPABASE_SETUP.md</code>, Step 14, once. It is safe to run again. Without it everything works, and articles show the built-in team as the
+          author.
         </p>
         <h3 id="database">Database tables</h3>
         <p>

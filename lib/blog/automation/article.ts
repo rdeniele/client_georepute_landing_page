@@ -31,6 +31,8 @@ import {
 } from "@/lib/blog/generation";
 import type { FaqItem } from "@/types/posts";
 import { SEO_LIMITS, analyzeSeo, mentions, type SeoReport } from "@/lib/blog/seo";
+import type { PlannedImage } from "./inlineImages";
+import { enforceHonesty, parseChartSpec, type PlannedChart } from "./charts";
 import { ARTICLE_JSON_SCHEMA, allowedLinks, buildArticlePrompt, type ArticleRequest } from "./prompt";
 import { findPlaceholders, findRepeatedWords } from "./validate";
 
@@ -52,6 +54,10 @@ export type GeneratedArticle = {
   imageConcept: string;
   /** Short English search phrase for the featured-image lookup. */
   imageQuery: string;
+  /** Pictures to place inside the article, already matched to real headings. The worker finds the photos. */
+  sectionImages: PlannedImage[];
+  /** Charts and diagrams to draw inside the article, already matched to real headings and checked for honesty. */
+  charts: PlannedChart[];
   linkOpportunities: string[];
   language: string;
   wordCount: number;
@@ -147,8 +153,12 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
     })
     .slice(0, SEO_LIMITS.takeaways.max);
   if (takeawayItems.length < SEO_LIMITS.takeaways.min) fail(`only ${takeawayItems.length} key takeaways, expected ${SEO_LIMITS.takeaways.min} to ${SEO_LIMITS.takeaways.max}`);
-  const takeawaysHeading = strip(str(d.takeawaysHeading, "the takeaways heading"));
-  if (takeawaysHeading.length < 2 || takeawaysHeading.length > 60) fail("the takeaways heading is missing or too long");
+  const summaryText = plainOf(str(d.executiveSummary, "the executive summary"));
+  const summaryWords = countWords(summaryText);
+  if (summaryWords < 20 || summaryWords > 130) fail(`the executive summary is ${summaryWords} words (aim for 40 to 80)`);
+  const takeawaysHeading = strip(str(d.takeawaysHeading, "the executive summary heading"));
+  if (takeawaysHeading.length < 2 || takeawaysHeading.length > 60) fail("the executive summary heading is missing or too long");
+  if (!body.some((b) => b.type === "bulletListItem" || b.type === "numberedListItem")) fail("the article has no bulleted or numbered list in its body (add one for steps, criteria or mistakes)");
 
   const faqRaw = req.config.faq === "never" ? [] : Array.isArray(d.faq) ? (d.faq as Raw[]) : [];
   const faq: FaqItem[] = faqRaw
@@ -169,7 +179,35 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
   const imageQuery = typeof d.imageQuery === "string" ? plainOf(d.imageQuery).replace(/[^\p{L}\p{N} -]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60) : "";
   const linkOpportunities = stringList(d.linkOpportunities, 3, 5, 200);
 
-  const all = `${title} ${metaTitle} ${metaDescription} ${blockText(body)} ${blockText(takeawayItems)} ${takeawaysHeading} ${faq.map((f) => `${f.question} ${f.answer}`).join(" ")} ${cta.heading} ${cta.text}`;
+  // Pictures inside the article are an enhancement: a plan that does not match a real heading is dropped, never a reason to rewrite a good article.
+  const norm = (s: string) => plainOf(s).toLowerCase().replace(/\s+/g, " ").trim();
+  const headingByNorm = new Map(body.filter((b) => b.type === "heading").map((b) => [norm(blockText([b])), blockText([b]).trim()] as const));
+  const sectionImages: PlannedImage[] = [];
+  for (const r of Array.isArray(d.sectionImages) ? (d.sectionImages as Raw[]) : []) {
+    if (!r || typeof r.heading !== "string" || typeof r.query !== "string" || typeof r.alt !== "string") continue;
+    const heading = headingByNorm.get(norm(r.heading));
+    const query = plainOf(r.query).replace(/[^\p{L}\p{N} -]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+    const alt = plainOf(r.alt).trim().slice(0, 180);
+    if (!heading || query.length < 3 || alt.length < 8 || sectionImages.some((x) => x.heading === heading)) continue;
+    sectionImages.push({ heading, query, alt });
+  }
+  sectionImages.splice(req.config.inlineImages);
+
+  // Charts: never trusted with facts. A bar chart is real data only when its numbers appear in what the admin wrote (see charts.ts).
+  const evidence = [req.topic, req.notes, req.primaryKeyword, ...(req.secondaryKeywords ?? [])].filter(Boolean).join(" ");
+  const taken = new Set(sectionImages.map((x) => x.heading));
+  const charts: PlannedChart[] = [];
+  for (const r of Array.isArray(d.charts) ? (d.charts as Raw[]) : []) {
+    if (!r || typeof r.heading !== "string") continue;
+    const heading = headingByNorm.get(norm(r.heading));
+    const spec = parseChartSpec(r);
+    if (!heading || !spec || taken.has(heading)) continue;
+    taken.add(heading);
+    charts.push({ heading, spec: enforceHonesty(spec, evidence) });
+  }
+  charts.splice(req.config.charts);
+
+  const all = `${title} ${metaTitle} ${metaDescription} ${blockText(body)} ${blockText(takeawayItems)} ${takeawaysHeading} ${summaryText} ${faq.map((f) => `${f.question} ${f.answer}`).join(" ")} ${cta.heading} ${cta.text}`;
   const problem = languageProblem(all, language as BlogLanguage);
   if (problem) fail(`wrong language (${problem})`);
   if (/[—―]/.test(all)) fail("it still contains em dashes");
@@ -187,6 +225,7 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
   const blocks: DraftBlock[] = [
     body[0],
     { type: "heading", props: { level: 2 }, content: [{ type: "text", text: takeawaysHeading, styles: {} }] },
+    { type: "paragraph", content: parseInline(summaryText, allowed) },
     ...takeawayItems,
     ...body.slice(1),
     { type: "heading", props: { level: 2 }, content: [{ type: "text", text: cta.heading, styles: {} }] },
@@ -194,7 +233,7 @@ export function validateArticle(raw: unknown, req: ArticleRequest, meta: { model
   ];
   const seo = analyzeSeo({ title, metaTitle, metaDescription, keywords, blocks, faq });
 
-  return { title, metaTitle, metaDescription, slug, excerpt, category, tags, keywords, blocks, seo, faq, cta, imageConcept, imageQuery: imageQuery.length >= 3 ? imageQuery : (req.primaryKeyword?.trim() || keywords[0]), linkOpportunities, language, wordCount: words, model: meta.model, usage: meta.usage };
+  return { title, metaTitle, metaDescription, slug, excerpt, category, tags, keywords, blocks, seo, faq, cta, imageConcept, imageQuery: imageQuery.length >= 3 ? imageQuery : (req.primaryKeyword?.trim() || keywords[0]), sectionImages, charts, linkOpportunities, language, wordCount: words, model: meta.model, usage: meta.usage };
 }
 
 export type GenerateArticleOptions = {

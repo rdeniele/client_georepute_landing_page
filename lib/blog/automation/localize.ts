@@ -28,6 +28,7 @@ import type { ContentBlock } from "@/types/blocks";
 import type { FaqItem } from "@/types/posts";
 import { SEARCH_NOTES, SEO_LIMITS, headingLevel, inlineText, introText, mentions } from "@/lib/blog/seo";
 import { findPlaceholders } from "./validate";
+import { applyImageTexts, imageTexts } from "./inlineImages";
 
 export type SourceArticle = {
   title: string;
@@ -228,6 +229,11 @@ export async function localizeArticle(client: Anthropic, source: SourceArticle, 
   const started = clock();
   const budget = o.budgetMs ?? 240_000;
   const bodyCount = source.blocks.length;
+  // Each picture's description (alt text) is translated with the article, so a Hebrew page never carries English alt text.
+  // The descriptions travel as extra paragraphs after the FAQ, get the same checks as the article, and are put back by position.
+  // Charts are redrawn in the target language, so their titles, labels and steps travel the same way (numbers never do).
+  const texts = imageTexts(source.blocks);
+  const altBlocks = texts.flat().filter((a) => a.trim()).map((a) => ({ type: "paragraph", content: [text(a)] }));
 
   const result = await translatePost(
     client,
@@ -236,14 +242,18 @@ export async function localizeArticle(client: Anthropic, source: SourceArticle, 
       excerpt: source.excerpt,
       category: source.category,
       tags: source.tags,
-      blocks: [...(source.blocks as TranslatableBlock[]), ...(faqToBlocks(source.faq) as TranslatableBlock[])],
+      blocks: [...(source.blocks as TranslatableBlock[]), ...(faqToBlocks(source.faq) as TranslatableBlock[]), ...(altBlocks as TranslatableBlock[])],
     },
     { from: o.from as BlogLanguage, to: o.to as BlogLanguage, model: o.model, glossary: o.glossary, sdk: o.sdk, budgetMs: Math.max(60_000, budget - SEO_RESERVE_MS), review: o.review, clock },
   );
 
   const translated = result.translated;
-  const body = rewriteLocalePaths(translated.blocks.slice(0, bodyCount) as ContentBlock[], o.from, o.to);
-  const faq = blocksToFaq(translated.blocks.slice(bodyCount));
+  const faqEnd = bodyCount + source.faq.length * 2;
+  const translatedAlts = translated.blocks.slice(faqEnd).map((b) => cleanText(blockText([b] as never)));
+  let next = 0;
+  const textsOut = texts.map((group) => group.map((a) => (a.trim() ? translatedAlts[next++] || a : a)));
+  const body = applyImageTexts(rewriteLocalePaths(translated.blocks.slice(0, bodyCount) as ContentBlock[], o.from, o.to), textsOut, o.to);
+  const faq = blocksToFaq(translated.blocks.slice(bodyCount, faqEnd));
   if (faq.length !== source.faq.length) {
     throw new GenerationError("invalid_output", `The localized FAQ has ${faq.length} items, the original has ${source.faq.length}.`);
   }

@@ -648,3 +648,55 @@ npx supabase gen types typescript --project-id <your-project-ref> --schema publi
 
 The project ref is the subdomain in your project URL
 (`https://<project-ref>.supabase.co`).
+
+---
+
+## Step 14 — Authors (public author box and "more from this author")
+
+Optional, and safe to run more than once. Without it the blog works exactly as before and every article shows the built-in
+"GeoRepute Editorial Team" as its author. With it you can add real authors in **Admin > Authors** (name, job title, photo, short bio in
+each language, links), choose one per post, and set a default author for the AI-written articles.
+
+`profiles` is deliberately private (each person can read only their own row), so the public author details live in their own table
+that anyone can read and only admins can change.
+
+```sql
+create table if not exists public.authors (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,
+  job_title text,
+  bio text,
+  -- Bio per language code, for example {"he": "...", "fr": "..."}. `bio` is used when a language has none.
+  bio_i18n jsonb not null default '{}'::jsonb,
+  avatar_url text,
+  -- [{ "label": "LinkedIn", "url": "https://..." }]
+  links jsonb not null default '[]'::jsonb,
+  is_default boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+-- At most one default author.
+create unique index if not exists authors_one_default on public.authors (is_default) where is_default;
+
+alter table public.authors enable row level security;
+
+drop policy if exists "Public can read authors" on public.authors;
+create policy "Public can read authors"
+on public.authors for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can manage authors" on public.authors;
+create policy "Admins can manage authors"
+on public.authors for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+-- Which author a post is shown under. Empty means "the default author".
+alter table public.posts add column if not exists byline_id uuid references public.authors (id) on delete set null;
+create index if not exists posts_byline_idx on public.posts (byline_id, locale, published_at desc);
+```
+
+Only put information in `authors` that you are happy to show publicly: it is readable by everyone.

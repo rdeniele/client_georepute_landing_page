@@ -8,6 +8,8 @@
  */
 import { SLUG, countWords, languageProblem, type BlogLanguage } from "@/lib/blog/generation";
 import { analyzeSeo } from "@/lib/blog/seo";
+import { imageBlocks, readImageMeta } from "./inlineImages";
+import { countLinks } from "@/lib/blog/links";
 import type { ContentBlock } from "@/types/blocks";
 import type { FaqItem } from "@/types/posts";
 
@@ -213,6 +215,18 @@ export function validateForPublish(c: PublishCandidate, o: ValidationOptions): I
 
   if (c.featuredImage !== undefined && !c.featuredImage?.trim()) {
     warn("image_missing", "There is no featured image. Automated photos need UNSPLASH_ACCESS_KEY in the server environment (or no photo matched the topic); upload one in the post editor. The page shows a branded cover meanwhile.");
+  }
+
+  // Links help readers and search engines: internal ones spread authority through the site, external ones show sources.
+  const kinds = countLinks(collectLinks(blocks));
+  if (blocks.length && kinds.internal === 0) warn("links_internal_missing", "The article links to no other page of your site. Add at least one link to a relevant page (a service, a guide, another article).");
+  if (blocks.length && kinds.external === 0) warn("links_external_missing", "The article links to no outside source. Add a link to an authoritative page that backs up a point (for example Google's own documentation).");
+  const hasList = blocks.some((b) => b.type === "bulletListItem" || b.type === "numberedListItem");
+  if (blocks.length && !hasList) warn("list_missing", "The article has no bulleted or numbered list. Lists make it easier to scan.");
+
+  const undescribed = imageBlocks(blocks).filter((b) => !readImageMeta(b).alt.trim()).length;
+  if (undescribed) {
+    warn("image_alt_missing", `${undescribed} picture${undescribed === 1 ? " has" : "s have"} no description. Screen readers and search engines rely on it. In the editor, give each picture a caption that says what it shows.`);
   }
 
   const filler = findAiFiller(everything);

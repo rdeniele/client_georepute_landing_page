@@ -17,6 +17,7 @@ import { createElement } from "react";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import type { ContentBlock } from "@/types/blocks";
 import { SEARCH_NOTES, seoPlaybook } from "@/lib/blog/seo";
+import { TRUSTED_SOURCES } from "@/lib/blog/links";
 import { MIN_WORDS_TO_OPTIMIZE, applyOptimized, buildOptimizePrompt, optimizePost, validateOptimizeInput, validateOptimized, type OptimizeInput, type OptimizeResult } from "@/lib/blog/optimize";
 import {
   BLOG_LENGTHS,
@@ -126,7 +127,8 @@ function fixture(lang: "en" | "he" | "fr", opts: { sections?: number; extra?: (b
       metaTitle: "AI visibility for agencies: why rankings are not enough",
       metaDescription: "Learn why Google rankings alone no longer show how buyers find a business, and how to check what AI engines say about yours.",
       keywords: ["AI visibility", "google rankings", "ai search engines", "agency reporting"],
-      takeawaysHeading: "Key takeaways",
+      takeawaysHeading: "Executive summary",
+      executiveSummary: "Rankings show only one side of visibility. Buyers also ask AI engines whom to trust, and those answers draw on consistent profiles, reviews and independent coverage. Check one buying question in three engines each week, note which names return, and fix the most visible inconsistency first.",
       keyTakeaways: ["Rankings are only one of two discovery surfaces", "AI engines reward consistent, independent information", "Check one buying question in three engines this week"],
       faq: [
         { question: "What is AI visibility?", answer: "AI visibility is how often and how accurately AI engines mention a business when a buyer asks who to choose." },
@@ -138,7 +140,8 @@ function fixture(lang: "en" | "he" | "fr", opts: { sections?: number; extra?: (b
       metaTitle: "נראות בבינה מלאכותית: למה דירוג בגוגל כבר לא מספיק",
       metaDescription: "כך תבינו למה דירוג בגוגל לבדו כבר לא מראה איך לקוחות מוצאים עסק, ואיך בודקים בדרך פשוטה מה מנועי בינה מלאכותית אומרים עליכם.",
       keywords: ["נראות בבינה מלאכותית", "דירוג בגוגל", "מנועי בינה מלאכותית", "דוחות לסוכנויות"],
-      takeawaysHeading: "עיקרי הדברים",
+      takeawaysHeading: "תקציר מנהלים",
+      executiveSummary: "דירוג בגוגל מראה רק צד אחד של הנראות. לקוחות שואלים היום גם מנועי בינה מלאכותית במי לבחור, והתשובות נשענות על פרופילים עקביים, ביקורות וסיקור עצמאי. בדקו בכל שבוע שאלת רכישה אחת בשלושה מנועים, רשמו אילו שמות חוזרים ותקנו קודם את חוסר העקביות הבולט ביותר.",
       keyTakeaways: ["דירוג הוא רק אחד משני משטחי הגילוי", "מנועי בינה מלאכותית מתגמלים מידע עקבי ועצמאי", "בדקו השבוע שאלת רכישה אחת בשלושה מנועים"],
       faq: [
         { question: "מה זו נראות בבינה מלאכותית?", answer: "נראות בבינה מלאכותית היא כמה פעמים ובאיזו דיוק מנועי בינה מלאכותית מזכירים עסק כשלקוח שואל במי לבחור." },
@@ -150,7 +153,8 @@ function fixture(lang: "en" | "he" | "fr", opts: { sections?: number; extra?: (b
       metaTitle: "Visibilité IA : pourquoi le classement ne suffit plus",
       metaDescription: "Visibilité IA : comprenez pourquoi le classement Google ne montre plus comment les acheteurs trouvent une entreprise et comment vérifier ce que disent les moteurs.",
       keywords: ["visibilité IA", "classement google", "moteurs d'IA", "rapports d'agence"],
-      takeawaysHeading: "L'essentiel à retenir",
+      takeawaysHeading: "Résumé",
+      executiveSummary: "Le classement ne montre qu'un côté de la visibilité. Les acheteurs demandent aussi aux moteurs d'IA qui choisir, et leurs réponses reposent sur des profils cohérents, des avis et une couverture indépendante. Testez une question d'achat dans trois moteurs chaque semaine, notez les noms qui reviennent et corrigez d'abord l'incohérence la plus visible.",
       keyTakeaways: ["Le classement n'est qu'une des deux surfaces de découverte", "Les moteurs d'IA récompensent une information cohérente et indépendante", "Testez une question d'achat dans trois moteurs cette semaine"],
       faq: [
         { question: "Qu'est-ce que la visibilité IA ?", answer: "La visibilité IA mesure la fréquence et l'exactitude avec lesquelles les moteurs d'IA citent une entreprise quand un acheteur demande qui choisir." },
@@ -244,7 +248,7 @@ async function offline() {
     const d = validateDraft(fixture(lang), input(lang), META);
     check(`${lang}: meta title, description, keywords and FAQ come back`, !!d.metaTitle && !!d.metaDescription && d.keywords.split(", ").length === 4 && d.faq.length === 3);
     check(`${lang}: the primary keyword is keywords[0]`, d.keywords.split(", ")[0] === fixture(lang).keywords[0]);
-    check(`${lang}: key takeaways follow the opening paragraph`, d.blocks[0].type === "paragraph" && d.blocks[1].type === "heading" && d.blocks[2].type === "bulletListItem");
+    check(`${lang}: key takeaways follow the opening paragraph`, d.blocks[0].type === "paragraph" && d.blocks[1].type === "heading" && d.blocks[2].type === "paragraph" && d.blocks[3].type === "bulletListItem");
     check(`${lang}: the advisory SEO score is computed`, d.seo.score >= 70 && d.seo.checks.length >= 10, `${d.seo.score}: failing ${d.seo.checks.filter((c) => !c.ok).map((c) => `${c.id}${c.detail ? ` (${c.detail})` : ""}`).join(", ")}`);
     check(`${lang}: the FAQ questions are questions`, d.faq.every((f) => /[?؟]$/.test(f.question)));
     check(`${lang}: the request carries the language's search behaviour`, buildPrompt(input(lang)).user.includes(SEARCH_NOTES[lang]) && buildPrompt(input(lang)).user.includes("<seo_playbook>"));
@@ -253,6 +257,10 @@ async function offline() {
   await bad("rejects a meta title over 70 characters", () => validateDraft({ ...fixture("en"), metaTitle: "x".repeat(80) }, input("en"), META));
   await bad("rejects a meta title without the primary keyword", () => validateDraft({ ...fixture("en"), metaTitle: "A completely different subject about cooking" }, input("en"), META));
   await bad("rejects a meta description that is too short", () => validateDraft({ ...fixture("en"), metaDescription: "Too short." }, input("en"), META));
+  await bad("rejects a draft with no executive summary", () => validateDraft({ ...fixture("en"), executiveSummary: "" }, input("en"), META));
+  await bad("rejects a draft with no bulleted or numbered list in the body", () => validateDraft(fixture("en", { extra: (b) => { for (let i = b.length - 1; i >= 0; i--) if (b[i].type === "bullet_list") b.splice(i, 1); } }), input("en"), META));
+  check("a trusted external link is accepted in a manual draft; an invented one is dropped", (() => { const link = TRUSTED_SOURCES[0].href; const mk = (u: string) => validateDraft(fixture("en", { extra: (b) => { b[0].text = `${b[0].text} See [Google's guide](${u}).`; } }), input("en"), META); return JSON.stringify(mk(link).blocks).includes(link) && !JSON.stringify(mk("https://made-up.example/x").blocks).includes("made-up.example"); })());
+  check("the manual request lists the site's pages and the trusted sources as allowed links", (() => { const u = buildPrompt(input("en")).user; return u.includes(TRUSTED_SOURCES[0].href) && u.includes("/en/"); })());
   await bad("rejects fewer than 3 key takeaways", () => validateDraft({ ...fixture("en"), keyTakeaways: ["Only one"] }, input("en"), META));
   await bad("rejects fewer than 3 FAQ entries", () => validateDraft({ ...fixture("en"), faq: fixture("en").faq.slice(0, 1) }, input("en"), META));
   await bad("rejects a draft with no keywords", () => validateDraft({ ...fixture("en"), keywords: [] }, input("en"), META));

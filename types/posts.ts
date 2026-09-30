@@ -35,6 +35,11 @@ export type PostFormValues = {
   tags: string; // comma-separated in the form, split into an array before writing
   status: PostStatus;
   locale: PostLocale;
+  /**
+   * The chosen public author (authors table). "" means "the default author". `null` means the feature is not available yet
+   * (SUPABASE_SETUP.md Step 14 not run), so the field is neither shown nor saved and posts keep saving exactly as before.
+   */
+  byline_id: string | null;
   meta_title: string;
   meta_description: string;
   keywords: string; // comma-separated, like tags
@@ -51,6 +56,7 @@ export const EMPTY_POST_FORM: PostFormValues = {
   tags: "",
   status: "draft",
   locale: "en",
+  byline_id: null,
   meta_title: "",
   meta_description: "",
   keywords: "",
@@ -71,6 +77,8 @@ export function postToFormValues(post: Post): PostFormValues {
     tags: post.tags.join(", "),
     status: post.status,
     locale: post.locale,
+    // `undefined` means the column does not exist yet; null in the database means "no author chosen".
+    byline_id: post.byline_id === undefined ? null : (post.byline_id ?? ""),
     meta_title: post.meta_title ?? "",
     meta_description: post.meta_description ?? "",
     keywords: (post.keywords ?? []).join(", "),

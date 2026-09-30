@@ -312,6 +312,8 @@ function toInsert(values: PostFormValues, authorId: string | null) {
     meta_description: values.meta_description.trim() || null,
     keywords: normalizeTags(values.keywords),
     faq: normalizeFaq(values.faq) as unknown as Json,
+    // Only sent when the author feature exists, so saving works on a database that has not had Step 14 yet.
+    ...(values.byline_id !== null && values.byline_id !== undefined ? { byline_id: values.byline_id || null } : {}),
     author_id: authorId,
   };
 }

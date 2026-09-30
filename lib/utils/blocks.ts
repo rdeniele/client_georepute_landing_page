@@ -58,7 +58,8 @@ export function getFirstContentImage(blocks: ContentBlock[] | null | undefined):
   for (const block of blocks) {
     if (block.type === "image") {
       const url = (block.props as { url?: string } | undefined)?.url;
-      if (url) return url;
+      // A real picture address only: the Auto-Writer's charts are inline SVG and make poor card thumbnails.
+      if (url && /^(?:https?:\/\/|\/(?!\/))/i.test(url)) return url;
     }
   }
   return null;

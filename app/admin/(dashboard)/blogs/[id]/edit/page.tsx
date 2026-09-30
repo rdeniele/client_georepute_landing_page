@@ -12,6 +12,7 @@ import { PageHead } from "@/components/admin/ui/kit";
 import { updatePostAction } from "@/lib/actions/posts";
 import { postToFormValues } from "@/types/posts";
 import { blogPath } from "@/lib/utils/postLocale";
+import { listAuthors } from "@/lib/services/authors";
 
 export const metadata: Metadata = { title: "Edit post | GeoRepute Admin" };
 
@@ -33,6 +34,7 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
   const automation = await getVariantForPost(supabase, post.id).catch(() => null);
   const timezone = automation ? (await new SupabaseAutomationStore(supabase).getSettings().catch(() => null))?.timezone ?? "UTC" : "UTC";
   const live = post.status === "published";
+  const authors = await listAuthors(supabase);
 
   return (
     <>
@@ -56,7 +58,7 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
 
       {automation ? <PostAutomationPanel variant={automation.variant} topic={automation.topic} timezone={timezone} /> : null}
 
-      <PostForm action={boundAction} initialValues={postToFormValues(post)} submitLabel="Save changes" />
+      <PostForm action={boundAction} initialValues={postToFormValues(post)} submitLabel="Save changes" authors={authors} />
 
       <h2 className="admin-section-title" style={{ marginTop: 40 }}>
         More you can do with this post

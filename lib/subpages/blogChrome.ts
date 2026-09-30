@@ -32,6 +32,8 @@ export type BlogChromeCopy = {
   olderPosts: string;
   onThisPage: string;
   relatedTitle: string;
+  writtenBy: string;
+  moreFrom: (name: string) => string;
 };
 
 const en: BlogChromeCopy = {
@@ -61,6 +63,8 @@ const en: BlogChromeCopy = {
   olderPosts: "Older posts",
   onThisPage: "On this page",
   relatedTitle: "Keep reading",
+  writtenBy: "Written by",
+  moreFrom: (n) => `More from ${n}`,
 };
 
 const he: BlogChromeCopy = {
@@ -89,6 +93,8 @@ const he: BlogChromeCopy = {
   olderPosts: "פוסטים ישנים יותר",
   onThisPage: "בעמוד זה",
   relatedTitle: "להמשך קריאה",
+  writtenBy: "נכתב על ידי",
+  moreFrom: (n) => `עוד מאת ${n}`,
 };
 
 const ar: BlogChromeCopy = {
@@ -117,6 +123,8 @@ const ar: BlogChromeCopy = {
   olderPosts: "مقالات أقدم",
   onThisPage: "في هذه الصفحة",
   relatedTitle: "تابع القراءة",
+  writtenBy: "بقلم",
+  moreFrom: (n) => `المزيد من ${n}`,
 };
 
 const ru: BlogChromeCopy = {
@@ -145,6 +153,8 @@ const ru: BlogChromeCopy = {
   olderPosts: "Более старые записи",
   onThisPage: "На этой странице",
   relatedTitle: "Читайте также",
+  writtenBy: "Автор",
+  moreFrom: (n) => `Ещё от ${n}`,
 };
 
 const fr: BlogChromeCopy = {
@@ -173,6 +183,8 @@ const fr: BlogChromeCopy = {
   olderPosts: "Articles plus anciens",
   onThisPage: "Dans cet article",
   relatedTitle: "À lire aussi",
+  writtenBy: "Écrit par",
+  moreFrom: (n) => `Plus de ${n}`,
 };
 
 const es: BlogChromeCopy = {
@@ -201,6 +213,8 @@ const es: BlogChromeCopy = {
   olderPosts: "Artículos anteriores",
   onThisPage: "En esta página",
   relatedTitle: "Sigue leyendo",
+  writtenBy: "Escrito por",
+  moreFrom: (n) => `Más de ${n}`,
 };
 
 const pt: BlogChromeCopy = {
@@ -229,6 +243,8 @@ const pt: BlogChromeCopy = {
   olderPosts: "Artigos anteriores",
   onThisPage: "Nesta página",
   relatedTitle: "Continue lendo",
+  writtenBy: "Escrito por",
+  moreFrom: (n) => `Mais de ${n}`,
 };
 
 const packs: Record<Locale, BlogChromeCopy> = { en, he, ar, ru, fr, es, pt };

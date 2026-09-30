@@ -23,6 +23,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { LOCALES, localeDirections, localeNames, type Locale } from "@/lib/i18n";
 import { SEO_LIMITS, analyzeSeo, mentions, seoPlaybook, type SeoReport } from "./seo";
+import { defaultLinkRules } from "./links";
 
 /* -------------------------------------------------------------------------- */
 /* Configuration                                                              */
@@ -201,6 +202,7 @@ export const DRAFT_JSON_SCHEMA = {
     metaTitle: { type: "string" },
     metaDescription: { type: "string" },
     keywords: { type: "array", items: { type: "string" } },
+    executiveSummary: { type: "string" },
     keyTakeaways: { type: "array", items: { type: "string" } },
     takeawaysHeading: { type: "string" },
     faq: {
@@ -227,7 +229,7 @@ export const DRAFT_JSON_SCHEMA = {
       },
     },
   },
-  required: ["title", "slug", "excerpt", "category", "tags", "metaTitle", "metaDescription", "keywords", "keyTakeaways", "takeawaysHeading", "faq", "blocks"],
+  required: ["title", "slug", "excerpt", "category", "tags", "metaTitle", "metaDescription", "keywords", "executiveSummary", "keyTakeaways", "takeawaysHeading", "faq", "blocks"],
   additionalProperties: false,
 } as const;
 
@@ -239,7 +241,7 @@ export function extractUrls(text: string): string[] {
 export function buildPrompt(input: BlogGenerationInput): { system: string; user: string } {
   const lang = BLOG_LANGUAGES[input.language];
   const len = BLOG_LENGTHS[input.length];
-  const links = extractUrls(input.notes ?? "");
+  const links = [...new Set([...extractUrls(input.notes ?? ""), ...defaultLinkRules(input.language).map((l) => l.href)])];
   const user = [
     `<language>${lang.name} (${lang.native})</language>`,
     `<target_words>${len.words}</target_words>`,
@@ -391,6 +393,7 @@ type RawDraft = {
   metaTitle?: unknown;
   metaDescription?: unknown;
   keywords?: unknown;
+  executiveSummary?: unknown;
   keyTakeaways?: unknown;
   takeawaysHeading?: unknown;
   faq?: unknown;
@@ -456,7 +459,7 @@ export function validateDraft(
 ): GeneratedDraft {
   if (!raw || typeof raw !== "object") fail("the response was not an object");
   const d = raw as RawDraft;
-  const allowed = new Set(extractUrls(input.notes ?? ""));
+  const allowed = new Set([...extractUrls(input.notes ?? ""), ...defaultLinkRules(input.language).map((l) => l.href)]);
 
   const title = cleanText(str(d.title, "the title")).replace(/\*/g, "");
   const excerpt = cleanText(str(d.excerpt, "the excerpt")).replace(/\*|\[([^\]]*)\]\([^)]*\)/g, "$1");
@@ -517,8 +520,12 @@ export function validateDraft(
     })
     .slice(0, K.max);
   if (takeawayItems.length < K.min) fail(`only ${takeawayItems.length} key takeaways, expected ${K.min} to ${K.max}`);
-  const takeawaysHeading = cleanText(str(d.takeawaysHeading, "the takeaways heading")).replace(/[*[\]]/g, "").trim();
-  if (takeawaysHeading.length < 2 || takeawaysHeading.length > 60) fail("the takeaways heading is missing or too long");
+  const takeawaysHeading = cleanText(str(d.takeawaysHeading, "the executive summary heading")).replace(/[*[\]]/g, "").trim();
+  if (takeawaysHeading.length < 2 || takeawaysHeading.length > 60) fail("the executive summary heading is missing or too long");
+  const summaryText = cleanText(str(d.executiveSummary, "the executive summary")).replace(/\*\*?|\[([^\]]*)\]\([^)]*\)/g, "$1");
+  const summaryWords = countWords(summaryText);
+  if (summaryWords < 20 || summaryWords > 130) fail(`the executive summary is ${summaryWords} words (aim for 40 to 80)`);
+  if (!bodyBlocks.some((b) => b.type === "bulletListItem" || b.type === "numberedListItem")) fail("the article has no bulleted or numbered list in its body (add one for steps, criteria or mistakes)");
 
   // The FAQ is stored as its own field (the public page renders it and marks it up as FAQPage).
   const faq = (Array.isArray(d.faq) ? d.faq : [])
@@ -531,6 +538,7 @@ export function validateDraft(
   const blocks: DraftBlock[] = [
     bodyBlocks[0],
     { type: "heading", props: { level: 2 }, content: [{ type: "text", text: takeawaysHeading, styles: {} }] },
+    { type: "paragraph", content: [{ type: "text", text: summaryText, styles: {} }] },
     ...takeawayItems,
     ...bodyBlocks.slice(1),
   ];

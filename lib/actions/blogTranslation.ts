@@ -149,6 +149,8 @@ export async function createTranslationAction(input: {
         tags: translated.tags.join(", "),
         status: "draft",
         locale: target,
+        // The translation is by the same author as the original (when the author feature exists).
+        byline_id: post.byline_id === undefined ? null : (post.byline_id ?? ""),
         meta_title: "",
         meta_description: "",
         keywords: "",

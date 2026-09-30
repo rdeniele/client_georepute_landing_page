@@ -31,6 +31,8 @@ type Form = {
   categories: string;
   requiredSections: string;
   faq: FaqMode;
+  inlineImages: number;
+  charts: number;
   systemPrompt: string;
   generationModel: string;
   translationModel: string;
@@ -63,6 +65,8 @@ function fromSettings(s: AutomationSettings, defaultPrompt: string): Form {
     categories: s.config.categories.join("\n"),
     requiredSections: s.config.requiredSections.join("\n"),
     faq: s.config.faq,
+    inlineImages: s.config.inlineImages,
+    charts: s.config.charts,
     systemPrompt: s.config.systemPrompt || defaultPrompt,
     generationModel: s.config.generationModel,
     translationModel: s.config.translationModel,
@@ -95,6 +99,8 @@ function toInput(f: Form, defaultPrompt: string) {
       categories: f.categories.split("\n"),
       requiredSections: f.requiredSections.split("\n"),
       faq: f.faq,
+      inlineImages: f.inlineImages,
+      charts: f.charts,
       // Unchanged built-in rules are stored as "use the default", so improvements to the default reach this site automatically.
       systemPrompt: f.systemPrompt.trim() === defaultPrompt.trim() ? "" : f.systemPrompt,
       generationModel: f.generationModel,
@@ -343,6 +349,30 @@ export function SettingsForm({
               <option value="never">Never</option>
             </select>
           </div>
+        </div>
+        <div className="admin-field" style={{ maxWidth: 420 }}>
+          <label htmlFor="inline-images">Pictures inside each article</label>
+          <select id="inline-images" value={f.inlineImages} onChange={(e) => set("inlineImages", Number(e.target.value))}>
+            <option value={0}>None (only the main picture)</option>
+            <option value={1}>1 picture</option>
+            <option value={2}>2 pictures</option>
+            <option value={3}>3 pictures</option>
+            <option value={4}>4 pictures</option>
+          </select>
+          <span className="admin-field__hint">
+            Free stock photos placed next to the sections where they help, each with a description for search engines and a credit to the photographer. The AI may use fewer. Needs the photo key (see Help). Each picture uses a few of Unsplash&apos;s hourly requests.
+          </span>
+        </div>
+        <div className="admin-field" style={{ maxWidth: 420 }}>
+          <label htmlFor="charts">Charts and diagrams inside each article</label>
+          <select id="charts" value={f.charts} onChange={(e) => set("charts", Number(e.target.value))}>
+            <option value={0}>None</option>
+            <option value={1}>1 chart or diagram</option>
+            <option value={2}>2 charts or diagrams</option>
+          </select>
+          <span className="admin-field__hint">
+            A step-by-step diagram when the article explains a process, or a bar chart when you gave real numbers in the topic notes. It never makes up statistics: a chart whose numbers are not in your notes is clearly labelled &ldquo;illustrative example, not real data&rdquo;. The AI may use fewer.
+          </span>
         </div>
         <div className="admin-field">
           <label htmlFor="tone">Tone and style</label>

@@ -46,10 +46,13 @@ export function PostForm({
   action,
   initialValues,
   submitLabel,
+  authors = null,
 }: {
   action: PostFormAction;
   initialValues: PostFormValues;
   submitLabel: string;
+  /** The authors an admin can pick from. `null` when the authors table does not exist yet (the picker is then hidden). */
+  authors?: { id: string; name: string; is_default: boolean }[] | null;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [values, setValues] = useState(initialValues);
@@ -340,6 +343,22 @@ export function PostForm({
           ) : null}
           <input type="hidden" name="featured_image" value={values.featured_image} />
         </div>
+
+        {authors ? (
+          <div className="admin-field" style={{ maxWidth: 460 }}>
+            <FieldLabel htmlFor="byline_id" help={{ label: "Author", text: <>Who is shown as the writer under this article, with their photo and bio. Manage the list under Authors in the top menu. “Default author” is used when you do not choose one.</> }}>
+              Author
+            </FieldLabel>
+            <select id="byline_id" name="byline_id" value={values.byline_id ?? ""} onChange={(event) => set("byline_id", event.target.value)}>
+              <option value="">Default author{authors.find((a) => a.is_default) ? ` (${authors.find((a) => a.is_default)!.name})` : " (GeoRepute Editorial Team)"}</option>
+              {authors.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
 
         <div className="admin-row">
           <div className="admin-field">
