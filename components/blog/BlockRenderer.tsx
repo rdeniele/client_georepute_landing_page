@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { ContentBlock } from "@/types/posts";
 import { safeHref } from "@/lib/utils/safeHref";
+import { inlineText, uniqueIds } from "@/lib/blog/seo";
 
 type InlineNode = {
   type?: string;
@@ -45,13 +46,20 @@ function renderInline(content: unknown): ReactNode {
   });
 }
 
-function renderBlock(block: ContentBlock, key: number): ReactNode {
+function renderBlock(block: ContentBlock, key: number, idFor: (text: string) => string): ReactNode {
   switch (block.type) {
     case "heading": {
       const level = Number((block.props as { level?: number } | undefined)?.level) || 2;
       // Clamped to h2–h4: the article's own H1 is the post title, and h5/h6 have no distinct style here.
       const Tag = (level <= 2 ? "h2" : level === 3 ? "h3" : "h4") as "h2" | "h3" | "h4";
-      return <Tag key={key}>{renderInline(block.content)}</Tag>;
+      // Every heading gets a stable, unicode-aware anchor (Hebrew and Arabic included): deep links, the table of
+      // contents, jump-link results in search and AI answers that cite one section. Same ids as seo.ts outline().
+      const text = inlineText(block.content).trim();
+      return (
+        <Tag key={key} id={text ? idFor(text) : undefined}>
+          {renderInline(block.content)}
+        </Tag>
+      );
     }
     case "paragraph":
       return <p key={key}>{renderInline(block.content)}</p>;
@@ -88,6 +96,7 @@ function renderBlock(block: ContentBlock, key: number): ReactNode {
  */
 export function BlockRenderer({ blocks }: { blocks: ContentBlock[] }) {
   const nodes: ReactNode[] = [];
+  const idFor = uniqueIds();
   let i = 0;
 
   while (i < blocks.length) {
@@ -97,7 +106,7 @@ export function BlockRenderer({ blocks }: { blocks: ContentBlock[] }) {
       const listType = block.type;
       const items: ReactNode[] = [];
       while (i < blocks.length && blocks[i].type === listType) {
-        items.push(renderBlock(blocks[i], i));
+        items.push(renderBlock(blocks[i], i, idFor));
         i++;
       }
       const ListTag = listType === "bulletListItem" ? "ul" : "ol";
@@ -105,7 +114,7 @@ export function BlockRenderer({ blocks }: { blocks: ContentBlock[] }) {
       continue;
     }
 
-    nodes.push(renderBlock(block, i));
+    nodes.push(renderBlock(block, i, idFor));
     i++;
   }
 

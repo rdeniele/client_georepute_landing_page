@@ -7,6 +7,7 @@
  * decides whether content is safe to publish.
  */
 import { SLUG, countWords, languageProblem, type BlogLanguage } from "@/lib/blog/generation";
+import { analyzeSeo } from "@/lib/blog/seo";
 import type { ContentBlock } from "@/types/blocks";
 import type { FaqItem } from "@/types/posts";
 
@@ -210,6 +211,15 @@ export function validateForPublish(c: PublishCandidate, o: ValidationOptions): I
 
   const filler = findAiFiller(everything);
   if (filler.length) warn("ai_filler_phrase", `The text uses generic filler phrasing: ${filler.join(", ")}. Rewrite with something concrete.`);
+
+  // SEO / GEO / AEO signals (lib/blog/seo.ts). Warnings only: a slightly long meta description should never keep a good
+  // article offline, but the editor sees exactly what to improve. The hard rewrites happen earlier, at generation time.
+  if (blocks.length) {
+    const seo = analyzeSeo({ title: c.title, metaTitle: c.metaTitle, metaDescription: c.metaDescription, keywords: c.keywords ?? [], blocks, faq });
+    for (const check of seo.checks) {
+      if (!check.ok) warn(`seo_${check.id.replace(/-/g, "_")}`, `SEO: ${check.label}${check.detail ? ` (${check.detail})` : ""}.`);
+    }
+  }
 
   return issues;
 }

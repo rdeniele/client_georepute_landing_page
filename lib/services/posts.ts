@@ -60,13 +60,13 @@ export async function getPublishedForSitemap(
   supabase: Client,
   locale: PostLocale,
   maxPages = 20,
-): Promise<{ slug: string; updated_at: string; published_at: string | null }[]> {
+): Promise<{ slug: string; updated_at: string; published_at: string | null; translation_group: string | null }[]> {
   const size = 1000;
-  const out: { slug: string; updated_at: string; published_at: string | null }[] = [];
+  const out: { slug: string; updated_at: string; published_at: string | null; translation_group: string | null }[] = [];
   for (let page = 0; page < maxPages; page++) {
     const { data, error } = await supabase
       .from("posts")
-      .select("slug, updated_at, published_at")
+      .select("slug, updated_at, published_at, translation_group")
       .eq("status", "published")
       .eq("locale", locale)
       .lte("published_at", new Date().toISOString())
@@ -429,4 +429,26 @@ export async function regeneratePreviewLink(
 
   if (error) raise("regenerate preview link", error);
   return data as unknown as Post;
+}
+
+/**
+ * Other published posts to link from the bottom of an article (internal linking: it passes authority to related
+ * pages and keeps readers, and crawlers, moving through the site). Same language only, same category first, then the
+ * newest posts to fill the row. Safe to call with the anon key.
+ */
+export async function getRelatedPosts(
+  supabase: Client,
+  post: Pick<Post, "id" | "locale" | "category">,
+  limit = 3,
+): Promise<PostWithAuthor[]> {
+  const picked: PostWithAuthor[] = [];
+  const add = (rows: PostWithAuthor[]) => {
+    for (const row of rows) {
+      if (picked.length >= limit) return;
+      if (row.id !== post.id && !picked.some((p) => p.id === row.id)) picked.push(row);
+    }
+  };
+  if (post.category) add(await getPublishedPosts(supabase, { locale: post.locale, category: post.category, limit: limit + 1 }));
+  if (picked.length < limit) add(await getPublishedPosts(supabase, { locale: post.locale, limit: limit + 4 }));
+  return picked;
 }

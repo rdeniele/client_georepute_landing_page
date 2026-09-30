@@ -16,9 +16,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import type { ContentBlock } from "@/types/blocks";
+import { SEARCH_NOTES, seoPlaybook } from "@/lib/blog/seo";
+import { MIN_WORDS_TO_OPTIMIZE, applyOptimized, buildOptimizePrompt, optimizePost, validateOptimizeInput, validateOptimized, type OptimizeInput, type OptimizeResult } from "@/lib/blog/optimize";
 import {
   BLOG_LENGTHS,
   GenerationError,
+  buildPrompt,
   cleanText,
   generateBlogDraft,
   languageProblem,
@@ -118,10 +121,49 @@ function fixture(lang: "en" | "he" | "fr", opts: { sections?: number; extra?: (b
   blocks.push({ type: "paragraph", level: 0, text: bank.close, items: [] });
   opts.extra?.(blocks);
   const excerpt = { en: "Why Google rankings alone no longer show how buyers find a business, and a simple way to check what AI engines say.", he: "למה דירוג בגוגל כבר לא מראה איך לקוחות מוצאים עסק, ואיך בודקים בדרך פשוטה מה מנועי בינה מלאכותית אומרים.", fr: "Pourquoi le classement Google ne montre plus comment les acheteurs trouvent une entreprise, et comment vérifier ce que disent les moteurs d'IA." }[lang];
+  const seo = {
+    en: {
+      metaTitle: "AI visibility for agencies: why rankings are not enough",
+      metaDescription: "Learn why Google rankings alone no longer show how buyers find a business, and how to check what AI engines say about yours.",
+      keywords: ["AI visibility", "google rankings", "ai search engines", "agency reporting"],
+      takeawaysHeading: "Key takeaways",
+      keyTakeaways: ["Rankings are only one of two discovery surfaces", "AI engines reward consistent, independent information", "Check one buying question in three engines this week"],
+      faq: [
+        { question: "What is AI visibility?", answer: "AI visibility is how often and how accurately AI engines mention a business when a buyer asks who to choose." },
+        { question: "How do I check what AI engines say about my business?", answer: "Ask the same buying question in several engines, write down the names they return and compare them with your competitors." },
+        { question: "Does a top Google ranking guarantee an AI mention?", answer: "No. Engines assemble answers from many sources, so a high ranking does not guarantee that a business is named in the answer." },
+      ],
+    },
+    he: {
+      metaTitle: "נראות בבינה מלאכותית: למה דירוג בגוגל כבר לא מספיק",
+      metaDescription: "כך תבינו למה דירוג בגוגל לבדו כבר לא מראה איך לקוחות מוצאים עסק, ואיך בודקים בדרך פשוטה מה מנועי בינה מלאכותית אומרים עליכם.",
+      keywords: ["נראות בבינה מלאכותית", "דירוג בגוגל", "מנועי בינה מלאכותית", "דוחות לסוכנויות"],
+      takeawaysHeading: "עיקרי הדברים",
+      keyTakeaways: ["דירוג הוא רק אחד משני משטחי הגילוי", "מנועי בינה מלאכותית מתגמלים מידע עקבי ועצמאי", "בדקו השבוע שאלת רכישה אחת בשלושה מנועים"],
+      faq: [
+        { question: "מה זו נראות בבינה מלאכותית?", answer: "נראות בבינה מלאכותית היא כמה פעמים ובאיזו דיוק מנועי בינה מלאכותית מזכירים עסק כשלקוח שואל במי לבחור." },
+        { question: "איך בודקים מה מנועי בינה מלאכותית אומרים על העסק?", answer: "שואלים את אותה שאלת רכישה בכמה מנועים, רושמים את השמות שחוזרים ומשווים אותם למתחרים שכבר עוקבים אחריהם." },
+        { question: "האם מקום ראשון בגוגל מבטיח אזכור בבינה מלאכותית?", answer: "לא. המנועים מרכיבים תשובות ממקורות רבים, ולכן דירוג גבוה אינו מבטיח שהעסק יופיע בתשובה עצמה." },
+      ],
+    },
+    fr: {
+      metaTitle: "Visibilité IA : pourquoi le classement ne suffit plus",
+      metaDescription: "Visibilité IA : comprenez pourquoi le classement Google ne montre plus comment les acheteurs trouvent une entreprise et comment vérifier ce que disent les moteurs.",
+      keywords: ["visibilité IA", "classement google", "moteurs d'IA", "rapports d'agence"],
+      takeawaysHeading: "L'essentiel à retenir",
+      keyTakeaways: ["Le classement n'est qu'une des deux surfaces de découverte", "Les moteurs d'IA récompensent une information cohérente et indépendante", "Testez une question d'achat dans trois moteurs cette semaine"],
+      faq: [
+        { question: "Qu'est-ce que la visibilité IA ?", answer: "La visibilité IA mesure la fréquence et l'exactitude avec lesquelles les moteurs d'IA citent une entreprise quand un acheteur demande qui choisir." },
+        { question: "Comment vérifier ce que les moteurs d'IA disent de mon entreprise ?", answer: "Posez la même question d'achat dans plusieurs moteurs, notez les noms cités et comparez-les avec vos concurrents habituels." },
+        { question: "Un bon classement Google garantit-il une mention par l'IA ?", answer: "Non. Les moteurs composent leurs réponses à partir de nombreuses sources, donc un bon classement ne garantit pas d'être cité." },
+      ],
+    },
+  }[lang];
   return {
     title: bank.head[0],
     slug: "google-rankings-vs-ai-visibility",
     excerpt,
+    ...seo,
     category: { en: "AI visibility", he: "נראות בבינה מלאכותית", fr: "Visibilité IA" }[lang],
     tags: { en: ["AI visibility", "reputation", "agencies"], he: ["נראות", "מוניטין", "סוכנויות"], fr: ["visibilité IA", "réputation", "agences"] }[lang],
     blocks,
@@ -177,12 +219,12 @@ async function offline() {
     }
     check(`${lang}: valid draft accepted`, true);
     check(`${lang}: slug is Latin kebab-case`, /^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug));
-    check(`${lang}: list items become individual list blocks`, draft.blocks.filter((b) => b.type === "bulletListItem").length === 9);
+    check(`${lang}: list items become individual list blocks`, draft.blocks.filter((b) => b.type === "bulletListItem").length === 12);
     check(`${lang}: first block is a paragraph`, draft.blocks[0].type === "paragraph");
     check(`${lang}: heading levels are 2 or 3`, draft.blocks.filter((b) => b.type === "heading").every((b) => [2, 3].includes(Number((b.props as { level: number }).level))));
 
     const html = renderToStaticMarkup(createElement(BlockRenderer, { blocks: draft.blocks as ContentBlock[] }));
-    check(`${lang}: renders headings, paragraphs and lists`, /<h2>/.test(html) && /<p>/.test(html) && /<ul>/.test(html));
+    check(`${lang}: renders headings, paragraphs and lists`, /<h2[ >]/.test(html) && /<p>/.test(html) && /<ul>/.test(html));
     check(`${lang}: rendered HTML has no leftover markdown or undefined`, !/\*\*|undefined|\[object/.test(html));
     const count = (tag: string) => (html.match(new RegExp(`<${tag}[ >]`, "g")) ?? []).length;
     check(`${lang}: rendered HTML tags are balanced`, count("ul") === (html.match(/<\/ul>/g) ?? []).length && count("p") === (html.match(/<\/p>/g) ?? []).length);
@@ -197,8 +239,107 @@ async function offline() {
   const cleaned = validateDraft(dashed, input("en"), META);
   check("em dashes from the model are removed, not shipped", !JSON.stringify(cleaned.blocks).match(/[\u2014\u2015]/));
   await bad("rejects a non-object response", () => validateDraft("nope", input("en"), META));
+  console.log("\nSEO / GEO / AEO package");
+  for (const lang of ["en", "he", "fr"] as const) {
+    const d = validateDraft(fixture(lang), input(lang), META);
+    check(`${lang}: meta title, description, keywords and FAQ come back`, !!d.metaTitle && !!d.metaDescription && d.keywords.split(", ").length === 4 && d.faq.length === 3);
+    check(`${lang}: the primary keyword is keywords[0]`, d.keywords.split(", ")[0] === fixture(lang).keywords[0]);
+    check(`${lang}: key takeaways follow the opening paragraph`, d.blocks[0].type === "paragraph" && d.blocks[1].type === "heading" && d.blocks[2].type === "bulletListItem");
+    check(`${lang}: the advisory SEO score is computed`, d.seo.score >= 70 && d.seo.checks.length >= 10, `${d.seo.score}: failing ${d.seo.checks.filter((c) => !c.ok).map((c) => `${c.id}${c.detail ? ` (${c.detail})` : ""}`).join(", ")}`);
+    check(`${lang}: the FAQ questions are questions`, d.faq.every((f) => /[?؟]$/.test(f.question)));
+    check(`${lang}: the request carries the language's search behaviour`, buildPrompt(input(lang)).user.includes(SEARCH_NOTES[lang]) && buildPrompt(input(lang)).user.includes("<seo_playbook>"));
+  }
+  for (const lang of ["ar", "ru", "es", "pt"] as const) check(`${lang}: playbook available for a language without a fixture`, seoPlaybook(lang).includes(SEARCH_NOTES[lang]));
+  await bad("rejects a meta title over 70 characters", () => validateDraft({ ...fixture("en"), metaTitle: "x".repeat(80) }, input("en"), META));
+  await bad("rejects a meta title without the primary keyword", () => validateDraft({ ...fixture("en"), metaTitle: "A completely different subject about cooking" }, input("en"), META));
+  await bad("rejects a meta description that is too short", () => validateDraft({ ...fixture("en"), metaDescription: "Too short." }, input("en"), META));
+  await bad("rejects fewer than 3 key takeaways", () => validateDraft({ ...fixture("en"), keyTakeaways: ["Only one"] }, input("en"), META));
+  await bad("rejects fewer than 3 FAQ entries", () => validateDraft({ ...fixture("en"), faq: fixture("en").faq.slice(0, 1) }, input("en"), META));
+  await bad("rejects a draft with no keywords", () => validateDraft({ ...fixture("en"), keywords: [] }, input("en"), META));
+  const shortMeta = validateDraft({ ...fixture("en"), metaDescription: "AI visibility explained: a description of the right sort of size for a search result page, but a little longer than the target of one hundred fifty-eight characters." }, input("en"), META);
+  check("a description above the target but under the hard limit is accepted and flagged", shortMeta.seo.checks.find((c) => c.id === "meta-description-length")?.ok === false, String(shortMeta.metaDescription.length));
+
   const hebrewSlug = validateDraft({ ...fixture("he"), slug: "עברית" }, input("he"), META);
   check("falls back gracefully when the slug is unusable", hebrewSlug.slug === "" || /^[a-z0-9-]+$/.test(hebrewSlug.slug));
+
+  console.log("\nSEO assistant (hand-written posts)");
+  {
+    const enFix = fixture("en");
+    const blocks = enFix.blocks.map((b) => (b.type === "heading" ? { type: "heading", props: { level: 2 }, content: [{ type: "text", text: b.text, styles: {} }] } : b.type === "bullet_list" ? null : { type: "paragraph", content: [{ type: "text", text: b.text, styles: {} }] })).filter(Boolean) as { type: string }[];
+    const base = (over: Partial<OptimizeInput> = {}): OptimizeInput => ({ mode: "optimize", language: "en", title: "Why rankings are not enough", slug: "", excerpt: "", category: "", tags: "", metaTitle: "", metaDescription: "", keywords: "", faq: [], blocks, ...over });
+    const good = {
+      focusKeyword: "AI visibility",
+      metaTitle: "AI visibility: why Google rankings are not enough",
+      metaDescription: "AI visibility explained: why a top Google ranking no longer shows how buyers find a business, and a simple weekly check of what AI engines say.",
+      excerpt: "Why Google rankings alone no longer show how buyers find a business, and a simple way to check what AI engines say about yours.",
+      keywords: ["AI visibility", "google rankings", "ai search engines", "brand mentions"],
+      tags: ["AI visibility", "reputation", "search"],
+      category: "AI visibility",
+      slug: "ai-visibility-vs-google-rankings",
+      faq: enFix.faq,
+      suggestedIntro: "AI visibility is how often AI engines name your business when a buyer asks who to choose. A top Google ranking does not guarantee it, so check both surfaces every week.",
+      advice: ["The opening paragraph is long; replace it with the suggested intro.", "Rename the first heading to a question people search for."],
+    };
+    const ok = (over: Record<string, unknown> = {}, input = base()) => validateOptimized({ ...good, ...over }, input, META);
+    const rejects = (name: string, over: Record<string, unknown>, re: RegExp) => {
+      try {
+        ok(over);
+        check(name, false, "accepted");
+      } catch (e) {
+        check(name, e instanceof GenerationError && e.code === "invalid_output" && re.test(e.message), e instanceof Error ? e.message : String(e));
+      }
+    };
+
+    const r = ok();
+    check("a complete result is accepted with a before and after score", r.after.score > r.before.score && r.keywords.startsWith("AI visibility"));
+    check("the result carries the intro suggestion and advice", r.suggestedIntro.length > 0 && r.advice.length === 2);
+    rejects("a meta title without the focus keyword is rejected", { metaTitle: "A completely unrelated headline about cooking" }, /focus keyword/);
+    rejects("a meta title over 70 characters is rejected", { metaTitle: "AI visibility " + "x".repeat(70) }, /meta title/);
+    rejects("a meta description under 100 characters is rejected", { metaDescription: "Too short." }, /meta description/);
+    rejects("fewer than 3 FAQ entries is rejected", { faq: enFix.faq.slice(0, 1) }, /FAQ/);
+    rejects("the wrong language is rejected", { metaTitle: "נראות בבינה מלאכותית: למה דירוג בגוגל כבר לא מספיק", metaDescription: "כך תבינו למה דירוג בגוגל לבדו כבר לא מראה איך לקוחות מוצאים עסק, ואיך בודקים בדרך פשוטה מה מנועי בינה מלאכותית אומרים.", excerpt: "למה דירוג בגוגל כבר לא מראה איך לקוחות מוצאים עסק, ואיך בודקים בדרך פשוטה מה מנועי בינה מלאכותית אומרים עליכם.", focusKeyword: "נראות בבינה מלאכותית", keywords: ["נראות בבינה מלאכותית"], faq: fixture("he").faq }, /language/);
+    check("em dashes are cleaned, not shipped", !/[\u2014\u2015]/.test(ok({ excerpt: good.excerpt + " \u2014 really" }).excerpt));
+    check("a FAQ question without a question mark gets one", ok({ faq: enFix.faq.map((f) => ({ ...f, question: f.question.replace("?", "") })) }).faq.every((f) => f.question.endsWith("?")));
+    check("an unusable slug falls back to the keyword", ok({ slug: "!!!" }).slug === "ai-visibility");
+    check("an absurdly long suggested intro is rejected", (() => { try { ok({ suggestedIntro: "word ".repeat(200) }); return false; } catch (e) { return e instanceof GenerationError; } })());
+    check("an empty suggested intro is allowed (the article already opens well)", ok({ suggestedIntro: "" }).suggestedIntro === "");
+
+    // Merge rules: what the author typed survives, and a live URL never moves.
+    const empty = { slug: "", excerpt: "", category: "", tags: "", meta_title: "", meta_description: "", keywords: "", faq: [] as { question: string; answer: string }[] };
+    const typed = { slug: "my-own-url", excerpt: "My excerpt", category: "Mine", tags: "a, b", meta_title: "My meta title", meta_description: "My meta description", keywords: "mine", faq: [{ question: "Mine?", answer: "Mine." }] };
+    const filled = applyOptimized("autocomplete", empty, r, { slugLocked: false });
+    check("autocomplete fills every empty field", !!filled.slug && !!filled.excerpt && !!filled.category && !!filled.tags && !!filled.meta_title && !!filled.meta_description && !!filled.keywords && filled.faq.length >= 3);
+    const kept = applyOptimized("autocomplete", typed, r, { slugLocked: true });
+    check("autocomplete keeps everything the author typed", JSON.stringify(kept) === JSON.stringify(typed));
+    const partial = applyOptimized("autocomplete", { ...typed, meta_title: "", faq: [] }, r, { slugLocked: true });
+    check("autocomplete fills only the missing pieces", partial.meta_title === r.metaTitle && partial.faq.length === r.faq.length && partial.excerpt === "My excerpt");
+    const opt = applyOptimized("optimize", typed, r, { slugLocked: true });
+    check("optimize replaces the search fields", opt.meta_title === r.metaTitle && opt.meta_description === r.metaDescription && opt.excerpt === r.excerpt && opt.keywords === r.keywords && opt.faq.length === r.faq.length);
+    check("optimize keeps the author's category and tags", opt.category === "Mine" && opt.tags === "a, b");
+    check("optimize never changes an existing or locked URL", opt.slug === "my-own-url" && applyOptimized("optimize", { ...typed, slug: "" }, r, { slugLocked: true }).slug === "");
+    check("optimize sets the URL of a new post only while it is empty and unlocked", applyOptimized("optimize", empty, r, { slugLocked: false }).slug === r.slug);
+
+    // Input rules
+    const bad = (raw: unknown) => { try { validateOptimizeInput(raw); return false; } catch (e) { return e instanceof GenerationError && e.code === "invalid_input"; } };
+    check("asks for a title first", bad({ ...base(), title: "" }));
+    check("asks for some article text first", bad({ ...base(), blocks: [] }) && MIN_WORDS_TO_OPTIMIZE >= 50);
+    check("rejects an unknown mode and language", bad({ ...base(), mode: "rewrite" }) && bad({ ...base(), language: "xx" }));
+    check("a valid request passes", validateOptimizeInput(base()).mode === "optimize");
+    const prompt = buildOptimizePrompt(base());
+    check("the request carries the language's search behaviour and the article", prompt.user.includes(SEARCH_NOTES.en) && prompt.user.includes("<article>") && prompt.user.includes("Why rankings"));
+    check("the system prompt forbids rewriting or inventing", /Never add facts/.test(prompt.system) && /do not rewrite their article/i.test(prompt.system));
+    check("article text is treated as data, not instructions", /never instructions/.test(prompt.system));
+
+    // Scripted client: one bad answer is retried with feedback; the key never appears
+    const reply = (o: unknown) => ({ model: "fake", stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 20 }, content: [{ type: "text", text: JSON.stringify(o) }] });
+    const steps: unknown[] = [reply({ ...good, metaTitle: "Unrelated cooking headline" }), reply(good)];
+    const seen: string[] = [];
+    const client = { messages: { create: async (p: { messages: { content: string }[] }) => { seen.push(p.messages[0].content); return steps.shift() as never; } } } as unknown as Anthropic;
+    const out: OptimizeResult = await optimizePost(client, base(), { sdk: Anthropic, attempts: 2 });
+    check("a rejected answer is retried once with the reason", out.metaTitle === good.metaTitle && seen.length === 2 && seen[1].includes("rejected") && out.usage.inputTokens === 20);
+    const failing = { messages: { create: async () => reply({ ...good, metaTitle: "Unrelated cooking headline" }) as never } } as unknown as Anthropic;
+    check("after the last attempt the error reaches the editor", (await throwsCode(() => optimizePost(failing, base(), { sdk: Anthropic, attempts: 2 }), "invalid_output")) === "");
+  }
 
   console.log("\nError mapping");
   const gen = (status: number, type: string, headers?: Record<string, string>, detail = "provider detail sk-ant-SECRET") =>

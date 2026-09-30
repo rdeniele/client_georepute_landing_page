@@ -8,6 +8,8 @@ import { slugify } from "@/lib/utils/slug";
 import { formatBytes } from "@/lib/utils/format";
 import { DraftGenerator } from "./DraftGenerator";
 import { FaqEditor } from "./FaqEditor";
+import { SeoAssistant } from "./SeoAssistant";
+import type { FormSeoFields } from "@/lib/blog/optimize";
 import { BLOG_LANGUAGES, type GeneratedDraft } from "@/lib/blog/generation";
 import { POST_LOCALES, blogPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { ContentBlock, PostFormValues } from "@/types/posts";
@@ -94,6 +96,10 @@ export function PostForm({
       excerpt: draft.excerpt,
       category: draft.category,
       tags: draft.tags,
+      meta_title: draft.metaTitle,
+      meta_description: draft.metaDescription,
+      keywords: draft.keywords,
+      faq: draft.faq,
       locale: toPostLocale(draft.language),
       content_blocks: draft.blocks as ContentBlock[],
     }));
@@ -162,6 +168,28 @@ export function PostForm({
         />
         <span className="admin-field__hint">Short summary shown on the blog listing and in search results.</span>
       </div>
+
+      <SeoAssistant
+        language={values.locale}
+        fields={{
+          title: values.title,
+          slug: values.slug,
+          excerpt: values.excerpt,
+          category: values.category,
+          tags: values.tags,
+          meta_title: values.meta_title,
+          meta_description: values.meta_description,
+          keywords: values.keywords,
+          faq: values.faq,
+        }}
+        blocks={values.content_blocks}
+        slugLocked={slugTouched}
+        onApply={(next: FormSeoFields) => {
+          setValues((current) => ({ ...current, ...next }));
+          // A URL the assistant chose for a brand-new post stays editable, and stops following the title once set.
+          if (next.slug !== values.slug) setSlugTouched(true);
+        }}
+      />
 
       <fieldset className="admin-field" style={{ border: 0, padding: 0 }}>
         <legend className="admin-section-title">Search engines</legend>

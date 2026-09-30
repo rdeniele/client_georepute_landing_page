@@ -133,12 +133,51 @@ At topic level the queue also shows *Generated* (canonical article done, transla
   (constant-time, fails closed, does not say why it refused). Nothing else in the app uses that key.
 - Topic text is treated as material to write about, never as instructions. Imported cells are stripped of control and bidi characters.
 
+## SEO, GEO and AEO
+
+Every article (automated or written with the editor's "Generate with Claude") is built to the same standard, taken from the
+audit rubric in `.claude/skills/seo-geo-aeo/SKILL.md`. The rules live in code, in `lib/blog/seo.ts`, not in the editable prompt:
+the playbook is appended to every request, so saving a custom system prompt cannot switch it off.
+
+- **What the writer is told.** Primary keyword (`keywords[0]`, adapted to how people in that language really search, never
+  translated literally) in the title, meta title, meta description, first sentence and an H2; meta title at most 60
+  characters, meta description 120 to 158; an answer-first opening paragraph of 25 to 80 words; a plain "X is ..." definition;
+  question-form H2s whose first sentence answers them in 40 to 60 words; a list; 3 to 5 key takeaways right after the opening;
+  an FAQ of real follow-up questions with direct answers; consistent entity names; no invented statistics. Each language also
+  gets its own note on how people ask questions in it (`SEARCH_NOTES`: Hebrew איך/מה/למה, Arabic كيف/ما هو, Russian как/что такое,
+  French comment/qu'est-ce que, Spanish ¿cómo/qué es?, Portuguese como/o que é).
+- **What forces a rewrite** (the model is told why and tries again): meta title over 70 characters or without the primary keyword,
+  meta description outside 100 to 175 characters, fewer than 3 key takeaways. The localizer's SEO-field call is held to the same
+  keyword and length rules. Keyword matching is stem-based, so Russian cases, French/Spanish/Portuguese plurals and Hebrew/Arabic
+  prefixes do not cause false failures.
+- **What is only flagged.** The publish gate adds a warning (never a blocker) for each failed check: meta lengths, keyword
+  placement, opening paragraph length, heading order, question headings, a list, an FAQ, related keywords.
+- **What the public page adds.** Title tag, description, canonical and hreflang per language; Open Graph article tags with a
+  share-image fallback; `max-image-preview:large` and unlimited snippets for search and AI answers; BlogPosting JSON-LD (absolute
+  URLs, publisher with logo, author or the organization, language, word count, section, speakable), BreadcrumbList and FAQPage;
+  heading anchors that work in Hebrew, Arabic and Cyrillic; a collapsed table of contents; three related posts (internal
+  links); `lang`/`dir` on the article; image alt text.
+- **Discovery.** Every post lists all its language versions in `sitemap.xml` (hreflang), each language has its own blog index
+  entry, and each language has an RSS feed at `/blog/feed.xml?lang=xx`.
+
+**Posts written by hand.** The post editor has an **SEO assistant** (`components/admin/SeoAssistant.tsx`, logic in
+`lib/blog/optimize.ts`). *Autocomplete empty fields* fills only the blank search boxes; *Optimize for search* rewrites meta
+title, meta description, excerpt, keywords and FAQ (category and tags only if empty). It reads the article but never edits it,
+never changes a URL that already exists, shows the SEO score before and after, offers a suggested answer-first opening
+paragraph to paste in, lists what to change in the text, and has **Undo** until the post is saved. It needs a title and about 80
+words of article, is admin-only and limited to 30 runs an hour.
+
+Google restricts FAQ *rich results* to a few kinds of sites, so do not expect FAQ dropdowns in Google results. The FAQ markup still
+helps AI engines and answer boxes read the page, and the FAQ is visible to readers.
+
 ## Where the code is
 
 | | |
 |---|---|
 | `lib/blog/automation/config.ts` | Settings type, defaults, clamping, "what this means" workload text |
 | `lib/blog/automation/schedule.ts` | Time zones, publish slots, planning window, language rotation |
+| `lib/blog/seo.ts` | SEO / GEO / AEO playbook, per-language search notes, keyword matching, heading anchors, SEO scoring |
+| `lib/blog/structuredData.ts` | JSON-LD builders, absolute URLs, title tag rules |
 | `lib/blog/automation/prompt.ts` | Default prompt, article JSON schema, allowed links |
 | `lib/blog/automation/article.ts` | Canonical article: call, validation, retry with feedback |
 | `lib/blog/automation/localize.ts` | Localization: body/FAQ/CTA via the translator, per-language SEO fields, link rewriting |
@@ -154,7 +193,7 @@ At topic level the queue also shows *Generated* (canonical article done, transla
 
 ## Tests
 
-`npm run automation:check` runs 202 offline checks with an in-memory store and a scripted model (no database, no API, no cost):
+`npm run automation:check` runs 270 offline checks with an in-memory store and a scripted model (no database, no API, no cost):
 scheduling maths across time zones and DST, planning, both language modes, dynamic languages, retries and back-off, systemic
 errors, expired leases, the publish gate, review, pause and resume, one-language regeneration (no wasted calls), topic import,
 article and SEO validation, localization of body/FAQ/CTA/links, and static checks on secrets and admin guards.

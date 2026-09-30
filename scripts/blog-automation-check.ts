@@ -26,9 +26,14 @@ import { addDays, assignTopics, dateInZone, daySlots, planLocales, planWindow, z
 import { csvToTopics, parseCsv, rowsToTopics, cleanTopic } from "@/lib/blog/automation/topics";
 import { ARTICLE_JSON_SCHEMA, DEFAULT_SYSTEM_PROMPT, allowedLinks, buildArticlePrompt, isAllowedLinkFor, parseLinkRules } from "@/lib/blog/automation/prompt";
 import { generateArticle, validateArticle, type GeneratedArticle } from "@/lib/blog/automation/article";
-import { faqToBlocks, blocksToFaq, localizeArticle, rewriteLocalePaths, validateSeo, type LocalizedArticle } from "@/lib/blog/automation/localize";
+import { faqToBlocks, blocksToFaq, localizeArticle, rewriteLocalePaths, seoSystem, validateSeo, type LocalizedArticle } from "@/lib/blog/automation/localize";
 import { createUnsplashFinder, creditFor, type ImageFinder } from "@/lib/blog/automation/images";
 import { findPlaceholders, validateForPublish, type PublishCandidate, type ValidationOptions } from "@/lib/blog/automation/validate";
+import { SEARCH_NOTES, SEO_LIMITS, analyzeSeo, headingId, mentions, outline, seoPlaybook, uniqueIds } from "@/lib/blog/seo";
+import { BlockRenderer } from "@/components/blog/BlockRenderer";
+import { buildIndexJsonLd, buildPostJsonLd, postTitleTag, safeJsonLd, xmlEscape } from "@/lib/blog/structuredData";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
 import {
   approveVariant,
   backoffSeconds,
@@ -302,15 +307,17 @@ function rawArticle(over: Raw = {}): Raw {
     excerpt: "A practical look at how local businesses show up on Google and in AI answers, with the small fixes that matter most.",
     category: "Local SEO",
     tags: ["local seo", "visibility"],
-    keywords: ["local business visibility", "google business profile", "local seo tips"],
+    keywords: ["local business visibility", "google business profile", "local seo tips", "google maps ranking"],
+    keyTakeaways: ["Complete every field of the business profile", "Reply to the latest reviews within a few days", "Keep the name, address and phone number identical everywhere"],
+    takeawaysHeading: "Key points to remember",
     blocks: [
       { type: "paragraph", level: 0, text: `Local business visibility starts with the profile people see first. ${para(3)}`, items: [] },
-      { type: "heading", level: 2, text: "Why the first impression matters", items: [] },
+      { type: "heading", level: 2, text: "Why local business visibility depends on the first impression", items: [] },
       { type: "paragraph", level: 0, text: para(4, 1), items: [] },
       { type: "heading", level: 2, text: "What to fix first", items: [] },
       { type: "bullet_list", level: 0, text: "", items: ["Complete every field of the profile", "Reply to the latest reviews", "Match the name and phone number everywhere"] },
       { type: "paragraph", level: 0, text: `${para(4, 2)} Read our [methodology](${NAV_LINK}) for the full approach.`, items: [] },
-      { type: "heading", level: 2, text: "How to keep it consistent", items: [] },
+      { type: "heading", level: 2, text: "How do you keep it consistent?", items: [] },
       { type: "paragraph", level: 0, text: para(5, 3), items: [] },
       { type: "heading", level: 2, text: "Measuring progress", items: [] },
       { type: "paragraph", level: 0, text: para(5, 4), items: [] },
@@ -536,7 +543,103 @@ async function main() {
     check("FAQ 'never' drops the FAQ", validate(rawArticle(), { ...baseReq, config: { ...DEFAULT_SETTINGS.config, faq: "never" as const } } as never).faq.length === 0);
     check("a question with no real answer is dropped", validate(rawArticle({ faq: [{ question: "What is this about exactly?", answer: "Short." }, ...(rawArticle().faq as Raw[])] })).faq.length === 3);
     check("non-object output is rejected", throwsMsg(() => validate("nope" as never), /not an object/));
-    check("the schema lists every field the validator reads", ["metaTitle", "metaDescription", "slug", "faq", "cta", "keywords", "imageConcept", "requiredSections"].every((k) => (ARTICLE_JSON_SCHEMA.required as readonly string[]).includes(k)));
+    check("the schema lists every field the validator reads", ["metaTitle", "metaDescription", "slug", "faq", "cta", "keywords", "imageConcept", "requiredSections", "keyTakeaways", "takeawaysHeading"].every((k) => (ARTICLE_JSON_SCHEMA.required as readonly string[]).includes(k)));
+  }
+
+  section("SEO / GEO / AEO: what the generator must deliver");
+  {
+    const ok = validate(rawArticle());
+    const headingTexts = ok.blocks.filter((b) => b.type === "heading").map((b) => JSON.stringify(b.content));
+    check("key takeaways sit right after the opening paragraph, under their own heading", ok.blocks[0].type === "paragraph" && ok.blocks[1].type === "heading" && JSON.stringify(ok.blocks[1].content).includes("Key points to remember") && ok.blocks[2].type === "bulletListItem" && ok.blocks[4].type === "bulletListItem" && ok.blocks[5].type !== "bulletListItem");
+    check("the article still ends with the call to action", headingTexts.at(-1)?.includes("See how your business looks today") === true);
+    check("fewer than 3 key takeaways is rejected (the model is asked again)", throwsMsg(() => validate(rawArticle({ keyTakeaways: ["Only one point here"] })), /key takeaways/));
+    check("a missing takeaways heading is rejected", throwsMsg(() => validate(rawArticle({ takeawaysHeading: "" })), /takeaways heading/));
+    check("a meta title without the primary keyword is rejected", throwsMsg(() => validate(rawArticle({ metaTitle: "A completely different subject about cooking" })), /primary keyword/));
+    check("...but an inflected form of the keyword passes (stem matching)", validate(rawArticle({ metaTitle: "Improving local businesses visibility on Google" })).metaTitle.length > 0);
+    check("a meta description under 100 characters is rejected", throwsMsg(() => validate(rawArticle({ metaDescription: "Too short to be a real description." })), /meta description/));
+    check("the result carries an advisory SEO report", ok.seo.score > 0 && ok.seo.checks.length >= 10);
+    check("a good article passes the length, keyword and FAQ checks", ["meta-title-length", "meta-description-length", "kw-meta-title", "kw-title", "kw-intro", "list", "faq", "faq-questions", "heading-order"].every((id) => ok.seo.checks.find((c) => c.id === id)?.ok));
+    check("takeaway bullets accept only whitelisted links", !JSON.stringify(validate(rawArticle({ keyTakeaways: ["See [this](https://evil.example/x) guide", "Second useful point to keep", "Third useful point to keep"] })).blocks).includes("evil.example"));
+
+    // The playbook is injected in code, so an admin-saved system prompt cannot remove it.
+    const customPrompt = buildArticlePrompt({ ...baseReq, config: { ...DEFAULT_SETTINGS.config, systemPrompt: "Write short blog posts." } } as never);
+    check("the SEO playbook is in the request even when the admin replaced the system prompt", customPrompt.system === "Write short blog posts." && customPrompt.user.includes("<seo_playbook>") && customPrompt.user.includes("keyTakeaways"));
+    check("the default system prompt points at the playbook and asks for takeaways", DEFAULT_SYSTEM_PROMPT.includes("seo_playbook") && DEFAULT_SYSTEM_PROMPT.includes("keyTakeaways"));
+    for (const lang of LOCALES) {
+      const book = seoPlaybook(lang);
+      check(`${lang}: the playbook carries that language's search behaviour`, !!SEARCH_NOTES[lang] && book.includes(SEARCH_NOTES[lang]));
+      check(`${lang}: the request is built with the playbook`, buildArticlePrompt({ ...baseReq, language: lang } as never).user.includes(SEARCH_NOTES[lang]));
+    }
+    check("the playbook states the real limits", seoPlaybook("en").includes(String(SEO_LIMITS.metaTitle.target)) && seoPlaybook("en").includes(String(SEO_LIMITS.metaDescription.target)));
+
+    // Inflection and script tolerance (the reason keyword checks use stems)
+    check("stem match: Hebrew prefix (ב) on the keyword", mentions("איך משפרים ביקורות לקוחות בגוגל", "בביקורות לקוחות") || mentions("בביקורות לקוחות", "ביקורות לקוחות"));
+    check("stem match: Russian case ending", mentions("Как провести аудита репутации", "аудит репутации"));
+    check("stem match: French accent and plural", mentions("Les audits de réputation en ligne", "audit reputation"));
+    check("stem match: word order is free", mentions("Auditing your reputation", "reputation audit"));
+    check("stem match: an unrelated text does not match", !mentions("Recipes for the weekend", "reputation audit"));
+    check("an empty keyword never matches", !mentions("anything", ""));
+  }
+
+  section("SEO: anchors, table of contents, structured data");
+  {
+    check("heading ids are real anchors in Hebrew, Arabic and Russian", headingId("איך בודקים מה אומרים עליכם?") === "איך-בודקים-מה-אומרים-עליכם" && headingId("كيف تعمل؟") === "كيف-تعمل" && headingId("Что такое аудит?") === "что-такое-аудит");
+    check("a heading with no letters still gets an id", headingId("???") === "section");
+    const next = uniqueIds();
+    check("repeated headings get unique ids", next("FAQ") === "faq" && next("FAQ") === "faq-2" && next("faq") === "faq-3");
+    const doc = validate(rawArticle()).blocks;
+    const html = renderToStaticMarkup(createElement(BlockRenderer, { blocks: doc as ContentBlock[] }));
+    const ids = [...html.matchAll(/<h2 id="([^"]+)"/g)].map((m) => m[1]);
+    check("the renderer puts an id on every H2", ids.length === doc.filter((b) => b.type === "heading").length);
+    check("the table of contents links resolve to those exact ids", outline(doc as never).every((o) => ids.includes(o.id)));
+    check("the table of contents lists the article's H2s in order", outline(doc as never).map((o) => o.id).join() === ids.join());
+
+    const ld = buildPostJsonLd({
+      path: "/blog/local-visibility?lang=he",
+      title: "כותרת",
+      description: "תיאור",
+      locale: "he",
+      publishedAt: "2026-09-01T09:00:00Z",
+      modifiedAt: "2026-09-02T09:00:00Z",
+      image: null,
+      authorName: null,
+      category: "SEO",
+      keywords: ["a", "b"],
+      wordCount: 900,
+      breadcrumb: [{ name: "בלוג", path: "/blog?lang=he" }],
+      faq: [{ question: "שאלה?", answer: "תשובה." }, { question: "", answer: "x" }],
+    }) as Record<string, unknown>[];
+    const article = ld[0] as Record<string, unknown>;
+    check("BlogPosting: absolute url and @id", String(article.url).startsWith("https://") && String(article["@id"]).endsWith("#article"));
+    check("BlogPosting: publisher organization with a logo", JSON.stringify(article.publisher).includes('"Organization"') && JSON.stringify(article.publisher).includes("/icon.png"));
+    check("BlogPosting: with no named author the organization is the author", JSON.stringify(article.author).includes('"Organization"'));
+    check("BlogPosting: image always exists (falls back to the share image)", JSON.stringify(article.image).includes("opengraph-image.png"));
+    check("BlogPosting: language, word count, section and speakable", article.inLanguage === "he" && article.wordCount === 900 && article.articleSection === "SEO" && JSON.stringify(article.speakable).includes("SpeakableSpecification"));
+    check("BreadcrumbList: blog index then the post, with absolute urls", JSON.stringify(ld[1]).includes("https://") && (ld[1] as { itemListElement: unknown[] }).itemListElement.length === 2);
+    check("FAQPage: only complete question and answer pairs", (ld[2] as { mainEntity: unknown[] }).mainEntity.length === 1);
+    check("no FAQ, no FAQPage", buildPostJsonLd({ path: "/blog/x", title: "t", description: "d", locale: "en", publishedAt: null, modifiedAt: "2026-01-01", image: null, authorName: "A B", category: null, keywords: [], wordCount: 0, breadcrumb: [], faq: [] }).length === 2);
+    check("a named author becomes a Person", JSON.stringify((buildPostJsonLd({ path: "/blog/x", title: "t", description: "d", locale: "en", publishedAt: null, modifiedAt: "2026-01-01", image: "https://img.example/a.jpg", authorName: "A B", category: null, keywords: [], wordCount: 0, breadcrumb: [], faq: [] })[0] as Record<string, unknown>).author).includes('"Person"'));
+    check("JSON-LD can never close its script tag", !safeJsonLd({ x: "</script><script>alert(1)</script>" }).includes("</script>"));
+    check("collection JSON-LD lists the posts", JSON.stringify(buildIndexJsonLd({ path: "/blog", name: "Blog", description: "d", locale: "en", posts: [{ path: "/blog/a", title: "A" }] })).includes("ItemList"));
+    check("title tag: an authored meta title is used as is", postTitleTag({ title: "T", meta_title: "Meta" }) === "Meta");
+    check("title tag: brand is added only while it still fits a search result", postTitleTag({ title: "Short title", meta_title: null }) === "Short title | GeoRepute" && postTitleTag({ title: "x".repeat(55), meta_title: null }) === "x".repeat(55));
+    check("feed text is XML-escaped", xmlEscape(`A & B <c> "d"`) === "A &amp; B &lt;c&gt; &quot;d&quot;");
+  }
+
+  section("SEO: the publish gate reports what to improve");
+  {
+    const opts: ValidationOptions = { isAllowedLink: () => true, faqRequired: true };
+    const good = validate(rawArticle());
+    const cand = (over: Partial<PublishCandidate> = {}): PublishCandidate => ({ locale: "en", slug: good.slug, title: good.title, excerpt: good.excerpt, metaTitle: good.metaTitle, metaDescription: good.metaDescription, keywords: good.keywords, category: good.category, blocks: good.blocks as ContentBlock[], faq: good.faq, ...over });
+    const seoWarn = validateForPublish(cand(), opts).filter((i) => i.code.startsWith("seo_"));
+    check("a well-optimized article has no SEO warnings", seoWarn.length === 0, seoWarn.map((i) => i.message).join(" | "));
+    const weak = validateForPublish(cand({ metaTitle: "x".repeat(66), metaDescription: "y".repeat(140) + " local business visibility", keywords: ["cooking"] }), opts);
+    check("SEO problems are warnings, never blockers", weak.some((i) => i.code.startsWith("seo_")) && weak.filter((i) => i.code.startsWith("seo_")).every((i) => i.severity === "warning"));
+    check("an over-long meta title and a missing keyword are both named", weak.some((i) => i.code === "seo_meta_title_length") && weak.some((i) => i.code === "seo_kw_meta_title"));
+    const noFaq = validateForPublish(cand({ faq: [] }), { ...opts, faqRequired: false });
+    check("no FAQ is reported as an SEO warning", noFaq.some((i) => i.code === "seo_faq" && i.severity === "warning"));
+    const report = analyzeSeo({ title: good.title, metaTitle: good.metaTitle, metaDescription: good.metaDescription, keywords: good.keywords, blocks: good.blocks, faq: good.faq });
+    check("analyzeSeo is deterministic", JSON.stringify(report) === JSON.stringify(good.seo));
   }
 
   section("Generation: retries and error mapping (scripted client)");
@@ -669,6 +772,10 @@ async function main() {
       const retried = await localizeArticle(client, src, opts);
       check("unusable SEO fields are retried once with feedback", retried.slug === seoOk.slug && seoCalls.at(-1)!.includes("rejected"));
     }
+    check("localized SEO: a meta title without the main search phrase is rejected", (() => { try { validateSeo({ ...seoOk, metaTitle: "כותרת שאינה קשורה לנושא בכלל" }, "he", "x"); return false; } catch (e) { return e instanceof GenerationError && /main search phrase/.test(e.message); } })());
+    check("localized SEO: a Hebrew prefix on the phrase still counts", validateSeo({ ...seoOk, metaTitle: "כך משפרים את הנראות של עסק מקומי" , keywords: ["בנראות עסק מקומי", ...seoOk.keywords] }, "he", "x").keywords.length === 4);
+    check("localized SEO: a meta description under 100 characters is rejected", (() => { try { validateSeo({ ...seoOk, metaDescription: "קצר מדי" }, "he", "x"); return false; } catch (e) { return e instanceof GenerationError && /meta description/.test(e.message); } })());
+    for (const lang of LOCALES) check(`${lang}: the SEO-field writer is told how people search in that language`, seoSystem(lang).includes(SEARCH_NOTES[lang]) && seoSystem(lang).includes("keywords[0]"));
     check("blocksToFaq / faqToBlocks round-trip", blocksToFaq(faqToBlocks(article.faq) as never).length === 3);
     check("a non-Latin slug with no Latin fallback is rejected (so the model is asked again)", (() => { try { validateSeo({ ...seoOk, slug: "עברית" }, "he", "איך משפרים נראות"); return false; } catch (e) { return e instanceof GenerationError && /slug/.test(e.message); } })());
     check("a good Latin slug is kept, an accented one is folded", validateSeo({ ...seoOk, slug: "Visibilidad-Négocio Local" }, "he", "x").slug === "visibilidad-negocio-local");

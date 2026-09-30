@@ -148,7 +148,17 @@ export function DraftGenerator({
           ) : null}
           {done ? (
             <div className="admin-banner" role="status">
-              Draft ready: about {done.wordCount} words in {BLOG_LANGUAGES[done.language].name}. Review it below, then save.
+              Draft ready: about {done.wordCount} words in {BLOG_LANGUAGES[done.language].name}, with meta title, meta description, keywords, key takeaways
+              and FAQ filled in. Review it below, then save.
+              <p className="admin-field__hint">
+                SEO check: {done.seo.score}/100.
+                {done.seo.checks.some((c) => !c.ok)
+                  ? ` To improve: ${done.seo.checks
+                      .filter((c) => !c.ok)
+                      .map((c) => `${c.label}${c.detail ? ` (${c.detail})` : ""}`)
+                      .join("; ")}.`
+                  : " Every check passed."}
+              </p>
             </div>
           ) : null}
 

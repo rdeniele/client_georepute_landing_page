@@ -5,9 +5,13 @@ import { CalendarBlank, Clock, UserCircle } from "@phosphor-icons/react/ssr";
 import { Crumbs, CtaBand, PageHero } from "@/components/subpages/kit";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getPublishedAlternates, getPublishedPostBySlug } from "@/lib/services/posts";
+import { getPublishedAlternates, getPublishedPostBySlug, getRelatedPosts } from "@/lib/services/posts";
+import { PostCard } from "@/components/blog/PostCard";
+import { outline } from "@/lib/blog/seo";
+import { FALLBACK_IMAGE, OG_LOCALE, SITE_NAME, buildPostJsonLd, postTitleTag, safeJsonLd } from "@/lib/blog/structuredData";
+import { BLOG_LANGUAGES } from "@/lib/blog/generation";
 import { formatDate } from "@/lib/utils/format";
-import { blogPath, toPostLocale } from "@/lib/utils/postLocale";
+import { blogPath, feedPath, toPostLocale } from "@/lib/utils/postLocale";
 import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 import { PhotoCredit } from "@/components/blog/PhotoCredit";
@@ -63,38 +67,46 @@ export async function generateMetadata({
   } catch {
     return { title: "Blog | GeoRepute" };
   }
-  if (!post) return { title: "Post not found | GeoRepute" };
+  if (!post) return { title: "Post not found | GeoRepute", robots: { index: false, follow: false } };
 
   // The SEO fields written for this language (automation) win; posts written by hand fall back to the title and excerpt.
   const description = post.meta_description || post.excerpt || post.content.slice(0, 160);
   const languages = await loadAlternates(post);
+  const path = blogPath(post.locale, post.slug);
+  const title = postTitleTag(post);
+  const image = post.featured_image || FALLBACK_IMAGE;
+  const alternateLocale = languages ? Object.keys(languages).filter((l) => l !== post.locale && l !== "x-default").map((l) => OG_LOCALE[l] ?? l) : undefined;
 
   return {
-    title: post.meta_title || `${post.title} | GeoRepute Blog`,
+    title: { absolute: title },
     description,
     keywords: post.keywords?.length ? post.keywords : undefined,
-    alternates: { canonical: blogPath(post.locale, post.slug), ...(languages ? { languages } : {}) },
+    authors: post.author?.full_name ? [{ name: post.author.full_name }] : [{ name: SITE_NAME }],
+    alternates: { canonical: path, ...(languages ? { languages } : {}), types: { "application/rss+xml": feedPath(post.locale) } },
+    // Lets Google and AI answer engines use full-size images and longer snippets from the page.
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
     openGraph: {
       type: "article",
-      locale: post.locale,
-      title: post.meta_title || post.title,
+      siteName: SITE_NAME,
+      locale: OG_LOCALE[post.locale] ?? post.locale,
+      alternateLocale,
+      title,
       description,
-      url: blogPath(post.locale, post.slug),
-      images: post.featured_image ? [{ url: post.featured_image }] : undefined,
+      url: path,
+      images: [{ url: image, alt: post.title }],
       publishedTime: post.published_at ?? undefined,
+      modifiedTime: post.updated_at,
+      section: post.category ?? undefined,
+      tags: post.tags.length ? post.tags : undefined,
+      authors: post.author?.full_name ? [post.author.full_name] : undefined,
     },
     twitter: {
-      card: post.featured_image ? "summary_large_image" : "summary",
-      title: post.title,
+      card: "summary_large_image",
+      title,
       description,
-      images: post.featured_image ? [post.featured_image] : undefined,
+      images: [image],
     },
   };
-}
-
-/** Escapes `<` so a JSON-LD payload can't prematurely close the surrounding `<script>` tag. */
-function safeJsonLd(value: unknown) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 export default async function BlogPostPage({
@@ -141,37 +153,42 @@ export default async function BlogPostPage({
   const locale = post.locale;
   const c = getBlogChromeCopy(locale);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt ?? undefined,
-    image: post.featured_image ?? undefined,
-    datePublished: post.published_at ?? undefined,
-    dateModified: post.updated_at,
-    author: post.author?.full_name ? { "@type": "Person", name: post.author.full_name } : undefined,
-    mainEntityOfPage: blogPath(post.locale, post.slug),
-    inLanguage: post.locale,
-    keywords: post.keywords?.length ? post.keywords.join(", ") : undefined,
-  };
   const faq = (post.faq ?? []).filter((f) => f?.question && f?.answer);
-  const faqLd = faq.length
-    ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        inLanguage: post.locale,
-        mainEntity: faq.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
-      }
-    : null;
+  const path = blogPath(post.locale, post.slug);
+  const wordCount = post.content.trim().split(/\s+/).filter(Boolean).length;
+  const jsonLd = buildPostJsonLd({
+    path,
+    title: post.title,
+    description: post.meta_description || post.excerpt || post.content.slice(0, 160),
+    locale: post.locale,
+    publishedAt: post.published_at,
+    modifiedAt: post.updated_at,
+    image: post.featured_image,
+    authorName: post.author?.full_name ?? null,
+    category: post.category,
+    keywords: post.keywords ?? [],
+    wordCount,
+    breadcrumb: [{ name: c.crumb, path: blogPath(locale) }],
+    faq,
+  });
+
+  // Table of contents from the article's own H2s (same anchor ids the renderer gives them), plus the FAQ section.
+  const toc = [...outline(post.content_blocks ?? []), ...(faq.length ? [{ text: c.faqTitle, id: "post-faq" }] : [])];
+  let related: Awaited<ReturnType<typeof getRelatedPosts>> = [];
+  try {
+    related = await getRelatedPosts(await createSupabaseServerClient(), post, 3);
+  } catch {
+    // Related posts are an enhancement: never fail the article over them.
+  }
 
   return (
     <SiteShell locale={locale}>
-      <div className="kit-page blog-page">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
-        />
-        {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqLd) }} /> : null}
+      {/* lang and dir on the content itself: the document element is set from the URL path by script, which a
+          crawler reading the raw HTML of /blog/x?lang=he would otherwise see as English and left-to-right. */}
+      <div className="kit-page blog-page" lang={locale} dir={BLOG_LANGUAGES[locale].dir}>
+        {jsonLd.map((node, i) => (
+          <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(node) }} />
+        ))}
         <PageHero
           id="post"
           layout="stack"
@@ -208,12 +225,28 @@ export default async function BlogPostPage({
             {post.featured_image ? (
               <div className="blog-cover">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={post.featured_image} alt="" />
+                <img src={post.featured_image} alt={post.title} />
                 <PhotoCredit image={post.featured_image} credit={post.featured_image_credit} />
               </div>
             ) : null}
 
             <article className="blog-article">
+              {toc.length >= 3 ? (
+                // Collapsed: the answer-first opening paragraph stays the first thing a reader sees, while the jump links
+                // remain in the HTML for crawlers and for anyone who opens the list.
+                <details className="blog-toc">
+                  <summary className="t-label blog-toc__title">{c.onThisPage}</summary>
+                  <nav aria-label={c.onThisPage}>
+                    <ol>
+                      {toc.map((t) => (
+                        <li key={t.id}>
+                          <a href={`#${t.id}`}>{t.text}</a>
+                        </li>
+                      ))}
+                    </ol>
+                  </nav>
+                </details>
+              ) : null}
               <div className="blog-article__body">
                 {post.content_blocks && post.content_blocks.length > 0 ? (
                   <BlockRenderer blocks={post.content_blocks} />
@@ -243,6 +276,19 @@ export default async function BlogPostPage({
                 </div>
               ) : null}
             </article>
+
+            {related.length > 0 ? (
+              <aside className="blog-related" aria-labelledby="post-related">
+                <h2 id="post-related" className="t-h3 blog-related__title">
+                  {c.relatedTitle}
+                </h2>
+                <div className="blog-grid">
+                  {related.map((r) => (
+                    <PostCard key={r.id} post={r} />
+                  ))}
+                </div>
+              </aside>
+            ) : null}
           </div>
         </section>
 

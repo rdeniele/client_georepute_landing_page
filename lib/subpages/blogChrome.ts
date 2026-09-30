@@ -30,6 +30,8 @@ export type BlogChromeCopy = {
   faqTitle: string;
   newerPosts: string;
   olderPosts: string;
+  onThisPage: string;
+  relatedTitle: string;
 };
 
 const en: BlogChromeCopy = {
@@ -57,6 +59,8 @@ const en: BlogChromeCopy = {
   faqTitle: "Frequently asked questions",
   newerPosts: "Newer posts",
   olderPosts: "Older posts",
+  onThisPage: "On this page",
+  relatedTitle: "Keep reading",
 };
 
 const he: BlogChromeCopy = {
@@ -83,6 +87,8 @@ const he: BlogChromeCopy = {
   faqTitle: "שאלות נפוצות",
   newerPosts: "פוסטים חדשים יותר",
   olderPosts: "פוסטים ישנים יותר",
+  onThisPage: "בעמוד זה",
+  relatedTitle: "להמשך קריאה",
 };
 
 const ar: BlogChromeCopy = {
@@ -109,6 +115,8 @@ const ar: BlogChromeCopy = {
   faqTitle: "الأسئلة الشائعة",
   newerPosts: "مقالات أحدث",
   olderPosts: "مقالات أقدم",
+  onThisPage: "في هذه الصفحة",
+  relatedTitle: "تابع القراءة",
 };
 
 const ru: BlogChromeCopy = {
@@ -135,6 +143,8 @@ const ru: BlogChromeCopy = {
   faqTitle: "Часто задаваемые вопросы",
   newerPosts: "Новые записи",
   olderPosts: "Более старые записи",
+  onThisPage: "На этой странице",
+  relatedTitle: "Читайте также",
 };
 
 const fr: BlogChromeCopy = {
@@ -161,6 +171,8 @@ const fr: BlogChromeCopy = {
   faqTitle: "Questions fréquentes",
   newerPosts: "Articles plus récents",
   olderPosts: "Articles plus anciens",
+  onThisPage: "Dans cet article",
+  relatedTitle: "À lire aussi",
 };
 
 const es: BlogChromeCopy = {
@@ -187,6 +199,8 @@ const es: BlogChromeCopy = {
   faqTitle: "Preguntas frecuentes",
   newerPosts: "Artículos más recientes",
   olderPosts: "Artículos anteriores",
+  onThisPage: "En esta página",
+  relatedTitle: "Sigue leyendo",
 };
 
 const pt: BlogChromeCopy = {
@@ -213,6 +227,8 @@ const pt: BlogChromeCopy = {
   faqTitle: "Perguntas frequentes",
   newerPosts: "Artigos mais recentes",
   olderPosts: "Artigos anteriores",
+  onThisPage: "Nesta página",
+  relatedTitle: "Continue lendo",
 };
 
 const packs: Record<Locale, BlogChromeCopy> = { en, he, ar, ru, fr, es, pt };

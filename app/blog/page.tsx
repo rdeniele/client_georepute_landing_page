@@ -4,7 +4,9 @@ import { Crumbs, CtaBand, PageHero, SectionIntro } from "@/components/subpages/k
 import { PostCard } from "@/components/blog/PostCard";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPublishedCategories, getPublishedPosts } from "@/lib/services/posts";
-import { POST_LOCALES, blogPath, toPostLocale } from "@/lib/utils/postLocale";
+import { POST_LOCALES, blogPath, feedPath, toPostLocale } from "@/lib/utils/postLocale";
+import { OG_LOCALE, FALLBACK_IMAGE, SITE_NAME, buildIndexJsonLd, safeJsonLd } from "@/lib/blog/structuredData";
+import { BLOG_LANGUAGES } from "@/lib/blog/generation";
 import type { PostLocale } from "@/types/posts";
 import { getBlogChromeCopy } from "@/lib/subpages/blogChrome";
 
@@ -25,10 +27,21 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const c = getBlogChromeCopy(locale);
   // Each language is its own index page, so it is its own canonical page and lists the others as alternates.
   const languages = Object.fromEntries(POST_LOCALES.map((l) => [l, blogPath(l)]));
+  const canonical = categoryHref(locale, category, pageNumber(page));
   return {
-    title: c.metaTitle,
+    title: { absolute: c.metaTitle },
     description: c.metaDescription,
-    alternates: { canonical: categoryHref(locale, category, pageNumber(page)), languages: { ...languages, "x-default": blogPath("en") } },
+    alternates: { canonical, languages: { ...languages, "x-default": blogPath("en") }, types: { "application/rss+xml": feedPath(locale) } },
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: OG_LOCALE[locale] ?? locale,
+      title: c.metaTitle,
+      description: c.metaDescription,
+      url: canonical,
+      images: [{ url: FALLBACK_IMAGE, width: 1200, height: 630, alt: c.metaTitle }],
+    },
+    twitter: { card: "summary_large_image", title: c.metaTitle, description: c.metaDescription, images: [FALLBACK_IMAGE] },
   };
 }
 
@@ -62,7 +75,23 @@ export default async function BlogIndexPage({
 
   return (
     <SiteShell locale={locale}>
-      <div className="kit-page blog-page">
+      <div className="kit-page blog-page" lang={locale} dir={BLOG_LANGUAGES[locale].dir}>
+        {!loadFailed && visiblePosts.length > 0 ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: safeJsonLd(
+                buildIndexJsonLd({
+                  path: categoryHref(locale, category, page),
+                  name: c.metaTitle,
+                  description: c.metaDescription,
+                  locale,
+                  posts: visiblePosts.map((p) => ({ path: blogPath(p.locale, p.slug), title: p.title })),
+                }),
+              ),
+            }}
+          />
+        ) : null}
         <PageHero
           id="blog"
           layout="stack"

@@ -462,7 +462,7 @@ async function offline() {
 
   console.log("\nRendering the translated blocks through the public renderer");
   const html = renderToStaticMarkup(createElement(BlockRenderer, { blocks: heCandidate().blocks as ContentBlock[] }));
-  check("headings, lists, bold and the link render", /<h2>/.test(html) && /<ul>/.test(html) && /<strong>/.test(html) && html.includes(`href="${LINK}"`));
+  check("headings, lists, bold and the link render", /<h2[ >]/.test(html) && /<ul>/.test(html) && /<strong>/.test(html) && html.includes(`href="${LINK}"`));
   check("the rendered link text is translated and the URL is unchanged", html.includes("דף המתודולוגיה שלנו") && linksIn(inlineToMarkup(collectUnits(heCandidate().blocks)[2].markup ? collectUnits(heCandidate().blocks)[2].block.content : "")).join() === LINK);
   check("no markup leaks into the visible text", !/\*\*|__|~~|undefined/.test(html.replace(/<[^>]+>/g, "")));
 }

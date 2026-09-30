@@ -21,3 +21,8 @@ export function blogPath(locale: PostLocale, slug?: string, extra?: Record<strin
   const qs = params.toString();
   return `${slug ? `/blog/${slug}` : "/blog"}${qs ? `?${qs}` : ""}`;
 }
+
+/** RSS feed for one language. English has no query string, like every other blog URL. */
+export function feedPath(locale: PostLocale): string {
+  return locale === "en" ? "/blog/feed.xml" : `/blog/feed.xml?lang=${locale}`;
+}

@@ -8,6 +8,7 @@
  */
 import { localizeNav, localizePath } from "@/lib/i18n";
 import { BLOG_LANGUAGES, BLOG_LENGTHS, type BlogLanguage } from "@/lib/blog/generation";
+import { seoPlaybook } from "@/lib/blog/seo";
 import type { ContentConfig } from "./config";
 
 export const DEFAULT_SYSTEM_PROMPT = `You write blog articles for GeoRepute, a business intelligence platform that shows businesses and agencies how they are seen by Google and by AI engines, and what to do about it. You write as a senior SEO content strategist at a professional content agency, not as a generic AI assistant.
@@ -41,7 +42,9 @@ SEO
 - metaTitle: at most 60 characters, natural language, contains the primary keyword. metaDescription: 120 to 158 characters, a specific promise, not a repeat of the title. excerpt: a plain summary of 120 to 220 characters for listing pages.
 - slug: lowercase Latin letters, digits and hyphens only, 3 to 8 words, built from the primary keyword. In every language, including Hebrew, Arabic and Russian, transliterate or use the keyword's Latin form.
 - keywords: the primary keyword first, then 3 to 8 semantically related search phrases and synonyms in the article's own language, the kind a topical SEO brief would list, not near-duplicates of the primary keyword.
-- faq: real questions a searcher would type, each answered directly in 2 to 4 sentences, suitable for FAQ structured data. Follow the FAQ mode in the request.
+- faq: real questions a searcher would type, each answered directly in 2 to 4 sentences (the first sentence is the direct answer), suitable for FAQ structured data. Follow the FAQ mode in the request.
+- keyTakeaways: 3 to 5 short, self-contained points that summarise the article, with a natural heading for them in takeawaysHeading. They appear right after the opening paragraph.
+- The request also contains an <seo_playbook>. It is part of the required output format: follow it together with these rules.
 - cta: a heading and a short paragraph that follow the CTA instructions and match the article's intent, in natural language for that market, never a literal translation of a generic CTA.
 - imageConcept: 2 to 4 sentences in English describing the visual plan for this article: the featured/hero image (subject and mood), one or two supporting images or diagrams tied to specific sections when they would genuinely help explain the content, and whether a chart, comparison table or process diagram would help (name the type and what it would show, using only figures given in the brief or clearly labeled as illustrative). Do not propose decorative images that add nothing.
 - imageQuery: 2 to 4 plain English words for a stock-photo search that would find a fitting featured photo (a concrete, photographable subject such as "shop window night" or "team laptop meeting", not an abstract idea or a brand name).
@@ -68,6 +71,8 @@ export const ARTICLE_JSON_SCHEMA = {
     category: { type: "string" },
     tags: { type: "array", items: { type: "string" } },
     keywords: { type: "array", items: { type: "string" } },
+    keyTakeaways: { type: "array", items: { type: "string" } },
+    takeawaysHeading: { type: "string" },
     blocks: {
       type: "array",
       items: {
@@ -119,6 +124,8 @@ export const ARTICLE_JSON_SCHEMA = {
     "category",
     "tags",
     "keywords",
+    "keyTakeaways",
+    "takeawaysHeading",
     "blocks",
     "faq",
     "cta",
@@ -213,6 +220,8 @@ export function buildArticlePrompt(req: ArticleRequest): { system: string; user:
     `<target_words>${len.words}</target_words>`,
     c.tone ? `<tone>${c.tone}</tone>` : "",
     c.seoInstructions ? `<seo_instructions>${c.seoInstructions}</seo_instructions>` : "",
+    // Always appended in code: the editable system prompt can be replaced, the playbook cannot be lost that way.
+    seoPlaybook(String(req.language)),
     c.ctaInstructions ? `<cta_instructions>${c.ctaInstructions}</cta_instructions>` : "",
     c.requiredSections.length
       ? `<required_sections>\n${c.requiredSections.join("\n")}\n</required_sections>\nEvery required section must appear as its own heading. In requiredSections, report the exact heading text you used for each one.`
@@ -221,7 +230,7 @@ export function buildArticlePrompt(req: ArticleRequest): { system: string; user:
     req.notes?.trim() ? `<brief>${req.notes.trim()}</brief>` : "",
     `<allowed_links>${links.length ? links.map((l) => (l.note ? `${l.href} (${l.note})` : l.href)).join("\n") : "none"}</allowed_links>`,
     "",
-    `Write the article now: about ${len.words} words of body text in blocks, plus the FAQ and call to action as separate fields.`,
+    `Write the article now: about ${len.words} words of body text in blocks, plus the key takeaways, the FAQ and the call to action as separate fields.`,
   ];
   return {
     system: c.systemPrompt.trim() || DEFAULT_SYSTEM_PROMPT,
