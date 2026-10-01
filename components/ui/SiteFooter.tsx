@@ -29,7 +29,7 @@ export function SiteFooter({ locale = "en" }: { locale?: string }) {
 
   const platformGroup = nv.groups[0];
   const enginesGroup = nv.groups.find((g) => g.id === "engines");
-  const [howItWorks, , reports, blog] = nv.links;
+  const [howItWorks, , reports] = nv.links;
   const methodology = p("/en/methodology");
 
   const unique = (links: FooterLink[]) => links.filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i);
@@ -64,8 +64,6 @@ export function SiteFooter({ locale = "en" }: { locale?: string }) {
     {
       title: c.company,
       links: [
-        // The blog is not locale-prefixed and stays "Blog" in every language, same as the header.
-        { label: blog.label, href: blog.href },
         { label: nv.signIn.label, href: nv.signIn.href },
         { label: c.privacy, href: p("/en/privacy") },
         { label: c.emailUs, href: `mailto:${CONTACT.email}`, external: true },

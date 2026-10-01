@@ -2012,8 +2012,6 @@ export function localizeNav(localeValue: string) {
       { ...nav.links[0], label: navText.how || nav.links[0].label, href: localizePath(nav.links[0].href, locale) },
       { ...nav.links[1], label: navText.methodology || nav.links[1].label, href: localizePath(nav.links[1].href, locale) },
       { ...nav.links[2], label: navText.reports || nav.links[2].label, href: localizePath(nav.links[2].href, locale) },
-      // Href is left as-is (not localizePath'd) — the blog has no per-locale routes.
-      { ...nav.links[3], label: navText.blog || nav.links[3].label, href: nav.links[3].href },
     ],
     signIn: { ...nav.signIn, label: navText.signIn || nav.signIn.label, href: localizePath(nav.signIn.href, locale) },
     cta: { ...nav.cta, label: navText.cta || nav.cta.label, href: localizePath(nav.cta.href, locale) },

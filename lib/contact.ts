@@ -1,7 +1,4 @@
-/**
- * Contact details and meeting-subject choices shown on /briefing.
- * The email is where the request form delivers (see lib/services/mailer.ts).
- */
+/** Contact details shown on /briefing. */
 export const CONTACT = {
   email: "georepute@gmail.com",
   phone: "972-55-6-800-600",
@@ -10,11 +7,5 @@ export const CONTACT = {
   headquarters: "Global Remote-first",
 } as const;
 
-export const MEETING_SUBJECTS = [
-  "Request a demo",
-  "Election",
-  "Partnership opportunities",
-  "Pricing and plans",
-  "Product question",
-  "Something else",
-] as const;
+/** Calendly page embedded on /briefing. Set to null to show the contact details only. */
+export const CALENDLY_URL: string | null = "https://calendly.com/georepute/30min";

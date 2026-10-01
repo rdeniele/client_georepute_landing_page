@@ -92,8 +92,6 @@ export const nav = {
     { label: "How It Works", href: "/en/how-it-works" },
     { label: "Methodology", href: "/en/methodology" },
     { label: "Intelligence Reports", href: "/en/reports" },
-    // Not locale-prefixed: the blog isn't translated, unlike the rest of the site.
-    { label: "Blog", href: "/blog" },
   ],
   signIn: { label: "Sign In", href: "/en/signin" },
   cta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },

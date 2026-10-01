@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Envelope, MapPin, Phone, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import { Crumbs, PageHero } from "@/components/subpages/kit";
-import { BriefingTabs } from "@/components/forms/BriefingTabs";
-import { CONTACT } from "@/lib/contact";
+import { BriefingBooking } from "@/components/forms/BriefingBooking";
+import { CALENDLY_URL, CONTACT } from "@/lib/contact";
 import { getBriefingCopy } from "@/lib/subpages/briefing";
-import { getCalendlyUrl } from "@/lib/services/calendly";
 import { LOCALES } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
@@ -15,15 +14,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return LOCALES.includes(locale as (typeof LOCALES)[number]) ? pageMetadata(locale, "briefing") : {};
 }
 
-// Reads server env at request time, so the Calendly link follows the deployment's settings rather than the build's.
-export const dynamic = "force-dynamic";
-
 export default async function BriefingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!LOCALES.includes(locale as (typeof LOCALES)[number])) notFound();
 
   const c = getBriefingCopy(locale);
-  const calendlyUrl = getCalendlyUrl();
   const rows = [
     { label: c.contactLabels.email, value: CONTACT.email, href: `mailto:${CONTACT.email}`, Icon: Envelope },
     { label: c.contactLabels.phone, value: CONTACT.phone, href: CONTACT.phoneHref, Icon: Phone },
@@ -79,7 +74,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ local
               </a>
             </>
           }
-          aside={<BriefingTabs locale={locale} calendlyUrl={calendlyUrl} booking={c.booking} tabs={c.tabs} />}
+          aside={CALENDLY_URL ? <BriefingBooking locale={locale} calendlyUrl={CALENDLY_URL} booking={c.booking} /> : undefined}
         />
       </div>
     </SiteShell>

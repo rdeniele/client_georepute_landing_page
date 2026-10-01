@@ -1,12 +1,5 @@
 import type { NextConfig } from "next";
 
-// Blog featured images render via plain <img> today, so this isn't required
-// yet — but it's here so Supabase Storage URLs work out of the box the
-// moment this project switches any of those to next/image's <Image>.
-const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
-  : undefined;
-
 // Baseline hardening headers for every route. Deliberately no Content-Security-Policy yet: a correct one
 // needs nonces for the inline theme script and JSON-LD plus allowances for the Calendly embed and the
 // intro video, and should be introduced in report-only mode and tested first.
@@ -33,15 +26,6 @@ const nextConfig: NextConfig = {
         pathname: "/screenshots/**",
       },
     ],
-    remotePatterns: supabaseHostname
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseHostname,
-            pathname: "/storage/v1/object/public/**",
-          },
-        ]
-      : [],
   },
 };
 
