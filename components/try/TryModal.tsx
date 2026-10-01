@@ -5,9 +5,8 @@ import { createPortal } from "react-dom";
 import { tryTool as base } from "@/lib/content";
 import { TRY_OPEN_EVENT } from "@/lib/tryModal";
 import { Button } from "@/components/ui/Button";
-import { lockScroll } from "@/components/intro/IntroModal";
+import { lockScroll } from "@/lib/scrollLock";
 import { getLocaleCopy } from "@/lib/i18n";
-import { getIntroCopy } from "@/lib/intro";
 import { debugLog } from "@/lib/debugLog";
 
 /**
@@ -34,7 +33,7 @@ type Visibility = "closed" | "open" | "closing";
 export function TryModal({ locale = "en" }: { locale?: string }) {
   const c = getLocaleCopy(locale).tryTool;
   const outOf100 = getLocaleCopy(locale).executive.outOf100;
-  const closeLabel = getIntroCopy(locale).close;
+  const closeLabel = "Close";
   const [visibility, setVisibility] = useState<Visibility>("closed");
   const [domain, setDomain] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");

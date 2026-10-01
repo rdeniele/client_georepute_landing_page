@@ -7,7 +7,6 @@ import { Navigation } from "@/components/ui/Navigation";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { LocaleAttributes } from "@/components/ui/LocaleAttributes";
 import { IntelligenceCanvas } from "@/components/three/IntelligenceCanvas";
-import { IntroModal } from "@/components/intro/IntroModal";
 import { TryModal } from "@/components/try/TryModal";
 
 export function SiteShell({
@@ -34,7 +33,6 @@ export function SiteShell({
       <main id="main" className="content">
         {children}
       </main>
-      <IntroModal locale={locale} />
       <TryModal locale={locale} />
     </ScrollProvider>
   );

@@ -6,7 +6,6 @@ import { BandNetwork } from "@/components/ui/BandNetwork";
 import { Typewriter } from "@/components/ui/Typewriter";
 import { getLocaleCopy, localizePath, normalizeLocale } from "@/lib/i18n";
 import { HeroScrollFx } from "@/components/sections/HeroScrollFx";
-import { IntroTrigger } from "@/components/intro/IntroModal";
 import {
   MagnifyingGlass,
   Brain,
@@ -116,7 +115,6 @@ export function Hero({ locale = "en" }: { locale?: string }) {
               <Button href={copy.secondaryCta.href} variant="ghost">
                 {copy.secondaryCta.label}
               </Button>
-              <IntroTrigger locale={locale} className="hero__intro" />
             </div>
           </div>
 
