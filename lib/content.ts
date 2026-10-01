@@ -105,9 +105,9 @@ export const hero = {
   supporting:
     "It connects hundreds of signals and analyses across the company, market, competitors, customers, demand, performance, Google, AI engines and historical activity, then turns them into one strategic picture, business implications, priorities and next moves.",
   /** Internal path, localized at render via localizePath(). */
-  primaryCta: { label: "Explore the Platform", href: "/en/app/reconstruct" },
+  primaryCta: { label: "Explore the Platform", href: "#platform-flow" },
   /** Interim booking destination until a real calendar tool is wired up — see components/subpages/kit.tsx MEETING_HREF. */
-  secondaryCta: { label: "Book a Live Demo", href: "/en/briefing" },
+  secondaryCta: { label: "Get in touch", href: "mailto:georepute@gmail.com" },
   scrollHint: "Enter the system",
 } as const;
 
@@ -459,7 +459,7 @@ export const decisionGraph = {
 } as const;
 
 export const executive = {
-  index: "09",
+  index: "03",
   label: "Executive intelligence",
   headline: "Ten measures, one decision position.",
   body: "Each measure opens its own evidence. The position is what the board actually asks for.",
@@ -551,13 +551,13 @@ export const tryTool = {
 } as const;
 
 export const finalCta = {
-  index: "11",
+  index: "04",
   label: "Analyze my business",
   headline: "The decision is already happening.",
   body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
   primaryCta: { label: "Analyze My Business", href: "https://www.georepute.ai/signup" },
   /** Interim booking destination until a real calendar tool is wired up — see components/subpages/kit.tsx MEETING_HREF. */
-  secondaryCta: { label: "Book a Live Demo", href: "/en/briefing" },
+  secondaryCta: { label: "Get in touch", href: "mailto:georepute@gmail.com" },
 } as const;
 
 export const footer = {

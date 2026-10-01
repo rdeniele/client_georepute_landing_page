@@ -7,16 +7,9 @@ import "./globals.css";
 import "./ui.css";
 import "./sections.css";
 import "./bands.css";
-import "./subpages.css";
-import "./warroom.css";
-import "./kit.css";
-import "./pages-engines.css";
-import "./pages-product.css";
-import "./pages-info.css";
 import "./intro.css";
 import "./trymodal.css";
 import "./cookies.css";
-import "./reports.css";
 
 const display = Inter_Tight({
   subsets: ["latin"],

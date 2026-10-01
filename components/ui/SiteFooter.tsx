@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { CONTACT } from "@/lib/contact";
 import logo from "@/public/brand/logo-g-mark.png";
-import { footer as f } from "@/lib/content";
-import { getLocaleCopy, localizeNav, localizePath, normalizeLocale } from "@/lib/i18n";
+import { footer as f, nav } from "@/lib/content";
+import { getLocaleCopy, normalizeLocale } from "@/lib/i18n";
 
 type FooterLink = { label: string; href: string; external?: boolean };
 
@@ -24,48 +24,12 @@ const ECOSYSTEM = [
 export function SiteFooter({ locale = "en" }: { locale?: string }) {
   const loc = normalizeLocale(locale);
   const c = getLocaleCopy(locale).footer;
-  const nv = localizeNav(locale);
-  const p = (path: string) => localizePath(path, loc);
-
-  const platformGroup = nv.groups[0];
-  const enginesGroup = nv.groups.find((g) => g.id === "engines");
-  const [howItWorks, , reports] = nv.links;
-  const methodology = p("/en/methodology");
-
-  const unique = (links: FooterLink[]) => links.filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i);
+  const nv = { cta: nav.cta };
 
   const columns: { title: string; links: FooterLink[] }[] = [
     {
-      title: c.product,
-      links: unique([
-        ...platformGroup.items.map((i) => ({ label: i.name, href: i.href })),
-        { label: c.bookDemo, href: p("/en/briefing") },
-      ]),
-    },
-    {
-      title: c.intelligence,
-      links: unique([
-        ...(enginesGroup && "more" in enginesGroup ? [{ label: enginesGroup.label, href: enginesGroup.more.href }] : []),
-        ...(enginesGroup ? enginesGroup.items.map((i) => ({ label: i.name, href: i.href })) : []),
-        { label: reports.label, href: reports.href },
-      ]),
-    },
-    {
-      title: c.methodology,
-      links: [
-        { label: howItWorks.label, href: howItWorks.href },
-        { label: c.geon, href: `${methodology}#geon` },
-        { label: c.evidence, href: `${methodology}#evidence` },
-        { label: c.confidence, href: `${methodology}#confidence` },
-        { label: c.financial, href: `${methodology}#financial` },
-        { label: c.limits, href: `${methodology}#limits` },
-      ],
-    },
-    {
       title: c.company,
       links: [
-        { label: nv.signIn.label, href: nv.signIn.href },
-        { label: c.privacy, href: p("/en/privacy") },
         { label: c.emailUs, href: `mailto:${CONTACT.email}`, external: true },
         { label: c.whatsapp, href: CONTACT.whatsappHref, external: true },
         { label: nv.cta.label, href: nv.cta.href, external: true },
@@ -77,7 +41,7 @@ export function SiteFooter({ locale = "en" }: { locale?: string }) {
     <footer className="foot">
       <div className="shell foot__shell">
         <div className="foot__intro">
-          <Link href={`/${loc}`} className="foot__brand" aria-label={`${f.brand} home`}>
+          <Link href="#top" className="foot__brand" aria-label={`${f.brand} home`}>
             <Image src={logo} alt="" width={40} height={40} className="foot__logo" />
           </Link>
           <span className="foot__powered">{c.poweredBy}</span>

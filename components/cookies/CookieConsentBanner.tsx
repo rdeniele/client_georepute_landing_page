@@ -79,8 +79,7 @@ export function CookieConsentBanner() {
     <div className="cookiebar" role="region" aria-label="Cookie notice">
       <p className="cookiebar__body">
         This site uses necessary and preference cookies / local storage, things like your theme, language and this
-        choice. There&apos;s no third-party analytics or ad tracking.{" "}
-        <a href={`/${locale}/privacy`}>Read the privacy &amp; cookie policy</a>.
+        choice. There&apos;s no third-party analytics or ad tracking.
       </p>
       <div className="cookiebar__actions">
         <button type="button" className="btn btn--ghost cookiebar__btn" onClick={() => decide("necessary")}>

@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { photos, type PhotoId } from "@/lib/photos";
 import { BandNetwork } from "./BandNetwork";
-import { normalizeLocale } from "@/lib/i18n";
 
 /**
  * A photographic plate.
@@ -39,13 +38,8 @@ export function EditorialPhoto({
   children?: React.ReactNode;
 }) {
   const p = photos[slot];
-  const isHebrew = normalizeLocale(locale) === "he";
-  const placeholderTag = isHebrew ? "תמונה בהמתנה" : "IMAGE PLACEHOLDER";
-  const placeholderSpec = isHebrew
-    ? slot === "decision"
-      ? "הקשר לקוח אמיתי, אדם משווה אפשרויות, מחפש, שואל ומחליט. אנושי ולא מבוים."
-      : "סביבת עסק או לקוח אמיתית, אנשים בעבודה, פגישה, מקום פיזי או החלטה שמתקבלת."
-    : p.spec.subject;
+  const placeholderTag = "IMAGE PLACEHOLDER";
+  const placeholderSpec = p.spec.subject;
 
   return (
     <figure
