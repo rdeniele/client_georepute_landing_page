@@ -377,7 +377,7 @@ const en: Copy = {
     headline: "The decision is already happening.",
     body: "GeoRepute shows you where it happens, why it moves, and what to change next.",
     primaryCta: "Analyze My Business",
-    secondaryCta: "Book a Live Demo",
+    secondaryCta: "Get in touch",
     ctaSupporting: "Start with a complete business, market, competitor, Google and AI analysis. GeoRepute turns the findings into opportunities, priorities, strategy and an actionable work plan.",
   },
   tryTool: {

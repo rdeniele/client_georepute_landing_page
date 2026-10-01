@@ -62,7 +62,7 @@ export function FinalCta({ locale = "en" }: { locale?: string }) {
         </p>
       </div>
 
-      <SiteFooter locale={locale} />
+      <SiteFooter />
     </section>
   );
 }
